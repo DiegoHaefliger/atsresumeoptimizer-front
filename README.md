@@ -39,3 +39,9 @@ npm run gen:api
 
 O arquivo gerado é versionado no repositório (o build do front não depende
 de um backend no ar).
+
+
+## Licença
+
+[PolyForm Noncommercial 1.0.0](LICENSE). Uso, estudo e modificação livres para fins não comerciais. Vender,
+revender ou embutir em produto ou serviço pago não é permitido.
