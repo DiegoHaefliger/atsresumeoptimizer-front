@@ -1,0 +1,36 @@
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AppHeader } from "./components/AppHeader";
+import { ScrollToTop } from "./components/ScrollToTop";
+import { UploadPage } from "./pages/UploadPage";
+import { ResultPage } from "./pages/ResultPage";
+import { RewritePage } from "./pages/RewritePage";
+import { JobEditPage } from "./pages/JobEditPage";
+import { JobFormPage } from "./pages/JobFormPage";
+import { JobsPage } from "./pages/JobsPage";
+import { PreferencesPage } from "./pages/PreferencesPage";
+import { ResumesPage } from "./pages/ResumesPage";
+import { ResumeEditPage } from "./pages/ResumeEditPage";
+import { SettingsPage } from "./pages/SettingsPage";
+
+export default function App() {
+	return (
+		<>
+			<ScrollToTop />
+			<AppHeader />
+			<Routes>
+				<Route path="/upload" element={<UploadPage />} />
+				<Route path="/jobs" element={<JobsPage />} />
+				<Route path="/jobs/new" element={<JobFormPage />} />
+				<Route path="/jobs/:jobId/edit" element={<JobEditPage />} />
+				<Route path="/resumes" element={<ResumesPage />} />
+				<Route path="/resumes/new" element={<Navigate to="/resumes" replace />} />
+				<Route path="/resumes/:resumeId/edit" element={<ResumeEditPage />} />
+				<Route path="/analyses/:id" element={<ResultPage />} />
+				<Route path="/analyses/:id/rewrite" element={<RewritePage />} />
+				<Route path="/preferences" element={<PreferencesPage />} />
+				<Route path="/settings" element={<SettingsPage />} />
+				<Route path="*" element={<Navigate to="/upload" replace />} />
+			</Routes>
+		</>
+	);
+}
