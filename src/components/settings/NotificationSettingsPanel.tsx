@@ -1,12 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
-import { apiGet, apiPutJson, errorMessage } from "../api/client";
-import type { NotificationChannel, NotificationSettings } from "../api/types";
-import { LeadTimeEditor } from "../components/LeadTimeEditor";
-import { Skeleton } from "../components/Skeleton";
-import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon } from "../components/icons";
-import { NOTIFICATION_SETTINGS_PATH } from "../lib/notificationsPath";
+import { apiGet, apiPutJson, errorMessage } from "../../api/client";
+import type { NotificationChannel, NotificationSettings } from "../../api/types";
+import { LeadTimeEditor } from "../LeadTimeEditor";
+import { Skeleton } from "../Skeleton";
+import { StateMessage } from "../StateMessage";
+import { NOTIFICATION_SETTINGS_PATH } from "../../lib/notificationsPath";
 
 const CHANNEL_LABELS: Record<NotificationChannel, string> = {
 	IN_APP: "No aplicativo",
@@ -16,7 +14,7 @@ const CHANNEL_LABELS: Record<NotificationChannel, string> = {
 
 const TIMEZONES = Intl.supportedValuesOf("timeZone");
 
-export function NotificationSettingsPage() {
+export function NotificationSettingsPanel() {
 	const [settings, setSettings] = useState<NotificationSettings | null>(null);
 	const [loadFailed, setLoadFailed] = useState(false);
 	const [saving, setSaving] = useState(false);
@@ -56,20 +54,11 @@ export function NotificationSettingsPage() {
 	}
 
 	return (
-		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Configurações</span>
-					<h1>Notificações</h1>
-					<p className="page-subtitle">Defina com quanto tempo de antecedência quer ser avisado dos seus agendamentos.</p>
-				</div>
-				<Link to="/notifications" className="page-back">
-					<ArrowLeftIcon /> Notificações
-				</Link>
-			</header>
+		<>
+			<p className="page-subtitle">Defina com quanto tempo de antecedência quer ser avisado dos seus agendamentos.</p>
 
 			{loadFailed ? (
-				<StateMessage variant="error" layout="page" message="Não deu pra carregar as configurações." action={{ label: "Voltar", to: "/notifications" }} />
+				<StateMessage variant="error" layout="page" message="Não deu pra carregar as configurações." action={{ label: "Ver notificações", to: "/notifications" }} />
 			) : !settings ? (
 				<div role="status" aria-busy="true">
 					<span className="sr-only">Carregando configurações...</span>
@@ -121,6 +110,6 @@ export function NotificationSettingsPage() {
 					</div>
 				</form>
 			)}
-		</div>
+		</>
 	);
 }

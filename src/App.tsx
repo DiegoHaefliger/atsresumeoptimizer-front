@@ -15,7 +15,6 @@ import { ResumeEditPage } from "./pages/ResumeEditPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
-import { NotificationSettingsPage } from "./pages/NotificationSettingsPage";
 import { ProcessRedirectPage } from "./pages/ProcessRedirectPage";
 
 export default function App() {
@@ -37,7 +36,7 @@ export default function App() {
 				<Route path="/preferences" element={<PreferencesPage />} />
 				<Route path="/prompts" element={<PromptsPage />} />
 				<Route path="/settings" element={<SettingsPage />} />
-				<Route path="/settings/notifications" element={<NotificationSettingsPage />} />
+				<Route path="/settings/notifications" element={<SettingsPage />} />
 				<Route path="/notifications" element={<NotificationsPage />} />
 				<Route path="/calendar" element={<CalendarPage />} />
 				<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
