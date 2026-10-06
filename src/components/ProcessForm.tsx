@@ -26,6 +26,18 @@ export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onS
 		setDraft((current) => ({ ...current, [field]: value }));
 	}
 
+	function selectJob(jobPostingId: string) {
+		const interviewUrlOf = (id: string) => jobs?.find((job) => job.id === id)?.interviewUrl ?? "";
+		setDraft((current) => {
+			const untouched = current.processUrl === "" || current.processUrl === interviewUrlOf(current.jobPostingId);
+			return {
+				...current,
+				jobPostingId,
+				processUrl: untouched ? interviewUrlOf(jobPostingId) : current.processUrl,
+			};
+		});
+	}
+
 	async function handleSubmit(event: FormEvent) {
 		event.preventDefault();
 		if (!draft.jobPostingId) {
@@ -49,7 +61,7 @@ export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onS
 					Vaga
 					<select
 						value={draft.jobPostingId}
-						onChange={(event) => update("jobPostingId", event.target.value)}
+						onChange={(event) => selectJob(event.target.value)}
 						required
 						disabled={saving || (jobs?.length ?? 0) === 0}
 					>
