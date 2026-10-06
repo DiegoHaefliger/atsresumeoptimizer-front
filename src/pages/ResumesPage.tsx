@@ -68,7 +68,7 @@ export function ResumesPage() {
 					Novo currículo
 				</h2>
 				<div className="preview-toolbar">
-					<SegmentedTabs label="Como cadastrar" options={MODE_OPTIONS} value={mode} onChange={setMode} spaced />
+					<SegmentedTabs label="Como cadastrar" options={MODE_OPTIONS} value={mode} onChange={setMode} />
 				</div>
 
 				{mode === "upload" ? (
@@ -91,7 +91,6 @@ export function ResumesPage() {
 						]}
 						value={libraryTab}
 						onChange={setLibraryTab}
-						spaced
 					/>
 				</div>
 				<p className="field-hint">{LIBRARY_TABS[libraryTab].hint}</p>

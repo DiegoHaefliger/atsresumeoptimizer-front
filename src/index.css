@@ -1218,22 +1218,21 @@ ul {
 
 .segmented {
 	display: inline-flex;
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	overflow: hidden;
-	background: var(--surface);
+	flex-wrap: wrap;
+	gap: var(--space-2);
 }
 
 .segmented button {
-	background: transparent;
+	background: var(--surface);
 	color: var(--text-muted);
-	border: none;
-	border-radius: 0;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
 	padding: var(--space-2) var(--space-4);
 	font-weight: var(--font-weight-semibold);
 }
 
 .segmented button.segmented-active {
+	border-color: var(--brand-600);
 	background: var(--brand-600);
 	color: var(--accent-text);
 }
@@ -2574,26 +2573,6 @@ legend {
 
 .form-narrow {
 	max-width: 820px;
-}
-
-.segmented-spaced {
-	flex-wrap: wrap;
-	gap: var(--space-2);
-	border: none;
-	border-radius: 0;
-	overflow: visible;
-	background: transparent;
-}
-
-.segmented-spaced button {
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
-}
-
-.segmented-spaced button.segmented-active {
-	border-color: var(--brand-600);
-	background: var(--brand-600);
 }
 
 .saved-resume-actions {

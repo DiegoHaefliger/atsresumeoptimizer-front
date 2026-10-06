@@ -28,7 +28,7 @@ export function SettingsPage() {
 					<h1>{tab === "ai" ? "Inteligência artificial" : "Notificações"}</h1>
 				</div>
 			</header>
-			<SegmentedTabs label="Seções de configuração" options={TAB_OPTIONS} value={tab} onChange={(next) => navigate(TAB_PATHS[next])} spaced />
+			<SegmentedTabs label="Seções de configuração" options={TAB_OPTIONS} value={tab} onChange={(next) => navigate(TAB_PATHS[next])} />
 			{tab === "ai" ? <AiSettingsPanel /> : <NotificationSettingsPanel />}
 		</div>
 	);

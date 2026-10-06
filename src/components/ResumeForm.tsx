@@ -109,7 +109,7 @@ export function ResumeForm({ initial, submitLabel, onSave, onDirtyChange }: Resu
 			<TemplatePicker value={template} onChange={changed(setTemplate)} />
 
 			<div className="preview-toolbar">
-				<SegmentedTabs label="Modo" options={VIEW_OPTIONS} value={view} onChange={setView} spaced />
+				<SegmentedTabs label="Modo" options={VIEW_OPTIONS} value={view} onChange={setView} />
 			</div>
 
 			{view === "edit" ? (

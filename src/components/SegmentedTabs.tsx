@@ -3,12 +3,11 @@ type SegmentedTabsProps<T extends string> = {
 	options: { value: T; label: string }[];
 	value: T;
 	onChange: (value: NoInfer<T>) => void;
-	spaced?: boolean;
 };
 
-export function SegmentedTabs<T extends string>({ label, options, value, onChange, spaced = false }: SegmentedTabsProps<T>) {
+export function SegmentedTabs<T extends string>({ label, options, value, onChange }: SegmentedTabsProps<T>) {
 	return (
-		<div className={`segmented${spaced ? " segmented-spaced" : ""}`} role="tablist" aria-label={label}>
+		<div className="segmented" role="tablist" aria-label={label}>
 			{options.map((option) => (
 				<button
 					key={option.value}
