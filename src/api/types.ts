@@ -126,11 +126,6 @@ export type CalendarEvent = {
 	notes: string | null;
 };
 
-export type CalendarFeedInfo = {
-	enabled: boolean;
-	path: string | null;
-};
-
 export type AppNotification = {
 	id: string;
 	type: "SCHEDULE_REMINDER";
@@ -156,7 +151,5 @@ export type NotificationSettingsRequest = Pick<NotificationSettings, "leadMinute
 export type GoogleCalendarStatus = {
 	configured: boolean;
 	connected: boolean;
-	clientId: string | null;
 	accountEmail: string | null;
-	redirectUri: string;
 };

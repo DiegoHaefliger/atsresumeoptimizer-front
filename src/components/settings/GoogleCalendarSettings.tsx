@@ -4,15 +4,12 @@ import { errorMessage } from "../../api/client";
 import { useGoogleCalendar } from "../../lib/useGoogleCalendar";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { StateMessage } from "../StateMessage";
-import { GoogleCredentialsForm } from "./GoogleCredentialsForm";
-
-type Pending = "disconnect" | "remove";
 
 export function GoogleCalendarSettings() {
-	const { status, failed, reload, saveCredentials, removeCredentials, connect, sync, disconnect } = useGoogleCalendar();
+	const { status, failed, reload, connect, sync, disconnect } = useGoogleCalendar();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [returned] = useState(() => searchParams.get("google"));
-	const [pending, setPending] = useState<Pending | null>(null);
+	const [confirming, setConfirming] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -28,9 +25,8 @@ export function GoogleCalendarSettings() {
 		setMessage(null);
 		setBusy(true);
 		try {
-			const result = await action();
-			setMessage(result ?? null);
-			setPending(null);
+			setMessage((await action()) ?? null);
+			setConfirming(false);
 		} catch (err) {
 			setError(errorMessage(err, failure));
 		} finally {
@@ -40,78 +36,69 @@ export function GoogleCalendarSettings() {
 
 	if (failed) {
 		return (
-			<fieldset className="job-details">
-				<legend>Google Agenda</legend>
+			<section className="panel panel-body form form-narrow">
 				<StateMessage variant="error" layout="inline" message="Não deu pra carregar a integração com o Google." />
 				<button type="button" className="btn-secondary btn-small" onClick={reload}>
 					Tentar de novo
 				</button>
-			</fieldset>
+			</section>
 		);
+	}
+	if (!status?.configured) {
+		return null;
 	}
 
 	return (
-		<fieldset className="job-details" disabled={busy || !status}>
-			<legend>Google Agenda</legend>
+		<section className="panel panel-body form form-narrow google-panel">
+			<h2>Google Agenda</h2>
 			<p className="field-hint">
-				Opcional. Conectando sua conta, cada agendamento vira um evento no Google Agenda, com os lembretes configurados
-				acima. Sem conectar, a agenda do app e o link de assinatura continuam funcionando.
+				Conecte sua conta para os agendamentos aparecerem no Google Agenda, com os lembretes configurados acima. É
+				opcional: sem conectar, a agenda do app continua funcionando.
 			</p>
 			{returned === "connected" && <StateMessage variant="empty" layout="inline" message="Conta Google conectada." />}
 			{returned === "error" && (
 				<StateMessage variant="error" layout="inline" message="Não deu pra conectar a conta Google. Tenta de novo." />
 			)}
-			{status && !status.connected && <GoogleCredentialsForm key={status.clientId ?? "new"} status={status} onSave={saveCredentials} />}
-			{status?.connected && (
+			{status.connected && (
 				<p>
 					Conectado como <strong>{status.accountEmail ?? "conta Google"}</strong>.
 				</p>
 			)}
 			{message && <StateMessage variant="empty" layout="inline" message={message} />}
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
-			{status?.configured && (
-				<div className="process-history-actions">
-					{status.connected ? (
-						<>
-							<button
-								type="button"
-								onClick={() =>
-									run(async () => `${await sync()} agendamentos sincronizados.`, "Não deu pra sincronizar. Tenta de novo.")
-								}
-							>
-								Sincronizar agora
-							</button>
-							<button type="button" className="btn-secondary" onClick={() => setPending("disconnect")}>
-								Desconectar
-							</button>
-						</>
-					) : (
-						<button type="button" onClick={() => run(connect, "Não deu pra iniciar a conexão. Tenta de novo.")}>
-							Conectar conta Google
+			<div className="process-history-actions">
+				{status.connected ? (
+					<>
+						<button
+							type="button"
+							disabled={busy}
+							onClick={() => run(async () => `${await sync()} agendamentos sincronizados.`, "Não deu pra sincronizar. Tenta de novo.")}
+						>
+							Sincronizar agora
 						</button>
-					)}
-					<button type="button" className="btn-secondary" onClick={() => setPending("remove")}>
-						Remover credenciais
+						<button type="button" className="btn-secondary" disabled={busy} onClick={() => setConfirming(true)}>
+							Desconectar
+						</button>
+					</>
+				) : (
+					<button type="button" disabled={busy} onClick={() => run(connect, "Não deu pra iniciar a conexão. Tenta de novo.")}>
+						Conectar com o Google
 					</button>
-				</div>
-			)}
+				)}
+			</div>
 			<ConfirmDialog
-				open={pending !== null}
-				title={pending === "remove" ? "Remover as credenciais do Google?" : "Desconectar a conta Google?"}
-				confirmLabel={pending === "remove" ? "Remover credenciais" : "Desconectar"}
+				open={confirming}
+				title="Desconectar a conta Google?"
+				confirmLabel="Desconectar"
 				busy={busy}
-				onConfirm={() =>
-					pending === "remove"
-						? run(removeCredentials, "Não deu pra remover as credenciais. Tenta de novo.")
-						: run(disconnect, "Não deu pra desconectar. Tenta de novo.")
-				}
-				onCancel={() => setPending(null)}
+				onConfirm={() => run(disconnect, "Não deu pra desconectar. Tenta de novo.")}
+				onCancel={() => setConfirming(false)}
 			>
 				<p>
 					O app para de sincronizar. Os eventos que já estão no Google Agenda continuam lá e podem ser apagados por
 					você.
 				</p>
 			</ConfirmDialog>
-		</fieldset>
+		</section>
 	);
 }

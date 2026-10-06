@@ -5,7 +5,6 @@ import { LeadTimeEditor } from "../LeadTimeEditor";
 import { Skeleton } from "../Skeleton";
 import { StateMessage } from "../StateMessage";
 import { NOTIFICATION_SETTINGS_PATH } from "../../lib/notificationsPath";
-import { CalendarFeedSettings } from "./CalendarFeedSettings";
 import { GoogleCalendarSettings } from "./GoogleCalendarSettings";
 
 const CHANNEL_LABELS: Record<NotificationChannel, string> = {
@@ -112,12 +111,7 @@ export function NotificationSettingsPanel() {
 					</div>
 				</form>
 			)}
-			{settings && (
-				<div className="panel panel-body form form-narrow feed-panel">
-					<GoogleCalendarSettings />
-					<CalendarFeedSettings />
-				</div>
-			)}
+			{settings && <GoogleCalendarSettings />}
 		</>
 	);
 }

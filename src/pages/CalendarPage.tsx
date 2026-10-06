@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { CalendarEventList } from "../components/CalendarEventList";
-import { CalendarFeedButton } from "../components/CalendarFeedButton";
 import { CalendarMonthGrid } from "../components/CalendarMonthGrid";
 import { CalendarWeekGrid } from "../components/CalendarWeekGrid";
 import { SegmentedTabs } from "../components/SegmentedTabs";
@@ -30,7 +29,6 @@ export function CalendarPage() {
 					<h1>Agenda dos processos</h1>
 					<p className="page-subtitle">Entrevistas e testes agendados nos seus processos seletivos.</p>
 				</div>
-				<CalendarFeedButton />
 			</header>
 
 			<div className="calendar-toolbar">
