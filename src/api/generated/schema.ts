@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/resumes/{resumeId}/favorite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["markFavorite"];
+        post?: never;
+        delete: operations["unmarkFavorite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompt-templates/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["current"];
+        put: operations["publish"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{id}": {
         parameters: {
             query?: never;
@@ -45,6 +77,22 @@ export interface paths {
         };
         get: operations["get"];
         put: operations["save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{id}/keywords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["updateKeywords"];
         post?: never;
         delete?: never;
         options?: never;
@@ -94,6 +142,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["createFromExistingVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resumes/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["preview"];
         delete?: never;
         options?: never;
         head?: never;
@@ -244,6 +308,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/resumes/{resumeId}/versions/{versionId}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/resumes/{resumeId}/versions/{versionId}/download": {
         parameters: {
             query?: never;
@@ -260,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/prompt-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompt-templates/{key}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompt-templates/{key}/versions/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses/{id}": {
         parameters: {
             query?: never;
@@ -268,6 +396,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["get_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{id}/rewrite/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["progress"];
         put?: never;
         post?: never;
         delete?: never;
@@ -458,8 +602,20 @@ export interface components {
             resumeId?: string;
             documents?: components["schemas"]["DocumentDownloadsView"];
         };
+        PromptTemplateRequest: {
+            content: string;
+        };
+        PromptTemplateView: {
+            key?: string;
+            /** Format: int32 */
+            version?: number;
+            model?: string;
+            content?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         CreateJobRequest: {
-            text?: string;
+            text: string;
             company?: string;
             sourceUrl?: string;
             /** @enum {string} */
@@ -501,6 +657,10 @@ export interface components {
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
         };
+        AnalysisKeywordsRequest: {
+            keywords: string[];
+            selected: string[];
+        };
         AiProviderRequest: {
             /** @enum {string} */
             provider: "OPENAI" | "ANTHROPIC" | "GEMINI" | "OLLAMA" | "OPENAI_COMPATIBLE";
@@ -516,7 +676,7 @@ export interface components {
             maxOutputTokens?: number;
             /** Format: int32 */
             timeoutSeconds?: number;
-            providers?: components["schemas"]["AiProviderRequest"][];
+            providers: components["schemas"]["AiProviderRequest"][];
         };
         AiProviderView: {
             /** @enum {string} */
@@ -634,7 +794,7 @@ export interface components {
             provider: "OPENAI" | "ANTHROPIC" | "GEMINI" | "OLLAMA" | "OPENAI_COMPATIBLE";
             apiKey?: string;
             baseUrl?: string;
-            model?: string;
+            model: string;
             heavyModel?: string;
             temperature: number;
             /** Format: int32 */
@@ -700,6 +860,14 @@ export interface components {
             contact?: components["schemas"]["ResumeContact"];
             importedFromFile?: boolean;
         };
+        PromptTemplateSummary: {
+            key?: string;
+            /** Format: int32 */
+            version?: number;
+            model?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         AnalysisHeaderView: {
             /** Format: uuid */
             id?: string;
@@ -755,6 +923,9 @@ export interface components {
             found?: string[];
             missing?: string[];
             semanticOnly?: string[];
+            terms?: string[];
+            selected?: string[];
+            editable?: boolean;
         };
         OffsetRange: {
             /** Format: int32 */
@@ -771,6 +942,10 @@ export interface components {
             /** Format: int32 */
             overall?: number;
             dimensions?: components["schemas"]["DimensionView"][];
+        };
+        RewriteProgressView: {
+            /** @enum {string} */
+            phase?: "READING" | "REWRITING" | "CHECKING" | "EXPORTING" | "SCORING";
         };
         SseEmitter: {
             /** Format: int64 */
@@ -876,6 +1051,94 @@ export interface operations {
             };
         };
     };
+    markFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resumeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unmarkFavorite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resumeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PromptTemplateView"];
+                };
+            };
+        };
+    };
+    publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromptTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PromptTemplateView"];
+                };
+            };
+        };
+    };
     update: {
         parameters: {
             query?: never;
@@ -946,6 +1209,30 @@ export interface operations {
             };
         };
     };
+    updateKeywords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisKeywordsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     get_1: {
         parameters: {
             query?: never;
@@ -1012,7 +1299,9 @@ export interface operations {
     };
     create: {
         parameters: {
-            query?: never;
+            query?: {
+                title?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1059,6 +1348,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AnalysisCreatedResponse"];
+                };
+            };
+        };
+    };
+    preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditedDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -1288,6 +1601,31 @@ export interface operations {
             };
         };
     };
+    export: {
+        parameters: {
+            query: {
+                format: "PDF" | "DOCX";
+            };
+            header?: never;
+            path: {
+                resumeId: string;
+                versionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     download: {
         parameters: {
             query?: never;
@@ -1311,6 +1649,71 @@ export interface operations {
             };
         };
     };
+    list_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PromptTemplateSummary"][];
+                };
+            };
+        };
+    };
+    history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PromptTemplateSummary"][];
+                };
+            };
+        };
+    };
+    version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PromptTemplateView"];
+                };
+            };
+        };
+    };
     get_2: {
         parameters: {
             query?: never;
@@ -1329,6 +1732,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AnalysisReportView"];
+                };
+            };
+        };
+    };
+    progress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RewriteProgressView"];
                 };
             };
         };

@@ -28,7 +28,7 @@ async function sendJson<T>(method: "POST" | "PUT", path: string, body: unknown):
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(body),
 	});
-	return response.json();
+	return response.status === 204 ? (undefined as T) : response.json();
 }
 
 export async function apiPostForBlob(path: string, body: unknown): Promise<Blob> {

@@ -51,3 +51,7 @@ export type ResumeSummary = components["schemas"]["ResumeSummary"];
 export type ResumeOrigin = NonNullable<ResumeSummary["origin"]>;
 export type ResumeVersionSummary = components["schemas"]["ResumeVersionSummary"];
 export type EditableResumeView = components["schemas"]["EditableResumeView"];
+
+export type PromptTemplateSummary = components["schemas"]["PromptTemplateSummary"];
+export type PromptTemplateView = components["schemas"]["PromptTemplateView"];
+export type PromptTemplateRequest = components["schemas"]["PromptTemplateRequest"];
