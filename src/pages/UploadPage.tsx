@@ -10,6 +10,7 @@ import { LoadFailed } from "../components/LoadFailed";
 import { SavedResumePicker, type SavedResumeSelection } from "../components/SavedResumePicker";
 import { BusyLabel } from "../components/BusyLabel";
 import { StateMessage } from "../components/StateMessage";
+import { StepIndicator } from "../components/StepIndicator";
 import { splitByOrigin } from "../lib/resumeLabels";
 import { useJobs, type Job } from "../lib/useJobs";
 import { useResumes } from "../lib/useResumes";
@@ -18,6 +19,9 @@ const SUBMIT_LABELS: Record<AnalysisKind, string> = {
 	job: "Analisar para a vaga",
 	general: "Fazer avaliação geral",
 };
+
+const KIND_SUMMARIES: Record<AnalysisKind, string> = { job: "Para uma vaga", general: "Avaliação geral" };
+const LAST_STEP = 3;
 
 export type UploadPageState = { resumeId?: string };
 
@@ -41,6 +45,7 @@ export function UploadPage() {
 	const [targetRole, setTargetRole] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
+	const [step, setStep] = useState(1);
 	const navigate = useNavigate();
 
 	function analyzeSavedResume(selection: SavedResumeSelection, job: Job | null) {
@@ -61,8 +66,26 @@ export function UploadPage() {
 		return null;
 	}
 
+	function advance() {
+		if (step === 1 && !savedResume) {
+			setError(validationError());
+			return;
+		}
+		setError(null);
+		setStep((current) => Math.min(current + 1, LAST_STEP));
+	}
+
+	function goTo(target: number) {
+		setError(null);
+		setStep(target);
+	}
+
 	async function handleSubmit(event: FormEvent) {
 		event.preventDefault();
+		if (step < LAST_STEP) {
+			advance();
+			return;
+		}
 		const invalid = validationError();
 		if (invalid || !savedResume) {
 			setError(invalid);
@@ -81,6 +104,13 @@ export function UploadPage() {
 		}
 	}
 
+	const resumeTitle = savedResumes?.find((candidate) => candidate.id === savedResume?.resumeId)?.title;
+	const steps = [
+		{ label: "Currículo", summary: resumeTitle },
+		{ label: "Tipo de análise", summary: KIND_SUMMARIES[kind] },
+		{ label: kind === "job" ? "Vaga" : "Cargo-alvo" },
+	];
+
 	return (
 		<div className="page">
 			<header className="page-header">
@@ -95,88 +125,103 @@ export function UploadPage() {
 
 			<div className="workspace-layout">
 				<form onSubmit={handleSubmit} className="panel panel-body form">
-					<section className="form-step" aria-labelledby="step-resume">
-						<h2 id="step-resume" className="form-step-title">
-							<span className="form-step-number">1</span> Currículo
-						</h2>
-						{resumesFailed ? (
-							<LoadFailed message="Não deu pra carregar os currículos cadastrados." onRetry={reloadResumes} />
-						) : savedResumes !== null && savedResumes.length === 0 ? (
-							<div className="empty-resumes">
-								<p>Nenhum currículo cadastrado ainda.</p>
-								<Link to="/resumes" className="button-link">
-									Cadastrar currículo
-								</Link>
-							</div>
-						) : (
-							<SavedResumePicker
-								resumes={savedResumes}
-								selected={savedResume}
-								onSelect={setChosenResume}
-							/>
-						)}
-					</section>
-
-					<section className="form-step" aria-labelledby="step-kind">
-						<h2 id="step-kind" className="form-step-title">
-							<span className="form-step-number">2</span> Tipo de análise
-						</h2>
-						<AnalysisModeChoice value={kind} onChange={setKind} />
-					</section>
-
-					<section className="form-step" aria-labelledby="step-target">
-						<h2 id="step-target" className="form-step-title">
-							<span className="form-step-number">3</span>
-							{kind === "job" ? "Escolha a vaga" : "Cargo-alvo (opcional)"}
-						</h2>
-						{kind === "job" ? (
-							jobs !== null && jobs.length === 0 && !jobsFailed ? (
-								<StateMessage
-									variant="empty"
-									layout="inline"
-									message={
-										<>
-											Nenhuma vaga cadastrada. Cadastre pelo menu <Link to="/jobs">Vagas</Link>.
-										</>
-									}
-								/>
+					<StepIndicator steps={steps} current={step} onSelect={goTo} />
+					{step === 1 && (
+						<section className="form-step" aria-labelledby="step-resume">
+							<h2 id="step-resume" className="form-step-title">
+								Currículo
+							</h2>
+							{resumesFailed ? (
+								<LoadFailed message="Não deu pra carregar os currículos cadastrados." onRetry={reloadResumes} />
+							) : savedResumes !== null && savedResumes.length === 0 ? (
+								<div className="empty-resumes">
+									<p>Nenhum currículo cadastrado ainda.</p>
+									<Link to="/resumes" className="button-link">
+										Cadastrar currículo
+									</Link>
+								</div>
 							) : (
-								<JobsTable
-									jobs={jobs}
-									failed={jobsFailed}
-									onRetry={reloadJobs}
-									selectedId={selectedJobId}
-									onSelect={(job) => setSelectedJobId(job.id)}
+								<SavedResumePicker
+									resumes={savedResumes}
+									selected={savedResume}
+									onSelect={setChosenResume}
 								/>
-							)
-						) : (
-							<label>
-								<span className="sr-only">Cargo-alvo</span>
-								<input
-									value={targetRole}
-									onChange={(event) => setTargetRole(event.target.value)}
-									placeholder="Ex.: Desenvolvedor Backend Java"
-								/>
-								<span className="field-hint">
-									Usado pra montar um perfil típico do cargo e orientar a reescrita depois. A nota continua sendo a da
-									avaliação geral.
-								</span>
-							</label>
-						)}
-					</section>
+							)}
+						</section>
+					)}
+
+					{step === 2 && (
+						<section className="form-step" aria-labelledby="step-kind">
+							<h2 id="step-kind" className="form-step-title">
+								Tipo de análise
+							</h2>
+							<AnalysisModeChoice value={kind} onChange={setKind} />
+						</section>
+					)}
+
+					{step === LAST_STEP && (
+						<section className="form-step" aria-labelledby="step-target">
+							<h2 id="step-target" className="form-step-title">
+								{kind === "job" ? "Escolha a vaga" : "Cargo-alvo (opcional)"}
+							</h2>
+							{kind === "job" ? (
+								jobs !== null && jobs.length === 0 && !jobsFailed ? (
+									<StateMessage
+										variant="empty"
+										layout="inline"
+										message={
+											<>
+												Nenhuma vaga cadastrada. Cadastre pelo menu <Link to="/jobs">Vagas</Link>.
+											</>
+										}
+									/>
+								) : (
+									<JobsTable
+										jobs={jobs}
+										failed={jobsFailed}
+										onRetry={reloadJobs}
+										selectedId={selectedJobId}
+										onSelect={(job) => setSelectedJobId(job.id)}
+									/>
+								)
+							) : (
+								<label>
+									<span className="sr-only">Cargo-alvo</span>
+									<input
+										value={targetRole}
+										onChange={(event) => setTargetRole(event.target.value)}
+										placeholder="Ex.: Desenvolvedor Backend Java"
+									/>
+									<span className="field-hint">
+										Usado pra montar um perfil típico do cargo e orientar a reescrita depois. A nota continua sendo a da
+										avaliação geral.
+									</span>
+								</label>
+							)}
+						</section>
+					)}
 
 					{error && <StateMessage variant="error" layout="inline" message={error} />}
 
-					<button type="submit" disabled={submitting} className="btn-block" aria-busy={submitting}>
-						<BusyLabel busy={submitting} busyText="Enviando...">{SUBMIT_LABELS[kind]}</BusyLabel>
-					</button>
+					<div className="form-actions">
+						{step > 1 && (
+							<button type="button" className="btn-secondary" onClick={() => goTo(step - 1)} disabled={submitting}>
+								Voltar
+							</button>
+						)}
+						{step < LAST_STEP ? (
+							<button type="button" onClick={advance}>
+								Continuar
+							</button>
+						) : (
+							<button type="submit" disabled={submitting} aria-busy={submitting}>
+								<BusyLabel busy={submitting} busyText="Enviando...">{SUBMIT_LABELS[kind]}</BusyLabel>
+							</button>
+						)}
+					</div>
 				</form>
 				<aside className="workspace-aside">
-					{kind === "job" ? (
-						<JobPreview job={selectedJob} />
-					) : (
-						<GeneralAnalysisAside />
-					)}
+					{step === LAST_STEP && (kind === "job" ? <JobPreview job={selectedJob} /> : <GeneralAnalysisAside />)}
 				</aside>
 			</div>
 		</div>
