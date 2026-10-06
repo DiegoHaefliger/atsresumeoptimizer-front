@@ -55,3 +55,39 @@ export type EditableResumeView = components["schemas"]["EditableResumeView"];
 export type PromptTemplateSummary = components["schemas"]["PromptTemplateSummary"];
 export type PromptTemplateView = components["schemas"]["PromptTemplateView"];
 export type PromptTemplateRequest = components["schemas"]["PromptTemplateRequest"];
+
+export type SelectionStage =
+	| "INTERESTED"
+	| "APPLIED"
+	| "SCREENING"
+	| "TECHNICAL_TEST"
+	| "TECHNICAL_INTERVIEW"
+	| "MANAGER_INTERVIEW"
+	| "OFFER"
+	| "HIRED"
+	| "REJECTED"
+	| "WITHDRAWN";
+
+export type StageMovement = {
+	stage: SelectionStage;
+	note: string | null;
+	movedAt: string;
+};
+
+export type SelectionProcess = {
+	id: string;
+	company: string;
+	jobTitle: string;
+	jobUrl: string | null;
+	processUrl: string | null;
+	stage: SelectionStage;
+	appliedOn: string | null;
+	nextStepOn: string | null;
+	contactName: string | null;
+	contactEmail: string | null;
+	salary: number | null;
+	notes: string | null;
+	createdAt: string;
+	updatedAt: string;
+	history: StageMovement[];
+};

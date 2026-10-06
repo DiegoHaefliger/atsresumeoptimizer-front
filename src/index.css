@@ -3113,3 +3113,105 @@ legend {
 	color: var(--text-muted);
 	font-size: var(--font-size-sm);
 }
+
+/* Acompanhamento de processos seletivos */
+.process-board {
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(250px, 1fr);
+	gap: var(--space-4);
+	overflow-x: auto;
+	padding-bottom: var(--space-3);
+}
+
+.process-column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	min-width: 0;
+	padding: var(--space-3);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: color-mix(in srgb, var(--gray-500) 6%, var(--bg));
+}
+
+.process-column-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+}
+
+.process-column-count {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--text-muted);
+}
+
+.process-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-3);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.process-card-title {
+	margin: 0;
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	overflow-wrap: anywhere;
+}
+
+.process-card-company,
+.process-card-meta {
+	font-size: var(--font-size-sm);
+	color: var(--text-muted);
+}
+
+.process-card-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+	font-size: var(--font-size-sm);
+}
+
+.process-card-links .link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.process-card-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin-top: var(--space-1);
+}
+
+.process-card-actions .btn-small {
+	margin-right: auto;
+}
+
+.process-history-title {
+	margin: var(--space-5) 0 var(--space-2);
+	font-size: var(--font-size-md);
+}
+
+.process-history {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	margin: 0;
+	padding-left: var(--space-5);
+	font-size: var(--font-size-sm);
+}
+
+.process-history-date,
+.process-history-note {
+	display: block;
+	color: var(--text-muted);
+}

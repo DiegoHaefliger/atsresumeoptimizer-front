@@ -1,11 +1,12 @@
 import type { ComponentType, SVGProps } from "react";
 import { NavLink } from "react-router-dom";
-import { BriefcaseIcon, ClipboardCheckIcon, FileTextIcon, MessageSquareIcon, SettingsIcon, SlidersIcon } from "./icons";
+import { BriefcaseIcon, ClipboardCheckIcon, FileTextIcon, KanbanIcon, MessageSquareIcon, SettingsIcon, SlidersIcon } from "./icons";
 
 const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
 	{ to: "/upload", label: "Nova análise", Icon: ClipboardCheckIcon },
 	{ to: "/resumes", label: "Currículos", Icon: FileTextIcon },
 	{ to: "/jobs", label: "Vagas", Icon: BriefcaseIcon },
+	{ to: "/processes", label: "Processos", Icon: KanbanIcon },
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
