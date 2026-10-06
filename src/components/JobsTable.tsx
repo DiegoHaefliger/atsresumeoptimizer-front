@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { EMPTY_FILTERS, filterJobs, seniorityOptions, type JobFilters } from "../lib/jobFilters";
+import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
 import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
@@ -32,7 +32,11 @@ function jobMeta(job: Job): string {
 export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, selectedId, onSelect }: JobsTableProps) {
 	const hasActions = Boolean(onRemove || onPreview || onEdit);
 	const [removingId, setRemovingId] = useState<string | null>(null);
-	const [filters, setFilters] = useState<JobFilters>(EMPTY_FILTERS);
+	const [filters, setFilters] = useState<JobFilters>(loadFilters);
+	function changeFilters(next: JobFilters) {
+		setFilters(next);
+		saveFilters(next);
+	}
 	const seniorities = useMemo(() => seniorityOptions(jobs ?? []), [jobs]);
 	const visibleJobs = useMemo(() => filterJobs(jobs ?? [], filters), [jobs, filters]);
 
@@ -71,7 +75,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 		<>
 			<JobFiltersBar
 				filters={filters}
-				onChange={setFilters}
+				onChange={changeFilters}
 				seniorities={seniorities}
 				shown={visibleJobs.length}
 				total={jobs.length}

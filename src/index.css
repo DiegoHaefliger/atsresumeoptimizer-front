@@ -3054,20 +3054,39 @@ legend {
 
 .job-filters {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: var(--space-2);
 	align-items: center;
 	margin-bottom: var(--space-3);
+}
+
+.job-filters label {
+	gap: 0;
+	font-weight: normal;
 }
 
 .job-filters-query {
 	grid-column: 1 / -1;
 }
 
+.job-filters-query input {
+	padding-left: var(--space-8, 36px);
+	background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 12px center;
+}
+
+.job-filters select.is-active {
+	border-color: var(--accent);
+	background-color: color-mix(in srgb, var(--accent) 8%, var(--surface));
+	font-weight: var(--font-weight-medium);
+}
+
 .job-filters-summary {
+	grid-column: 1 / -1;
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: var(--space-2);
+	min-height: 28px;
 	color: var(--text-muted);
 	font-size: var(--font-size-sm);
 }
