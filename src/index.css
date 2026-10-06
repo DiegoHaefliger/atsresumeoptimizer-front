@@ -3180,6 +3180,54 @@ legend {
 	font-size: var(--font-size-sm);
 }
 
+.process-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	box-sizing: border-box;
+	height: 36px;
+	padding: 0 var(--space-3);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--surface);
+	color: var(--text);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.process-action:hover {
+	background: var(--bg);
+}
+
+.process-action-icon {
+	width: 36px;
+	padding: 0;
+	color: var(--text-muted);
+}
+
+.process-action-icon:hover {
+	color: var(--text);
+}
+
+.stage-badge {
+	color: color-mix(in srgb, var(--stage-color) 75%, var(--text));
+	background: color-mix(in srgb, var(--stage-color) 16%, transparent);
+}
+
+.stage-INTERESTED { --stage-color: #64748b; }
+.stage-APPLIED { --stage-color: #2563eb; }
+.stage-SCREENING { --stage-color: #0891b2; }
+.stage-TECHNICAL_TEST { --stage-color: #d97706; }
+.stage-TECHNICAL_INTERVIEW { --stage-color: #7c3aed; }
+.stage-MANAGER_INTERVIEW { --stage-color: #db2777; }
+.stage-OFFER { --stage-color: #059669; }
+.stage-HIRED { --stage-color: #15803d; }
+.stage-REJECTED { --stage-color: #dc2626; }
+.stage-WITHDRAWN { --stage-color: #475569; }
+
 .process-card-actions {
 	display: flex;
 	align-items: center;

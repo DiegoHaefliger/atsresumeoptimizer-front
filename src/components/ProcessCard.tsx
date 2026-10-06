@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { SelectionProcess } from "../api/types";
-import { formatDate, STAGE_LABELS, stageTone } from "../lib/processLabels";
-import { Badge } from "./Badge";
+import { formatDate } from "../lib/processLabels";
+import { StageBadge } from "./StageBadge";
 import { ArrowRightIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "./icons";
 
 type ProcessCardProps = {
@@ -15,7 +15,7 @@ export function ProcessCard({ process, onMove, onRemove }: ProcessCardProps) {
 	return (
 		<article className="process-card">
 			<div className="process-card-main">
-				<Badge tone={stageTone(process.stage)}>{STAGE_LABELS[process.stage]}</Badge>
+				<StageBadge stage={process.stage} />
 				{process.processUrl && (
 					<a href={process.processUrl} target="_blank" rel="noopener noreferrer" className="link process-card-link">
 						Processo seletivo <ExternalLinkIcon />
@@ -26,15 +26,15 @@ export function ProcessCard({ process, onMove, onRemove }: ProcessCardProps) {
 				{process.contactName && <span className="process-card-meta">Contato: {process.contactName}</span>}
 			</div>
 			<div className="process-card-actions">
-				<button type="button" className="btn-secondary btn-small" onClick={() => onMove(process)}>
+				<button type="button" className="process-action" onClick={() => onMove(process)}>
 					Mover etapa <ArrowRightIcon />
 				</button>
-				<Link to={`/processes/${process.id}/edit`} className="btn-icon" aria-label={`Editar processo de ${label}`} title="Editar">
+				<Link to={`/processes/${process.id}/edit`} className="process-action process-action-icon" aria-label={`Editar processo de ${label}`} title="Editar">
 					<PencilIcon />
 				</Link>
 				<button
 					type="button"
-					className="btn-icon"
+					className="process-action process-action-icon"
 					aria-label={`Remover processo de ${label}`}
 					title="Remover"
 					onClick={() => onRemove(process)}
