@@ -2,7 +2,7 @@ import { useState } from "react";
 import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
-import { EyeIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
 import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
 
@@ -13,6 +13,7 @@ type JobsTableProps = {
 	onRemove?: (jobId: string) => Promise<void>;
 	onPreview?: (job: Job) => void;
 	onEdit?: (job: Job) => void;
+	onResumes?: (job: Job) => void;
 	selectedId?: string | null;
 	onSelect?: (job: Job) => void;
 };
@@ -26,8 +27,8 @@ function jobMeta(job: Job): string {
 	return [job.company, job.workModel && workModelLabel(job.workModel), when].filter(Boolean).join(" · ");
 }
 
-export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, selectedId, onSelect }: JobsTableProps) {
-	const hasActions = Boolean(onRemove || onPreview || onEdit);
+export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onResumes, selectedId, onSelect }: JobsTableProps) {
+	const hasActions = Boolean(onRemove || onPreview || onEdit || onResumes);
 	const [removingId, setRemovingId] = useState<string | null>(null);
 
 	async function remove(jobId: string) {
@@ -119,6 +120,17 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 													onClick={() => onPreview(job)}
 												>
 													<EyeIcon />
+												</button>
+											)}
+											{onResumes && (
+												<button
+													type="button"
+													className="btn-icon"
+													aria-label={`Ver currículos gerados para ${job.title ?? "vaga"}`}
+													title="Currículos gerados para esta vaga"
+													onClick={() => onResumes(job)}
+												>
+													<FileTextIcon />
 												</button>
 											)}
 											{onEdit && (

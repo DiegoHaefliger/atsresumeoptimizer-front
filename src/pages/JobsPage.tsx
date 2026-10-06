@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dialog } from "../components/Dialog";
+import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobPreview } from "../components/JobPreview";
 import { JobsTable } from "../components/JobsTable";
 import { StateMessage } from "../components/StateMessage";
@@ -9,6 +10,7 @@ import { useJobs, type Job } from "../lib/useJobs";
 export function JobsPage() {
 	const { jobs, failed, reload, remove } = useJobs();
 	const [previewing, setPreviewing] = useState<Job | null>(null);
+	const [viewingResumes, setViewingResumes] = useState<Job | null>(null);
 	const navigate = useNavigate();
 
 	return (
@@ -41,9 +43,11 @@ export function JobsPage() {
 					onRetry={reload}
 					onRemove={remove}
 					onPreview={setPreviewing}
+					onResumes={setViewingResumes}
 					onEdit={(job) => navigate(`/jobs/${job.id}/edit`)}
 				/>
 			)}
+			<JobResumesDialog job={viewingResumes} onClose={() => setViewingResumes(null)} />
 			<Dialog
 				open={previewing !== null}
 				title={previewing?.title ?? "Vaga sem título"}
