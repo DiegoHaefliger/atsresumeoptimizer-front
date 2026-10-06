@@ -67,10 +67,6 @@ export function ProcessForm({ initial, submitLabel, chooseStage, onSave, onCance
 						Data da candidatura
 						<input type="date" value={draft.appliedOn} onChange={(event) => update("appliedOn", event.target.value)} />
 					</label>
-					<label>
-						Data da próxima etapa
-						<input type="date" value={draft.nextStepOn} onChange={(event) => update("nextStepOn", event.target.value)} />
-					</label>
 				</div>
 				<div className="form-row form-row-3">
 					<label>

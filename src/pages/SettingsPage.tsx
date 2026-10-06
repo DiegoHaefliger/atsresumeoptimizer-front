@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { apiGet, apiPostJson, apiPutJson, errorMessage } from "../api/client";
 import type {
 	AiConnectionTestRequest,
@@ -242,6 +243,9 @@ export function SettingsPage() {
 						automaticamente. As chaves ficam criptografadas no servidor e nunca voltam pra tela.
 					</p>
 				</div>
+				<Link to="/settings/notifications" className="button-link">
+					Notificações
+				</Link>
 			</header>
 
 			{!settings || !current || !draft || !general || !selected ? (

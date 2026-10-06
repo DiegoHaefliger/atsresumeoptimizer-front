@@ -11,7 +11,7 @@ import { StateMessage } from "./StateMessage";
 type MoveStageDialogProps = {
 	process: SelectionProcess | null;
 	onClose: () => void;
-	onMove: (processId: string, stage: SelectionStage, note: string) => Promise<void>;
+	onMove: (processId: string, stage: SelectionStage, note: string, scheduledAt: string) => Promise<void>;
 };
 
 export function MoveStageDialog({ process, onClose, onMove }: MoveStageDialogProps) {
@@ -31,6 +31,7 @@ type MoveStageFormProps = {
 function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 	const [stage, setStage] = useState<SelectionStage>(process.stage);
 	const [note, setNote] = useState("");
+	const [scheduledAt, setScheduledAt] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +40,7 @@ function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 		setError(null);
 		setSaving(true);
 		try {
-			await onMove(process.id, stage, note);
+			await onMove(process.id, stage, note, scheduledAt);
 			onClose();
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra mudar a etapa. Tenta de novo."));
@@ -59,6 +60,15 @@ function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 							</option>
 						))}
 					</select>
+				</label>
+				<label>
+					Data e hora da etapa (opcional)
+					<input
+						type="datetime-local"
+						value={scheduledAt}
+						onChange={(event) => setScheduledAt(event.target.value)}
+						disabled={saving}
+					/>
 				</label>
 				<label>
 					Anotação (opcional)

@@ -1,22 +1,27 @@
 import { useCallback } from "react";
 import { apiDelete, apiPostJson } from "../api/client";
 import type { SelectionProcess, SelectionStage } from "../api/types";
+import { PROCESSES_PATH } from "./processPath";
+import { createSchedule } from "./scheduleApi";
+import { emptyScheduleDraft } from "./scheduleDraft";
 import { useApiResource } from "./useApiResource";
-
-export const PROCESSES_PATH = "/api/v1/selection-processes";
 
 export function useProcesses() {
 	const { data, setData, failed, reload } = useApiResource<SelectionProcess[]>(PROCESSES_PATH);
 
 	const moveStage = useCallback(
-		async (processId: string, stage: SelectionStage, note: string) => {
+		async (processId: string, stage: SelectionStage, note: string, scheduledAt: string) => {
 			const moved = await apiPostJson<SelectionProcess>(`${PROCESSES_PATH}/${processId}/stage`, {
 				stage,
 				note: note.trim() || undefined,
 			});
 			setData((current) => (current ?? []).map((process) => (process.id === processId ? moved : process)));
+			if (scheduledAt) {
+				await createSchedule(processId, emptyScheduleDraft(stage, scheduledAt));
+				reload();
+			}
 		},
-		[setData],
+		[reload, setData],
 	);
 
 	const remove = useCallback(

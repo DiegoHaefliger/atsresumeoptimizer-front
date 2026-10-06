@@ -1,5 +1,9 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
+export function apiUrl(path: string): string {
+	return `${API_BASE_URL}${path}`;
+}
+
 export class ApiError extends Error {
 	readonly status: number;
 
@@ -14,7 +18,7 @@ export function errorMessage(error: unknown, fallback: string): string {
 }
 
 async function request(path: string, init?: RequestInit): Promise<Response> {
-	const response = await fetch(`${API_BASE_URL}${path}`, init);
+	const response = await fetch(apiUrl(path), init);
 	if (response.ok) {
 		return response;
 	}

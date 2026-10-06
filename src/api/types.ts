@@ -75,6 +75,21 @@ export type StageMovement = {
 	movedAt: string;
 };
 
+export type ScheduleStatus = "SCHEDULED" | "DONE" | "CANCELED" | "RESCHEDULED";
+
+export type SelectionSchedule = {
+	id: string;
+	processId: string;
+	stage: SelectionStage;
+	scheduledAt: string;
+	durationMinutes: number | null;
+	location: string | null;
+	notes: string | null;
+	status: ScheduleStatus;
+	createdAt: string;
+	updatedAt: string;
+};
+
 export type SelectionProcess = {
 	id: string;
 	jobPostingId: string;
@@ -94,4 +109,46 @@ export type SelectionProcess = {
 	createdAt: string;
 	updatedAt: string;
 	history: StageMovement[];
+	schedules: SelectionSchedule[];
+	nextSchedule: SelectionSchedule | null;
 };
+
+export type CalendarEvent = {
+	scheduleId: string;
+	processId: string;
+	company: string | null;
+	jobTitle: string | null;
+	stage: SelectionStage;
+	status: ScheduleStatus;
+	scheduledAt: string;
+	durationMinutes: number | null;
+	location: string | null;
+	notes: string | null;
+};
+
+export type CalendarFeedInfo = {
+	enabled: boolean;
+	path: string | null;
+};
+
+export type AppNotification = {
+	id: string;
+	type: "SCHEDULE_REMINDER";
+	title: string;
+	message: string;
+	processId: string | null;
+	scheduleId: string | null;
+	createdAt: string;
+	readAt: string | null;
+};
+
+export type NotificationChannel = "IN_APP" | "EMAIL" | "PUSH";
+
+export type NotificationSettings = {
+	leadMinutes: number[];
+	channels: NotificationChannel[];
+	timezone: string;
+	availableChannels: { channel: NotificationChannel; available: boolean }[];
+};
+
+export type NotificationSettingsRequest = Pick<NotificationSettings, "leadMinutes" | "channels" | "timezone">;
