@@ -836,6 +836,8 @@ export interface components {
             /** Format: uuid */
             sourceAnalysisId?: string;
             favorite?: boolean;
+            /** Format: int32 */
+            atsScore?: number;
             versions?: components["schemas"]["ResumeVersionSummary"][];
         };
         ResumeVersionSummary: {
