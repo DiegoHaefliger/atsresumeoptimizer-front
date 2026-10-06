@@ -69,6 +69,7 @@ export type SelectionStage =
 	| "WITHDRAWN";
 
 export type StageMovement = {
+	id: string;
 	stage: SelectionStage;
 	note: string | null;
 	movedAt: string;
