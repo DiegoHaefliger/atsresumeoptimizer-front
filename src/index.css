@@ -3249,3 +3249,15 @@ legend {
 	font-weight: var(--font-weight-semibold);
 	vertical-align: middle;
 }
+
+.jobs-page .recent-jobs-table td {
+	padding-block: var(--space-4);
+}
+
+.jobs-page .recent-jobs-title {
+	margin-bottom: var(--space-2);
+}
+
+.jobs-page .recent-jobs-table .stage-badge {
+	margin-top: var(--space-3);
+}
