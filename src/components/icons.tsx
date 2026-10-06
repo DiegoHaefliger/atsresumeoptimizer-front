@@ -218,3 +218,26 @@ export function MessageSquareIcon(props: SVGProps<SVGSVGElement>) {
 		</Icon>
 	);
 }
+
+export function KanbanIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<rect x="3" y="4" width="18" height="16" rx="2" />
+			<path d="M9 4v16" />
+			<path d="M15 4v16" />
+			<path d="M6 8h.01" />
+			<path d="M12 8h.01" />
+			<path d="M18 8h.01" />
+		</Icon>
+	);
+}
+
+export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<path d="M14 4h6v6" />
+			<path d="M20 4 10 14" />
+			<path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+		</Icon>
+	);
+}

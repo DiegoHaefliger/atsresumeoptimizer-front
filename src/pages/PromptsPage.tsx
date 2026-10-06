@@ -3,6 +3,7 @@ import { apiGet, apiPutJson, errorMessage } from "../api/client";
 import { Link } from "react-router-dom";
 import type { AiSettingsView, PromptTemplateRequest, PromptTemplateSummary, PromptTemplateView } from "../api/types";
 import { BusyLabel } from "../components/BusyLabel";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadFailed } from "../components/LoadFailed";
 import { PromptVersionHistory } from "../components/PromptVersionHistory";
 import { CheckCircleIcon } from "../components/icons";
@@ -31,6 +32,7 @@ export function PromptsPage() {
 	const [aiSettings, setAiSettings] = useState<AiSettingsView | null>(null);
 	const [creating, setCreating] = useState(false);
 	const [newKey, setNewKey] = useState("");
+	const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -235,7 +237,7 @@ export function PromptsPage() {
 									</BusyLabel>
 								</button>
 								{dirty && loaded && (
-									<button type="button" className="btn-secondary" onClick={() => show(loaded)}>
+									<button type="button" className="btn-secondary" onClick={() => setConfirmingDiscard(true)}>
 										Descartar alterações
 									</button>
 								)}
@@ -243,6 +245,20 @@ export function PromptsPage() {
 						)}
 					</div>
 				</form>
+				<ConfirmDialog
+					open={confirmingDiscard}
+					title="Descartar alterações?"
+					confirmLabel="Descartar"
+					onConfirm={() => {
+						if (loaded) {
+							show(loaded);
+						}
+						setConfirmingDiscard(false);
+					}}
+					onCancel={() => setConfirmingDiscard(false)}
+				>
+					<p>As mudanças na instrução que você ainda não salvou serão perdidas.</p>
+				</ConfirmDialog>
 
 				{history.length > 0 && (
 					<aside className="panel prompts-history">

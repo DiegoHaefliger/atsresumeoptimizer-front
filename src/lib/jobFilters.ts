@@ -1,4 +1,5 @@
 import type { ContractType, WorkModel } from "../api/types";
+import { formatJobCode, matchesJobCode } from "./jobCode";
 import type { Job } from "./useJobs";
 
 export type JobFilters = {
@@ -38,9 +39,9 @@ export function seniorityOptions(jobs: Job[]): string[] {
 export function filterJobs(jobs: Job[], filters: JobFilters): Job[] {
 	const words = normalized(filters.query).split(/\s+/).filter(Boolean);
 	return jobs.filter((job) => {
-		const haystack = normalized([job.title, job.company, job.targetRole, job.jobDescription].join(" "));
+		const haystack = normalized([formatJobCode(job.code), job.title, job.company, job.targetRole, job.jobDescription].join(" "));
 		return (
-			words.every((word) => haystack.includes(word)) &&
+			words.every((word) => haystack.includes(word) || matchesJobCode(word, job.code)) &&
 			(!filters.workModel || job.workModel === filters.workModel) &&
 			(!filters.contractType || job.contractType === filters.contractType) &&
 			(!filters.seniority || normalized(job.seniority) === normalized(filters.seniority)) &&

@@ -13,7 +13,7 @@ import {
 } from "../lib/resumeSections";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
 import { RichTextField } from "./RichTextField";
-import { Dialog } from "./Dialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { MonthYearField } from "./MonthYearField";
 import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 import { AddButton, RemoveButton } from "./EditorButtons";
@@ -160,21 +160,19 @@ export function ResumeEditor({
 					onAdd={(section) => onContentChange({ ...content, sections: [...sections, section] })} />
 			)}
 
-			<Dialog open={pendingRemoval !== null} title="Excluir seção?" onClose={() => setPendingRemoval(null)}>
+			<ConfirmDialog
+				open={pendingRemoval !== null}
+				title="Excluir seção?"
+				confirmLabel="Excluir seção"
+				onConfirm={confirmRemoval}
+				onCancel={() => setPendingRemoval(null)}
+			>
 				<p>
 					Tem certeza que deseja excluir a seção{" "}
 					<strong>{pendingRemoval === null ? "" : (sections[pendingRemoval]?.title ?? "")}</strong>? O conteúdo dela será
 					perdido.
 				</p>
-				<div className="dialog-actions">
-					<button type="button" className="btn-secondary" onClick={() => setPendingRemoval(null)}>
-						Cancelar
-					</button>
-					<button type="button" className="btn-danger" onClick={confirmRemoval}>
-						Excluir seção
-					</button>
-				</div>
-			</Dialog>
+			</ConfirmDialog>
 		</div>
 	);
 }

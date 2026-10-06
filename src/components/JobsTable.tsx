@@ -1,12 +1,17 @@
 import { useMemo, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
+import { jobLabel } from "../lib/jobCode";
 import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
-import { EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import type { SelectionProcess } from "../api/types";
+import { EyeIcon, FileTextIcon, KanbanIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { JobCode } from "./JobCode";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
 import { Pagination } from "./Pagination";
+import { StageBadge } from "./StageBadge";
 import { Skeleton } from "./Skeleton";
 import { StateMessage } from "./StateMessage";
 
@@ -17,6 +22,8 @@ type JobsTableProps = {
 	onRemove?: (jobId: string) => Promise<void>;
 	onPreview?: (job: Job) => void;
 	onEdit?: (job: Job) => void;
+	onProcess?: (job: Job) => void;
+	processes?: Map<string, SelectionProcess>;
 	onResumes?: (job: Job) => void;
 	selectedId?: string | null;
 	onSelect?: (job: Job) => void;
@@ -36,9 +43,10 @@ function jobMeta(job: Job): string {
 	return [job.company, job.workModel && workModelLabel(job.workModel), when].filter(Boolean).join(" · ");
 }
 
-export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onResumes, selectedId, onSelect, pageSize }: JobsTableProps) {
-	const hasActions = Boolean(onRemove || onPreview || onEdit || onResumes);
+export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onProcess, processes, onResumes, selectedId, onSelect, pageSize }: JobsTableProps) {
+	const hasActions = Boolean(onRemove || onPreview || onEdit || onProcess || onResumes);
 	const [removingId, setRemovingId] = useState<string | null>(null);
+	const [confirmingRemoval, setConfirmingRemoval] = useState<Job | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
 	const [page, setPage] = useState(0);
 	function changeFilters(next: JobFilters) {
@@ -61,6 +69,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 			return;
 		}
 		setRemovingId(jobId);
+		setConfirmingRemoval(null);
 		try {
 			await onRemove(jobId);
 		} finally {
@@ -132,8 +141,11 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 									}}
 								>
 									<td>
-										<span className="recent-jobs-title">{job.title ?? "Vaga sem título"}</span>
+										<span className="recent-jobs-title">
+											<JobCode code={job.code} /> {job.title ?? "Vaga sem título"}
+										</span>
 										<span className="recent-jobs-meta">{jobMeta(job)}</span>
+										{processes?.get(job.id) && <StageBadge stage={processes.get(job.id)!.stage} />}
 									</td>
 									<td className="recent-jobs-score-col">
 										{job.preferenceScore != null ? (
@@ -169,6 +181,17 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 														<FileTextIcon />
 													</button>
 												)}
+												{onProcess && (
+													<button
+														type="button"
+														className="btn-icon"
+														aria-label={`Processo seletivo de ${job.title ?? "vaga"}`}
+														title="Processo seletivo"
+														onClick={() => onProcess(job)}
+													>
+														<KanbanIcon />
+													</button>
+												)}
 												{onEdit && (
 													<button
 														type="button"
@@ -187,7 +210,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 														aria-label={`Remover ${job.title ?? "vaga"} da lista`}
 														title="Remover da lista"
 														disabled={removingId === job.id}
-														onClick={() => remove(job.id)}
+														onClick={() => setConfirmingRemoval(job)}
 													>
 														{removingId === job.id ? <SpinnerIcon /> : <TrashIcon />}
 													</button>
@@ -203,6 +226,25 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 			</div>
 			)}
 			{pageSize && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
+			<ConfirmDialog
+				open={confirmingRemoval !== null}
+				title="Remover vaga da lista?"
+				confirmLabel="Remover vaga"
+				onConfirm={() => confirmingRemoval && remove(confirmingRemoval.id)}
+				onCancel={() => setConfirmingRemoval(null)}
+			>
+				{confirmingRemoval && (
+					<>
+						<p>
+							<strong>{jobLabel(confirmingRemoval.code, confirmingRemoval.title, confirmingRemoval.company)}</strong>
+						</p>
+						<p>
+							A vaga deixa de aparecer na lista e as análises antigas continuam salvas.
+							{processes?.has(confirmingRemoval.id) && " O processo seletivo dela também deixa de ficar acessível."}
+						</p>
+					</>
+				)}
+			</ConfirmDialog>
 		</>
 	);
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { apiPutJson, errorMessage } from "../api/client";
 import type { KeywordsPanelView } from "../api/types";
 import { BusyLabel } from "./BusyLabel";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { StateMessage } from "./StateMessage";
 import { XIcon } from "./icons";
 
@@ -33,6 +34,7 @@ export function KeywordsEditor({ analysisId, keywords, onSaved }: KeywordsEditor
 	const [draft, setDraft] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
 	const dirty = !sameList(terms, initialTerms) || !sameList(selected, initialSelected);
 	const main = terms.filter((term) => selected.includes(term));
@@ -132,16 +134,26 @@ export function KeywordsEditor({ analysisId, keywords, onSaved }: KeywordsEditor
 					<button
 						type="button"
 						className="btn-secondary"
-						onClick={() => {
-							setTerms(initialTerms);
-							setSelected(initialSelected);
-						}}
+						onClick={() => setConfirmingDiscard(true)}
 						disabled={saving}
 					>
 						Descartar
 					</button>
 				</div>
 			)}
+			<ConfirmDialog
+				open={confirmingDiscard}
+				title="Descartar alterações?"
+				confirmLabel="Descartar"
+				onConfirm={() => {
+					setTerms(initialTerms);
+					setSelected(initialSelected);
+					setConfirmingDiscard(false);
+				}}
+				onCancel={() => setConfirmingDiscard(false)}
+			>
+				<p>As mudanças nas palavras-chave que você ainda não salvou serão perdidas.</p>
+			</ConfirmDialog>
 		</div>
 	);
 }

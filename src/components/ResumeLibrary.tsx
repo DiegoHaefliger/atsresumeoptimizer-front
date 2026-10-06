@@ -4,8 +4,9 @@ import { errorMessage } from "../api/client";
 import type { ResumeSummary, ResumeVersionSummary } from "../api/types";
 import { resumeMeta, versionLabel } from "../lib/resumeLabels";
 import { scoreTone, type ScoreTone } from "../lib/score";
-import { DownloadIcon, EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, StarIcon, TrashIcon } from "./icons";
+import { DownloadIcon, EyeIcon, FileTextIcon, PencilIcon, StarIcon, TrashIcon } from "./icons";
 import { Badge, type BadgeTone } from "./Badge";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { LoadFailed } from "./LoadFailed";
 import { ResumeDownloadDialog } from "./ResumeDownloadDialog";
 import { ResumePreviewDialog } from "./ResumePreviewDialog";
@@ -98,6 +99,9 @@ export function ResumeLibrary({
 		}
 	}
 
+	const confirming = resumes?.find((resume) => resume.id === confirmingId) ?? null;
+	const confirmingVersion = confirming && (confirming.versions ?? []).length > 1 ? selectedVersion(confirming) : undefined;
+
 	if (failed) {
 		return <LoadFailed message="Não deu pra carregar os currículos." onRetry={onRetry} />;
 	}
@@ -138,7 +142,7 @@ export function ResumeLibrary({
 								)}
 								{resume.favorite && <Badge tone="info">Favorito</Badge>}
 							</span>
-							{resume.id && confirmingId !== resume.id && (
+							{resume.id && (
 								<div className="saved-resume-actions">
 									{canFavorite && (
 										<button
@@ -206,37 +210,23 @@ export function ResumeLibrary({
 								</select>
 							</label>
 						)}
-						{resume.id && confirmingId === resume.id && (
-							<div className="saved-resume-confirm" role="alert">
-								<span>
-									{hasManyVersions && version
-										? `Excluir a ${versionLabel(version)}? Não dá pra desfazer.`
-										: "Excluir esse currículo? Não dá pra desfazer."}
-								</span>
-								<div className="saved-resume-confirm-actions">
-									<button
-										type="button"
-										className="btn-secondary btn-small"
-										onClick={() => setConfirmingId(null)}
-										disabled={deletingId === resume.id}
-									>
-										Cancelar
-									</button>
-									<button
-										type="button"
-										className="btn-danger btn-small"
-										onClick={() => confirmDelete(resume)}
-										disabled={deletingId === resume.id}
-										aria-busy={deletingId === resume.id}
-									>
-										{deletingId === resume.id ? <SpinnerIcon /> : <TrashIcon />} Excluir
-									</button>
-								</div>
-							</div>
-						)}
 					</div>
 				);
 			})}
+			<ConfirmDialog
+				open={confirming !== null}
+				title={confirmingVersion ? "Excluir versão?" : "Excluir currículo?"}
+				confirmLabel="Excluir"
+				busy={deletingId !== null}
+				onConfirm={() => confirming && confirmDelete(confirming)}
+				onCancel={() => setConfirmingId(null)}
+			>
+				<p>
+					{confirmingVersion && confirming
+						? `Excluir a ${versionLabel(confirmingVersion)} de ${confirming.title}? Não dá pra desfazer.`
+						: `Excluir o currículo ${confirming?.title ?? ""}? Não dá pra desfazer.`}
+				</p>
+			</ConfirmDialog>
 			{downloading && (
 				<ResumeDownloadDialog
 					resume={downloading.resume}

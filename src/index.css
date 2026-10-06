@@ -2360,24 +2360,6 @@ legend {
 	min-width: 0;
 }
 
-.saved-resume-confirm {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-2) var(--space-3);
-	padding: var(--space-2) var(--space-3);
-	border-radius: var(--radius-md);
-	background: color-mix(in srgb, var(--error) 8%, transparent);
-	color: var(--error);
-	font-size: var(--font-size-sm);
-}
-
-.saved-resume-confirm-actions {
-	display: flex;
-	gap: var(--space-2);
-}
-
 .recent-jobs-action-col {
 	width: 1%;
 	text-align: right;
@@ -2919,6 +2901,25 @@ legend {
 	font-size: var(--font-size-sm, 0.85em);
 }
 
+.prompt-version {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	justify-content: stretch;
+	column-gap: var(--space-2);
+	row-gap: 2px;
+}
+
+.prompt-version .badge {
+	justify-self: start;
+	white-space: nowrap;
+}
+
+.prompt-version-date {
+	grid-column: 1 / -1;
+	white-space: nowrap;
+}
+
 .prompt-version-number {
 	font-weight: 600;
 }
@@ -3112,4 +3113,164 @@ legend {
 	margin-top: var(--space-3);
 	color: var(--text-muted);
 	font-size: var(--font-size-sm);
+}
+
+/* Acompanhamento de processos seletivos */
+.process-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	box-sizing: border-box;
+	height: 36px;
+	padding: 0 var(--space-3);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--surface);
+	color: var(--text);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.process-action:hover {
+	background: var(--bg);
+}
+
+.process-action-icon {
+	width: 36px;
+	padding: 0;
+	color: var(--text-muted);
+}
+
+.process-action-icon:hover {
+	color: var(--text);
+}
+
+.stage-badge {
+	color: color-mix(in srgb, var(--stage-color) 75%, var(--text));
+	background: color-mix(in srgb, var(--stage-color) 16%, transparent);
+}
+
+.stage-INTERESTED { --stage-color: #64748b; }
+.stage-APPLIED { --stage-color: #2563eb; }
+.stage-SCREENING { --stage-color: #0891b2; }
+.stage-TECHNICAL_TEST { --stage-color: #d97706; }
+.stage-TECHNICAL_INTERVIEW { --stage-color: #7c3aed; }
+.stage-MANAGER_INTERVIEW { --stage-color: #db2777; }
+.stage-OFFER { --stage-color: #059669; }
+.stage-HIRED { --stage-color: #15803d; }
+.stage-REJECTED { --stage-color: #dc2626; }
+.stage-WITHDRAWN { --stage-color: #475569; }
+
+.process-detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.process-detail-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+}
+
+.process-detail-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.process-facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: var(--space-4);
+	margin: 0;
+}
+
+.process-fact dt {
+	font-size: var(--font-size-xs);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.process-fact dd {
+	margin: var(--space-1) 0 0;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+}
+
+.process-fact .link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.process-history-title {
+	margin: var(--space-5) 0 var(--space-2);
+	font-size: var(--font-size-md);
+}
+
+.process-history {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	margin: 0;
+	padding-left: var(--space-5);
+	font-size: var(--font-size-sm);
+}
+
+.process-history-date,
+.process-history-note {
+	display: block;
+	color: var(--text-muted);
+}
+
+.process-history-item summary {
+	cursor: pointer;
+}
+
+.process-history-item .process-history-note {
+	margin: var(--space-2) 0;
+	white-space: pre-wrap;
+}
+
+.job-code {
+	display: inline-block;
+	padding: 1px var(--space-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm, 4px);
+	background: var(--bg);
+	color: var(--text-muted);
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	vertical-align: middle;
+}
+
+.jobs-page .recent-jobs-table td {
+	padding-block: var(--space-4);
+}
+
+.jobs-page .recent-jobs-title {
+	margin-bottom: var(--space-2);
+}
+
+.jobs-page .recent-jobs-table .stage-badge {
+	margin-top: var(--space-3);
+}
+
+.process-history-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.confirm-message p {
+	margin: 0;
+	color: var(--text);
 }

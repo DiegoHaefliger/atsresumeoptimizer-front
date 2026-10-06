@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiDelete, apiGet } from "../api/client";
 import type { ResumeSummary } from "../api/types";
+import { jobLabel } from "../lib/jobCode";
 import type { Job } from "../lib/useJobs";
 import { Dialog } from "./Dialog";
 import { ResumeLibrary } from "./ResumeLibrary";
@@ -12,7 +13,7 @@ type JobResumesDialogProps = {
 
 export function JobResumesDialog({ job, onClose }: JobResumesDialogProps) {
 	return (
-		<Dialog open={job !== null} title={`Currículos gerados · ${job?.title ?? "Vaga sem título"}`} onClose={onClose} size="large">
+		<Dialog open={job !== null} title={`Currículos gerados · ${job ? jobLabel(job.code, job.title, null) : ""}`} onClose={onClose} size="large">
 			<div className="dialog-content">{job && <JobResumes key={job.id} jobId={job.id} />}</div>
 		</Dialog>
 	);

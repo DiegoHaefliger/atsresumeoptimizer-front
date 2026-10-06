@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useBlocker, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { apiGet, apiPutJson, errorMessage } from "../api/client";
 import type { EditableResumeView, EditedDocumentsView } from "../api/types";
-import { Dialog } from "../components/Dialog";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { ArrowLeftIcon } from "../components/icons";
 import { ResumeForm, type ResumeDraft } from "../components/ResumeForm";
 import { Skeleton } from "../components/Skeleton";
@@ -110,21 +110,16 @@ export function ResumeEditPage() {
 					<Skeleton width="100%" height={180} radius="var(--radius-lg)" />
 				</div>
 			)}
-			<Dialog
+			<ConfirmDialog
 				open={blocker.state === "blocked"}
 				title="Descartar alterações?"
-				onClose={() => blocker.reset?.()}
+				confirmLabel="Sair sem salvar"
+				cancelLabel="Continuar editando"
+				onConfirm={() => blocker.proceed?.()}
+				onCancel={() => blocker.reset?.()}
 			>
 				<p>Você mudou o currículo e ainda não salvou. Se sair agora, as alterações serão perdidas.</p>
-				<div className="dialog-actions">
-					<button type="button" className="btn-secondary" onClick={() => blocker.reset?.()}>
-						Continuar editando
-					</button>
-					<button type="button" className="btn-danger" onClick={() => blocker.proceed?.()}>
-						Sair sem salvar
-					</button>
-				</div>
-			</Dialog>
+			</ConfirmDialog>
 		</div>
 	);
 }
