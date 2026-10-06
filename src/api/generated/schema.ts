@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/selection-processes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get"];
+        put: operations["update"];
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/resumes/{resumeId}/versions/{versionId}/editable": {
         parameters: {
             query?: never;
@@ -60,7 +76,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["update"];
+        put: operations["update_1"];
         post?: never;
         delete?: never;
         options?: never;
@@ -75,7 +91,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get"];
+        get: operations["get_1"];
         put: operations["save"];
         post?: never;
         delete?: never;
@@ -107,9 +123,41 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_1"];
+        get: operations["get_2"];
         put: operations["save_1"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/selection-processes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list"];
+        put?: never;
+        post: operations["create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/selection-processes/{id}/stage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["moveStage"];
         delete?: never;
         options?: never;
         head?: never;
@@ -123,9 +171,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list"];
+        get: operations["list_1"];
         put?: never;
-        post: operations["create"];
+        post: operations["create_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -189,7 +237,27 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_1"];
+        post: operations["create_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cadastra uma vaga
+         * @description Grava a vaga e a estrutura com IA. O mesmo texto devolve o mesmo id; se a IA estiver indisponível a vaga fica gravada sem título e keywords.
+         */
+        post: operations["create_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -205,7 +273,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_2"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -347,7 +415,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_1"];
+        get: operations["list_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -388,6 +456,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{jobId}/resumes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["generatedResumes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses/{id}": {
         parameters: {
             query?: never;
@@ -395,7 +479,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_2"];
+        get: operations["get_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -494,7 +578,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete"];
+        delete: operations["delete_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -536,6 +620,56 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SelectionProcessRequest: {
+            /** Format: uuid */
+            jobPostingId: string;
+            processUrl?: string;
+            /** @enum {string} */
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            /** Format: date */
+            appliedOn?: string;
+            /** Format: date */
+            nextStepOn?: string;
+            contactName?: string;
+            /** Format: email */
+            contactEmail?: string;
+            salary?: number;
+            notes?: string;
+        };
+        SelectionProcessResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            jobPostingId?: string;
+            /** Format: int64 */
+            jobCode?: number;
+            company?: string;
+            jobTitle?: string;
+            jobUrl?: string;
+            processUrl?: string;
+            /** @enum {string} */
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            /** Format: date */
+            appliedOn?: string;
+            /** Format: date */
+            nextStepOn?: string;
+            contactName?: string;
+            contactEmail?: string;
+            salary?: number;
+            notes?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            history?: components["schemas"]["StageMovementResponse"][];
+        };
+        StageMovementResponse: {
+            /** @enum {string} */
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            note?: string;
+            /** Format: date-time */
+            movedAt?: string;
+        };
         EditedDocumentRequest: {
             title?: string;
             /** @enum {string} */
@@ -704,6 +838,11 @@ export interface components {
             timeoutSeconds?: number;
             encryptionAvailable?: boolean;
             providers?: components["schemas"]["AiProviderView"][];
+        };
+        MoveStageRequest: {
+            /** @enum {string} */
+            stage: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            note?: string;
         };
         ResumeVersionCreated: {
             /** Format: uuid */
@@ -960,6 +1099,8 @@ export interface components {
         RecentJobView: {
             /** Format: uuid */
             id?: string;
+            /** Format: int64 */
+            code?: number;
             title?: string;
             targetRole?: string;
             jobDescription?: string;
@@ -1003,6 +1144,74 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelectionProcessResponse"];
+                };
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelectionProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelectionProcessResponse"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     editable: {
         parameters: {
             query?: never;
@@ -1141,7 +1350,7 @@ export interface operations {
             };
         };
     };
-    update: {
+    update_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1167,7 +1376,7 @@ export interface operations {
             };
         };
     };
-    get: {
+    get_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1235,7 +1444,7 @@ export interface operations {
             };
         };
     };
-    get_1: {
+    get_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1281,6 +1490,78 @@ export interface operations {
     };
     list: {
         parameters: {
+            query?: {
+                stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelectionProcessResponse"][];
+                };
+            };
+        };
+    };
+    create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelectionProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelectionProcessResponse"];
+                };
+            };
+        };
+    };
+    moveStage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveStageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelectionProcessResponse"];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
             query?: never;
             header?: never;
             path?: never;
@@ -1299,7 +1580,7 @@ export interface operations {
             };
         };
     };
-    create: {
+    create_1: {
         parameters: {
             query?: {
                 title?: string;
@@ -1402,7 +1683,7 @@ export interface operations {
             };
         };
     };
-    create_1: {
+    create_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1426,7 +1707,45 @@ export interface operations {
             };
         };
     };
-    create_2: {
+    create_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Vaga cadastrada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["JobCreatedResponse"];
+                };
+            };
+            /** @description Payload inválido */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description API key ausente ou inválida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_4: {
         parameters: {
             query?: {
                 jobDescription?: string;
@@ -1651,7 +1970,7 @@ export interface operations {
             };
         };
     };
-    list_1: {
+    list_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1716,7 +2035,29 @@ export interface operations {
             };
         };
     };
-    get_2: {
+    generatedResumes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ResumeSummary"][];
+                };
+            };
+        };
+    };
+    get_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -1844,7 +2185,7 @@ export interface operations {
             };
         };
     };
-    delete: {
+    delete_1: {
         parameters: {
             query?: never;
             header?: never;

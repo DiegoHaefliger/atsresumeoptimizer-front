@@ -4,6 +4,7 @@ import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
 import { EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { JobCode } from "./JobCode";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
 import { Pagination } from "./Pagination";
@@ -132,7 +133,9 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 									}}
 								>
 									<td>
-										<span className="recent-jobs-title">{job.title ?? "Vaga sem título"}</span>
+										<span className="recent-jobs-title">
+											<JobCode code={job.code} /> {job.title ?? "Vaga sem título"}
+										</span>
 										<span className="recent-jobs-meta">{jobMeta(job)}</span>
 									</td>
 									<td className="recent-jobs-score-col">

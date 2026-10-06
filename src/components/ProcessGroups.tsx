@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { SelectionProcess } from "../api/types";
+import { JobCode } from "./JobCode";
 import { ProcessCard } from "./ProcessCard";
 import { ExternalLinkIcon } from "./icons";
 
@@ -25,7 +26,9 @@ export function ProcessGroups({ processes, onMove, onRemove }: ProcessGroupsProp
 				<section key={first.jobPostingId} className="panel process-group" aria-label={first.jobTitle ?? "Vaga sem título"}>
 					<header className="process-group-header">
 						<div>
-							<h2 className="process-group-title">{first.jobTitle ?? "Vaga sem título"}</h2>
+							<h2 className="process-group-title">
+								{first.jobCode != null && <JobCode code={first.jobCode} />} {first.jobTitle ?? "Vaga sem título"}
+							</h2>
 							{first.company && <span className="process-card-meta">{first.company}</span>}
 						</div>
 						<div className="process-group-side">

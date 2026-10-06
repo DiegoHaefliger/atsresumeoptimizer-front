@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
 import type { SelectionProcess, SelectionStage } from "../api/types";
+import { jobLabel } from "../lib/jobCode";
 import { formatDateTime, STAGE_LABELS, STAGES } from "../lib/processLabels";
 import { useApiResource } from "../lib/useApiResource";
 import { PROCESSES_PATH } from "../lib/useProcesses";
@@ -16,7 +17,7 @@ type MoveStageDialogProps = {
 
 export function MoveStageDialog({ process, onClose, onMove }: MoveStageDialogProps) {
 	return (
-		<Dialog open={process !== null} title={process ? [process.jobTitle, process.company].filter(Boolean).join(" · ") || "Processo seletivo" : ""} onClose={onClose}>
+		<Dialog open={process !== null} title={process ? jobLabel(process.jobCode, process.jobTitle, process.company) : ""} onClose={onClose}>
 			{process && <MoveStageForm key={process.id} process={process} onClose={onClose} onMove={onMove} />}
 		</Dialog>
 	);

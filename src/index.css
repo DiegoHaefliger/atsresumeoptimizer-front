@@ -3262,3 +3262,16 @@ legend {
 	margin: var(--space-2) 0;
 	white-space: pre-wrap;
 }
+
+.job-code {
+	display: inline-block;
+	padding: 1px var(--space-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm, 4px);
+	background: var(--bg);
+	color: var(--text-muted);
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	vertical-align: middle;
+}

@@ -5,6 +5,7 @@ import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobPreview } from "../components/JobPreview";
 import { JobsTable } from "../components/JobsTable";
 import { StateMessage } from "../components/StateMessage";
+import { jobLabel } from "../lib/jobCode";
 import { useJobs, type Job } from "../lib/useJobs";
 
 export function JobsPage() {
@@ -50,7 +51,7 @@ export function JobsPage() {
 			<JobResumesDialog job={viewingResumes} onClose={() => setViewingResumes(null)} />
 			<Dialog
 				open={previewing !== null}
-				title={previewing?.title ?? "Vaga sem título"}
+				title={previewing ? jobLabel(previewing.code, previewing.title, null) : ""}
 				onClose={() => setPreviewing(null)}
 				size="large"
 			>

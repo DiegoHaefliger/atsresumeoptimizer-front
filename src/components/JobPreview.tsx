@@ -1,3 +1,4 @@
+import { JobCode } from "./JobCode";
 import { workModelLabel } from "../lib/jobLabels";
 import type { Job } from "../lib/useJobs";
 
@@ -17,7 +18,9 @@ export function JobPreview({ job }: { job: Job | null }) {
 	return (
 		<div className="aside-card">
 			<div>
-				<span className="aside-card-title">{job.title ?? "Vaga sem título"}</span>
+				<span className="aside-card-title">
+					<JobCode code={job.code} /> {job.title ?? "Vaga sem título"}
+				</span>
 				{facts && <p className="aside-card-note">{facts}</p>}
 			</div>
 			{job.sourceUrl && (

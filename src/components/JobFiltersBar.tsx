@@ -21,7 +21,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 					type="search"
 					value={filters.query}
 					onChange={(event) => update("query", event.target.value)}
-					placeholder="Buscar por título, empresa ou descrição"
+					placeholder="Buscar por código, título, empresa ou descrição"
 				/>
 			</label>
 			<label>

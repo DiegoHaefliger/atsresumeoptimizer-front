@@ -2,7 +2,8 @@ import { useMemo, useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
 import type { SelectionProcess, SelectionStage } from "../api/types";
 import type { ProcessDraft } from "../lib/processDraft";
-import { jobLabel, STAGE_LABELS, STAGES } from "../lib/processLabels";
+import { jobLabel } from "../lib/jobCode";
+import { STAGE_LABELS, STAGES } from "../lib/processLabels";
 import { useApiResource } from "../lib/useApiResource";
 import { useJobs } from "../lib/useJobs";
 import { PROCESSES_PATH } from "../lib/useProcesses";
@@ -81,7 +82,7 @@ export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onS
 						)}
 						{jobs?.map((job) => (
 							<option key={job.id} value={job.id}>
-								{jobLabel(job.title, job.company)}
+								{jobLabel(job.code, job.title, job.company)}
 							</option>
 						))}
 					</select>
