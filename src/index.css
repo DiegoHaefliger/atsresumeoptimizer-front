@@ -3051,6 +3051,7 @@ legend {
 	.stepper-item.is-active .stepper-text {
 		display: flex;
 	}
+}
 
 .job-filters {
 	display: grid;
