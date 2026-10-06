@@ -1120,6 +1120,8 @@ export interface components {
             contractType?: "CLT" | "PJ" | "INTERNSHIP" | "TEMPORARY";
             /** Format: int32 */
             preferenceScore?: number;
+            /** Format: int32 */
+            atsScore?: number;
         };
         CostByModel: {
             model?: string;

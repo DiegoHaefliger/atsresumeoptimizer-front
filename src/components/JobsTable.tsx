@@ -116,6 +116,9 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 							<th scope="col" className="recent-jobs-score-col">
 								Aderência
 							</th>
+							<th scope="col" className="recent-jobs-score-col">
+								Nota ATS
+							</th>
 							{hasActions && (
 								<th scope="col" className="recent-jobs-action-col">
 									<span className="sr-only">Ações</span>
@@ -151,6 +154,15 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 										{job.preferenceScore != null ? (
 											<span className={`preference-score preference-score-${scoreTone(job.preferenceScore)}`}>
 												{job.preferenceScore}
+											</span>
+										) : (
+											"—"
+										)}
+									</td>
+									<td className="recent-jobs-score-col">
+										{job.atsScore != null ? (
+											<span className={`preference-score preference-score-${scoreTone(job.atsScore)}`}>
+												{job.atsScore}
 											</span>
 										) : (
 											"—"

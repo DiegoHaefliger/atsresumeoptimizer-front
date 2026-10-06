@@ -8,9 +8,10 @@ export type JobFilters = {
 	contractType: ContractType | "";
 	seniority: string;
 	minScore: number;
+	minAtsScore: number;
 };
 
-export const EMPTY_FILTERS: JobFilters = { query: "", workModel: "", contractType: "", seniority: "", minScore: 0 };
+export const EMPTY_FILTERS: JobFilters = { query: "", workModel: "", contractType: "", seniority: "", minScore: 0, minAtsScore: 0 };
 
 export const MIN_SCORE_OPTIONS = [50, 70, 80] as const;
 
@@ -45,7 +46,8 @@ export function filterJobs(jobs: Job[], filters: JobFilters): Job[] {
 			(!filters.workModel || job.workModel === filters.workModel) &&
 			(!filters.contractType || job.contractType === filters.contractType) &&
 			(!filters.seniority || normalized(job.seniority) === normalized(filters.seniority)) &&
-			(filters.minScore === 0 || (job.preferenceScore ?? -1) >= filters.minScore)
+			(filters.minScore === 0 || (job.preferenceScore ?? -1) >= filters.minScore) &&
+			(filters.minAtsScore === 0 || (job.atsScore ?? -1) >= filters.minAtsScore)
 		);
 	});
 }
