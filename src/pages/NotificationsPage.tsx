@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { NotificationItem } from "../components/NotificationItem";
 import { Pagination } from "../components/Pagination";
@@ -42,9 +41,6 @@ export function NotificationsPage() {
 					<h1>Central de notificações</h1>
 					<p className="page-subtitle">Lembretes dos seus agendamentos aparecem aqui conforme a antecedência configurada.</p>
 				</div>
-				<Link to="/settings/notifications" className="button-link">
-					Configurar avisos
-				</Link>
 			</header>
 
 			<div className="notification-toolbar">
