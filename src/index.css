@@ -2901,6 +2901,25 @@ legend {
 	font-size: var(--font-size-sm, 0.85em);
 }
 
+.prompt-version {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	justify-content: stretch;
+	column-gap: var(--space-2);
+	row-gap: 2px;
+}
+
+.prompt-version .badge {
+	justify-self: start;
+	white-space: nowrap;
+}
+
+.prompt-version-date {
+	grid-column: 1 / -1;
+	white-space: nowrap;
+}
+
 .prompt-version-number {
 	font-weight: 600;
 }
