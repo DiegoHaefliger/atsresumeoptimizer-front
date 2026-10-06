@@ -43,3 +43,7 @@ export function formatDate(date: string): string {
 export function formatDateTime(instant: string): string {
 	return dateTimeFormat.format(new Date(instant));
 }
+
+export function jobLabel(title: string | null | undefined, company: string | null | undefined): string {
+	return [title ?? "Vaga sem título", company].filter(Boolean).join(" · ");
+}

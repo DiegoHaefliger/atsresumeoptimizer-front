@@ -76,8 +76,9 @@ export type StageMovement = {
 
 export type SelectionProcess = {
 	id: string;
-	company: string;
-	jobTitle: string;
+	jobPostingId: string;
+	company: string | null;
+	jobTitle: string | null;
 	jobUrl: string | null;
 	processUrl: string | null;
 	stage: SelectionStage;

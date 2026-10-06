@@ -6,6 +6,7 @@ import { ProcessForm } from "../components/ProcessForm";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { draftFromProcess, processRequest, type ProcessDraft } from "../lib/processDraft";
+import { jobLabel } from "../lib/processLabels";
 import { useApiResource } from "../lib/useApiResource";
 import { PROCESSES_PATH } from "../lib/useProcesses";
 
@@ -40,7 +41,12 @@ export function ProcessEditPage() {
 					action={{ label: "Voltar pros processos", to: "/processes" }}
 				/>
 			) : process ? (
-				<ProcessForm initial={draftFromProcess(process)} submitLabel="Salvar alterações" chooseStage={false} onSave={save} />
+				<ProcessForm
+					initial={draftFromProcess(process)}
+					currentJob={{ id: process.jobPostingId, label: jobLabel(process.jobTitle, process.company) }} submitLabel="Salvar alterações"
+					chooseStage={false}
+					onSave={save}
+				/>
 			) : (
 				<div className="form form-narrow" role="status" aria-busy="true">
 					<span className="sr-only">Carregando processo...</span>

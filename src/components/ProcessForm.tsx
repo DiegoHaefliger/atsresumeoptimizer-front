@@ -2,18 +2,22 @@ import { useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
 import type { SelectionStage } from "../api/types";
 import type { ProcessDraft } from "../lib/processDraft";
-import { STAGE_LABELS, STAGES } from "../lib/processLabels";
+import { jobLabel, STAGE_LABELS, STAGES } from "../lib/processLabels";
+import { useJobs } from "../lib/useJobs";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
+import { Link } from "react-router-dom";
 import { StateMessage } from "./StateMessage";
 
 type ProcessFormProps = {
 	initial: ProcessDraft;
+	currentJob?: { id: string; label: string };
 	submitLabel: string;
 	chooseStage: boolean;
 	onSave: (draft: ProcessDraft) => Promise<void>;
 };
 
-export function ProcessForm({ initial, submitLabel, chooseStage, onSave }: ProcessFormProps) {
+export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onSave }: ProcessFormProps) {
+	const { jobs, failed: jobsFailed } = useJobs();
 	const [draft, setDraft] = useState<ProcessDraft>(initial);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -24,8 +28,8 @@ export function ProcessForm({ initial, submitLabel, chooseStage, onSave }: Proce
 
 	async function handleSubmit(event: FormEvent) {
 		event.preventDefault();
-		if (!draft.company.trim() || !draft.jobTitle.trim()) {
-			setError("Preenche a empresa e o título da vaga.");
+		if (!draft.jobPostingId) {
+			setError("Escolhe uma vaga cadastrada.");
 			return;
 		}
 		setError(null);
@@ -41,39 +45,32 @@ export function ProcessForm({ initial, submitLabel, chooseStage, onSave }: Proce
 	return (
 		<form onSubmit={handleSubmit} className="panel panel-body form form-narrow">
 			<fieldset className="job-details" disabled={saving}>
+				<label>
+					Vaga
+					<select
+						value={draft.jobPostingId}
+						onChange={(event) => update("jobPostingId", event.target.value)}
+						required
+						disabled={saving || (jobs?.length ?? 0) === 0}
+					>
+						<option value="">{jobs === null ? "Carregando vagas..." : "Escolha uma vaga cadastrada"}</option>
+						{currentJob && !jobs?.some((job) => job.id === currentJob.id) && (
+							<option value={currentJob.id}>{currentJob.label}</option>
+						)}
+						{jobs?.map((job) => (
+							<option key={job.id} value={job.id}>
+								{jobLabel(job.title, job.company)}
+							</option>
+						))}
+					</select>
+					{jobs?.length === 0 && !currentJob && (
+						<span className="field-hint">
+							Nenhuma vaga cadastrada. <Link to="/jobs/new" className="link">Cadastre a vaga</Link> antes de criar o processo.
+						</span>
+					)}
+					{jobsFailed && <span className="field-hint">Não deu pra carregar as vagas.</span>}
+				</label>
 				<div className="form-row">
-					<label>
-						Empresa
-						<input
-							value={draft.company}
-							onChange={(event) => update("company", event.target.value)}
-							placeholder="Ex.: Acme"
-							maxLength={255}
-							required
-						/>
-					</label>
-					<label>
-						Título da vaga
-						<input
-							value={draft.jobTitle}
-							onChange={(event) => update("jobTitle", event.target.value)}
-							placeholder="Ex.: Desenvolvedor Java"
-							maxLength={255}
-							required
-						/>
-					</label>
-				</div>
-				<div className="form-row">
-					<label>
-						Link da vaga
-						<input
-							type="url"
-							value={draft.jobUrl}
-							onChange={(event) => update("jobUrl", event.target.value)}
-							placeholder="https://..."
-							maxLength={1000}
-						/>
-					</label>
 					<label>
 						Link do processo seletivo
 						<input
@@ -148,7 +145,7 @@ export function ProcessForm({ initial, submitLabel, chooseStage, onSave }: Proce
 				</label>
 			</fieldset>
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
-			<button type="submit" disabled={saving} className="btn-block" aria-busy={saving}>
+			<button type="submit" disabled={saving || !draft.jobPostingId} className="btn-block" aria-busy={saving}>
 				{submitLabel}
 			</button>
 		</form>

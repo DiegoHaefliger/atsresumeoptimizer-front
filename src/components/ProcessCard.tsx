@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { SelectionProcess } from "../api/types";
-import { formatDate } from "../lib/processLabels";
+import { formatDate, STAGE_LABELS, stageTone } from "../lib/processLabels";
+import { Badge } from "./Badge";
 import { ArrowRightIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "./icons";
 
 type ProcessCardProps = {
@@ -10,40 +11,31 @@ type ProcessCardProps = {
 };
 
 export function ProcessCard({ process, onMove, onRemove }: ProcessCardProps) {
+	const label = process.company ?? "processo";
 	return (
 		<article className="process-card">
-			<h3 className="process-card-title">{process.jobTitle}</h3>
-			<span className="process-card-company">{process.company}</span>
-			<div className="process-card-links">
-				{process.jobUrl && (
-					<a href={process.jobUrl} target="_blank" rel="noopener noreferrer" className="link">
-						Vaga <ExternalLinkIcon />
-					</a>
-				)}
+			<div className="process-card-main">
+				<Badge tone={stageTone(process.stage)}>{STAGE_LABELS[process.stage]}</Badge>
 				{process.processUrl && (
-					<a href={process.processUrl} target="_blank" rel="noopener noreferrer" className="link">
-						Processo <ExternalLinkIcon />
+					<a href={process.processUrl} target="_blank" rel="noopener noreferrer" className="link process-card-link">
+						Processo seletivo <ExternalLinkIcon />
 					</a>
 				)}
+				{process.appliedOn && <span className="process-card-meta">Candidatura em {formatDate(process.appliedOn)}</span>}
+				{process.nextStepOn && <span className="process-card-meta">Próxima etapa em {formatDate(process.nextStepOn)}</span>}
+				{process.contactName && <span className="process-card-meta">Contato: {process.contactName}</span>}
 			</div>
-			{process.nextStepOn && <span className="process-card-meta">Próxima etapa em {formatDate(process.nextStepOn)}</span>}
-			{process.appliedOn && <span className="process-card-meta">Candidatura em {formatDate(process.appliedOn)}</span>}
 			<div className="process-card-actions">
 				<button type="button" className="btn-secondary btn-small" onClick={() => onMove(process)}>
 					Mover etapa <ArrowRightIcon />
 				</button>
-				<Link
-					to={`/processes/${process.id}/edit`}
-					className="btn-icon"
-					aria-label={`Editar ${process.jobTitle}`}
-					title="Editar"
-				>
+				<Link to={`/processes/${process.id}/edit`} className="btn-icon" aria-label={`Editar processo de ${label}`} title="Editar">
 					<PencilIcon />
 				</Link>
 				<button
 					type="button"
 					className="btn-icon"
-					aria-label={`Remover ${process.jobTitle}`}
+					aria-label={`Remover processo de ${label}`}
 					title="Remover"
 					onClick={() => onRemove(process)}
 				>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import type { SelectionProcess } from "../api/types";
 import { LoadFailed } from "../components/LoadFailed";
 import { MoveStageDialog } from "../components/MoveStageDialog";
-import { ProcessBoard } from "../components/ProcessBoard";
+import { ProcessGroups } from "../components/ProcessGroups";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { useProcesses } from "../lib/useProcesses";
@@ -20,7 +20,7 @@ export function ProcessesPage() {
 					<span className="eyebrow">Processos</span>
 					<h1>Processos seletivos</h1>
 					<p className="page-subtitle">
-						Acompanhe em qual etapa cada vaga está. Você move a etapa na mão, quando o recrutador responder.
+						Processos agrupados por vaga. Você move a etapa na mão, quando o recrutador responder.
 					</p>
 				</div>
 				<Link to="/processes/new" className="button-link">
@@ -43,7 +43,7 @@ export function ProcessesPage() {
 					action={{ label: "Cadastrar o primeiro processo", to: "/processes/new" }}
 				/>
 			) : (
-				<ProcessBoard
+				<ProcessGroups
 					processes={processes}
 					onMove={setMoving}
 					onRemove={(process) => remove(process.id)}

@@ -1,9 +1,7 @@
 import type { SelectionProcess, SelectionStage } from "../api/types";
 
 export type ProcessDraft = {
-	company: string;
-	jobTitle: string;
-	jobUrl: string;
+	jobPostingId: string;
 	processUrl: string;
 	stage: SelectionStage;
 	appliedOn: string;
@@ -15,9 +13,7 @@ export type ProcessDraft = {
 };
 
 export const EMPTY_PROCESS: ProcessDraft = {
-	company: "",
-	jobTitle: "",
-	jobUrl: "",
+	jobPostingId: "",
 	processUrl: "",
 	stage: "INTERESTED",
 	appliedOn: "",
@@ -30,9 +26,7 @@ export const EMPTY_PROCESS: ProcessDraft = {
 
 export function draftFromProcess(process: SelectionProcess): ProcessDraft {
 	return {
-		company: process.company,
-		jobTitle: process.jobTitle,
-		jobUrl: process.jobUrl ?? "",
+		jobPostingId: process.jobPostingId,
 		processUrl: process.processUrl ?? "",
 		stage: process.stage,
 		appliedOn: process.appliedOn ?? "",
@@ -47,9 +41,7 @@ export function draftFromProcess(process: SelectionProcess): ProcessDraft {
 export function processRequest(draft: ProcessDraft) {
 	const salary = draft.salary.trim() === "" ? Number.NaN : Number(draft.salary);
 	return {
-		company: draft.company.trim(),
-		jobTitle: draft.jobTitle.trim(),
-		jobUrl: draft.jobUrl.trim() || undefined,
+		jobPostingId: draft.jobPostingId,
 		processUrl: draft.processUrl.trim() || undefined,
 		stage: draft.stage,
 		appliedOn: draft.appliedOn || undefined,
