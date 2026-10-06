@@ -3,11 +3,13 @@ import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters
 import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
-import { EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import type { SelectionProcess } from "../api/types";
+import { EyeIcon, FileTextIcon, KanbanIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
 import { JobCode } from "./JobCode";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
 import { Pagination } from "./Pagination";
+import { StageBadge } from "./StageBadge";
 import { Skeleton } from "./Skeleton";
 import { StateMessage } from "./StateMessage";
 
@@ -18,6 +20,8 @@ type JobsTableProps = {
 	onRemove?: (jobId: string) => Promise<void>;
 	onPreview?: (job: Job) => void;
 	onEdit?: (job: Job) => void;
+	onProcess?: (job: Job) => void;
+	processes?: Map<string, SelectionProcess>;
 	onResumes?: (job: Job) => void;
 	selectedId?: string | null;
 	onSelect?: (job: Job) => void;
@@ -37,8 +41,8 @@ function jobMeta(job: Job): string {
 	return [job.company, job.workModel && workModelLabel(job.workModel), when].filter(Boolean).join(" · ");
 }
 
-export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onResumes, selectedId, onSelect, pageSize }: JobsTableProps) {
-	const hasActions = Boolean(onRemove || onPreview || onEdit || onResumes);
+export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onProcess, processes, onResumes, selectedId, onSelect, pageSize }: JobsTableProps) {
+	const hasActions = Boolean(onRemove || onPreview || onEdit || onProcess || onResumes);
 	const [removingId, setRemovingId] = useState<string | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
 	const [page, setPage] = useState(0);
@@ -137,6 +141,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 											<JobCode code={job.code} /> {job.title ?? "Vaga sem título"}
 										</span>
 										<span className="recent-jobs-meta">{jobMeta(job)}</span>
+										{processes?.get(job.id) && <StageBadge stage={processes.get(job.id)!.stage} />}
 									</td>
 									<td className="recent-jobs-score-col">
 										{job.preferenceScore != null ? (
@@ -170,6 +175,17 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 														onClick={() => onResumes(job)}
 													>
 														<FileTextIcon />
+													</button>
+												)}
+												{onProcess && (
+													<button
+														type="button"
+														className="btn-icon"
+														aria-label={`Processo seletivo de ${job.title ?? "vaga"}`}
+														title="Processo seletivo"
+														onClick={() => onProcess(job)}
+													>
+														<KanbanIcon />
 													</button>
 												)}
 												{onEdit && (

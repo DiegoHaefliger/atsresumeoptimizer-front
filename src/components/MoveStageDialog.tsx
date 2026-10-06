@@ -2,11 +2,10 @@ import { useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
 import type { SelectionProcess, SelectionStage } from "../api/types";
 import { jobLabel } from "../lib/jobCode";
-import { formatDateTime, STAGE_LABELS, STAGES } from "../lib/processLabels";
-import { useApiResource } from "../lib/useApiResource";
-import { PROCESSES_PATH } from "../lib/useProcesses";
+import { STAGE_LABELS, STAGES } from "../lib/processLabels";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
 import { Dialog } from "./Dialog";
+import { ProcessHistory } from "./ProcessHistory";
 import { StateMessage } from "./StateMessage";
 
 type MoveStageDialogProps = {
@@ -34,7 +33,6 @@ function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 	const [note, setNote] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const { data: detail } = useApiResource<SelectionProcess>(`${PROCESSES_PATH}/${process.id}`);
 
 	async function handleSubmit(event: FormEvent) {
 		event.preventDefault();
@@ -83,30 +81,7 @@ function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 					</button>
 				</div>
 			</form>
-			<h3 className="process-history-title">Histórico</h3>
-			<ol className="process-history">
-				{[...(detail?.history ?? [])].reverse().map((movement) => (
-					<li key={`${movement.movedAt}-${movement.stage}`}>
-						<details className="process-history-item">
-							<summary>
-								<strong>{STAGE_LABELS[movement.stage]}</strong>
-								<span className="process-history-date">{formatDateTime(movement.movedAt)}</span>
-							</summary>
-							<p className="process-history-note">{movement.note ?? "Sem anotação."}</p>
-							{movement.stage !== process.stage && (
-								<button
-									type="button"
-									className="btn-secondary btn-small"
-									onClick={() => setStage(movement.stage)}
-									disabled={saving}
-								>
-									Voltar para esta etapa
-								</button>
-							)}
-						</details>
-					</li>
-				))}
-			</ol>
+			<ProcessHistory processId={process.id} currentStage={process.stage} onPick={saving ? undefined : setStage} />
 		</div>
 	);
 }

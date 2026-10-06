@@ -7,9 +7,7 @@ import { RewritePage } from "./pages/RewritePage";
 import { JobEditPage } from "./pages/JobEditPage";
 import { JobFormPage } from "./pages/JobFormPage";
 import { JobsPage } from "./pages/JobsPage";
-import { ProcessEditPage } from "./pages/ProcessEditPage";
-import { ProcessFormPage } from "./pages/ProcessFormPage";
-import { ProcessesPage } from "./pages/ProcessesPage";
+import { JobProcessPage } from "./pages/JobProcessPage";
 import { PromptsPage } from "./pages/PromptsPage";
 import { PreferencesPage } from "./pages/PreferencesPage";
 import { ResumesPage } from "./pages/ResumesPage";
@@ -25,10 +23,8 @@ export default function App() {
 				<Route path="/upload" element={<UploadPage />} />
 				<Route path="/jobs" element={<JobsPage />} />
 				<Route path="/jobs/new" element={<JobFormPage />} />
+				<Route path="/jobs/:jobId/process" element={<JobProcessPage />} />
 				<Route path="/jobs/:jobId/edit" element={<JobEditPage />} />
-				<Route path="/processes" element={<ProcessesPage />} />
-				<Route path="/processes/new" element={<ProcessFormPage />} />
-				<Route path="/processes/:processId/edit" element={<ProcessEditPage />} />
 				<Route path="/resumes" element={<ResumesPage />} />
 				<Route path="/resumes/new" element={<Navigate to="/resumes" replace />} />
 				<Route path="/resumes/:resumeId/edit" element={<ResumeEditPage />} />

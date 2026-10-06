@@ -3115,71 +3115,6 @@ legend {
 }
 
 /* Acompanhamento de processos seletivos */
-.process-groups {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-5);
-}
-
-.process-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-3);
-	padding: var(--space-4);
-}
-
-.process-group-header {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: var(--space-3);
-}
-
-.process-group-title {
-	margin: 0;
-	font-size: var(--font-size-lg);
-}
-
-.process-group-side {
-	display: flex;
-	align-items: center;
-	gap: var(--space-4);
-	font-size: var(--font-size-sm);
-}
-
-.process-group-count,
-.process-card-meta {
-	font-size: var(--font-size-sm);
-	color: var(--text-muted);
-}
-
-.process-card {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
-	padding: var(--space-3);
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--bg);
-}
-
-.process-card-main {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--space-2) var(--space-4);
-}
-
-.process-card-link {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-1);
-	font-size: var(--font-size-sm);
-}
-
 .process-action {
 	display: inline-flex;
 	align-items: center;
@@ -3228,10 +3163,49 @@ legend {
 .stage-REJECTED { --stage-color: #dc2626; }
 .stage-WITHDRAWN { --stage-color: #475569; }
 
-.process-card-actions {
+.process-detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.process-detail-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+}
+
+.process-detail-actions {
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
+}
+
+.process-facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: var(--space-4);
+	margin: 0;
+}
+
+.process-fact dt {
+	font-size: var(--font-size-xs);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.process-fact dd {
+	margin: var(--space-1) 0 0;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+}
+
+.process-fact .link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
 }
 
 .process-history-title {
