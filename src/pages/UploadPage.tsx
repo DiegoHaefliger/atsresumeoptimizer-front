@@ -212,11 +212,11 @@ export function UploadPage() {
 							</button>
 						)}
 						{step < LAST_STEP ? (
-							<button type="button" onClick={advance}>
+							<button key="advance" type="button" onClick={advance}>
 								Continuar
 							</button>
 						) : (
-							<button type="submit" disabled={submitting} aria-busy={submitting}>
+							<button key="submit" type="submit" disabled={submitting} aria-busy={submitting}>
 								<BusyLabel busy={submitting} busyText="Enviando...">{SUBMIT_LABELS[kind]}</BusyLabel>
 							</button>
 						)}
