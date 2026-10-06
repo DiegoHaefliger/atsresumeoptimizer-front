@@ -152,3 +152,11 @@ export type NotificationSettings = {
 };
 
 export type NotificationSettingsRequest = Pick<NotificationSettings, "leadMinutes" | "channels" | "timezone">;
+
+export type GoogleCalendarStatus = {
+	configured: boolean;
+	connected: boolean;
+	clientId: string | null;
+	accountEmail: string | null;
+	redirectUri: string;
+};
