@@ -91,6 +91,17 @@ export function ProcessForm({ initial, submitLabel, chooseStage, onSave, onCance
 						/>
 					</label>
 					<label>
+						Telefone do contato
+						<input
+							type="tel"
+							value={draft.contactPhone}
+							onChange={(event) => update("contactPhone", event.target.value)}
+							maxLength={30}
+						/>
+					</label>
+				</div>
+				<div className="form-row">
+					<label>
 						Remuneração (R$ por mês)
 						<input
 							type="number"

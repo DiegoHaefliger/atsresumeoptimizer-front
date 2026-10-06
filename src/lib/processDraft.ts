@@ -8,6 +8,7 @@ export type ProcessDraft = {
 	nextStepOn: string;
 	contactName: string;
 	contactEmail: string;
+	contactPhone: string;
 	salary: string;
 	notes: string;
 };
@@ -20,6 +21,7 @@ export const EMPTY_PROCESS: ProcessDraft = {
 	nextStepOn: "",
 	contactName: "",
 	contactEmail: "",
+	contactPhone: "",
 	salary: "",
 	notes: "",
 };
@@ -33,6 +35,7 @@ export function draftFromProcess(process: SelectionProcess): ProcessDraft {
 		nextStepOn: process.nextStepOn ?? "",
 		contactName: process.contactName ?? "",
 		contactEmail: process.contactEmail ?? "",
+		contactPhone: process.contactPhone ?? "",
 		salary: process.salary != null ? String(process.salary) : "",
 		notes: process.notes ?? "",
 	};
@@ -48,6 +51,7 @@ export function processRequest(draft: ProcessDraft) {
 		nextStepOn: draft.nextStepOn || undefined,
 		contactName: draft.contactName.trim() || undefined,
 		contactEmail: draft.contactEmail.trim() || undefined,
+		contactPhone: draft.contactPhone.trim() || undefined,
 		salary: Number.isFinite(salary) ? salary : undefined,
 		notes: draft.notes.trim() || undefined,
 	};
