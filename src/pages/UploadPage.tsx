@@ -22,6 +22,7 @@ const SUBMIT_LABELS: Record<AnalysisKind, string> = {
 
 const KIND_SUMMARIES: Record<AnalysisKind, string> = { job: "Para uma vaga", general: "Avaliação geral" };
 const LAST_STEP = 3;
+const JOBS_PAGE_SIZE = 10;
 
 export type UploadPageState = { resumeId?: string };
 
@@ -180,7 +181,8 @@ export function UploadPage() {
 										jobs={jobs}
 										failed={jobsFailed}
 										onRetry={reloadJobs}
-										selectedId={selectedJobId}
+										pageSize={JOBS_PAGE_SIZE}
+									selectedId={selectedJobId}
 										onSelect={(job) => setSelectedJobId(job.id)}
 									/>
 								)

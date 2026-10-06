@@ -3103,3 +3103,13 @@ legend {
 	color: var(--text-muted);
 	font-size: var(--font-size-sm);
 }
+
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-3);
+	margin-top: var(--space-3);
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
+}

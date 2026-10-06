@@ -6,6 +6,7 @@ import type { Job } from "../lib/useJobs";
 import { EyeIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
+import { Pagination } from "./Pagination";
 import { Skeleton } from "./Skeleton";
 import { StateMessage } from "./StateMessage";
 
@@ -18,7 +19,12 @@ type JobsTableProps = {
 	onEdit?: (job: Job) => void;
 	selectedId?: string | null;
 	onSelect?: (job: Job) => void;
+	pageSize?: number;
 };
+
+function byNewestRegistration(a: Job, b: Job): number {
+	return (b.registeredAt ?? "").localeCompare(a.registeredAt ?? "");
+}
 
 const dateFormat = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
@@ -29,16 +35,25 @@ function jobMeta(job: Job): string {
 	return [job.company, job.workModel && workModelLabel(job.workModel), when].filter(Boolean).join(" · ");
 }
 
-export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, selectedId, onSelect }: JobsTableProps) {
+export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, selectedId, onSelect, pageSize }: JobsTableProps) {
 	const hasActions = Boolean(onRemove || onPreview || onEdit);
 	const [removingId, setRemovingId] = useState<string | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
+	const [page, setPage] = useState(0);
 	function changeFilters(next: JobFilters) {
 		setFilters(next);
+		setPage(0);
 		saveFilters(next);
 	}
 	const seniorities = useMemo(() => seniorityOptions(jobs ?? []), [jobs]);
 	const visibleJobs = useMemo(() => filterJobs(jobs ?? [], filters), [jobs, filters]);
+	const orderedJobs = useMemo(
+		() => (pageSize ? [...visibleJobs].sort(byNewestRegistration) : visibleJobs),
+		[visibleJobs, pageSize],
+	);
+	const pageCount = pageSize ? Math.max(1, Math.ceil(orderedJobs.length / pageSize)) : 1;
+	const currentPage = Math.min(page, pageCount - 1);
+	const pageJobs = pageSize ? orderedJobs.slice(currentPage * pageSize, (currentPage + 1) * pageSize) : orderedJobs;
 
 	async function remove(jobId: string) {
 		if (!onRemove) {
@@ -99,7 +114,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 						</tr>
 					</thead>
 					<tbody>
-						{visibleJobs.map((job) => {
+						{pageJobs.map((job) => {
 							const selected = job.id === selectedId;
 							return (
 								<tr
@@ -175,6 +190,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 				</table>
 			</div>
 			)}
+			{pageSize && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
 		</>
 	);
 }
