@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
+import { jobLabel } from "../lib/jobCode";
 import { workModelLabel } from "../lib/jobLabels";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
 import type { SelectionProcess } from "../api/types";
 import { EyeIcon, FileTextIcon, KanbanIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { Dialog } from "./Dialog";
 import { JobCode } from "./JobCode";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
@@ -44,6 +46,7 @@ function jobMeta(job: Job): string {
 export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, onProcess, processes, onResumes, selectedId, onSelect, pageSize }: JobsTableProps) {
 	const hasActions = Boolean(onRemove || onPreview || onEdit || onProcess || onResumes);
 	const [removingId, setRemovingId] = useState<string | null>(null);
+	const [confirmingRemoval, setConfirmingRemoval] = useState<Job | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
 	const [page, setPage] = useState(0);
 	function changeFilters(next: JobFilters) {
@@ -66,6 +69,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 			return;
 		}
 		setRemovingId(jobId);
+		setConfirmingRemoval(null);
 		try {
 			await onRemove(jobId);
 		} finally {
@@ -206,7 +210,7 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 														aria-label={`Remover ${job.title ?? "vaga"} da lista`}
 														title="Remover da lista"
 														disabled={removingId === job.id}
-														onClick={() => remove(job.id)}
+														onClick={() => setConfirmingRemoval(job)}
 													>
 														{removingId === job.id ? <SpinnerIcon /> : <TrashIcon />}
 													</button>
@@ -222,6 +226,32 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 			</div>
 			)}
 			{pageSize && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
+			<Dialog
+				open={confirmingRemoval !== null}
+				title="Remover vaga da lista?"
+				onClose={() => setConfirmingRemoval(null)}
+			>
+				{confirmingRemoval && (
+					<div className="dialog-content">
+						<p>
+							<strong>{jobLabel(confirmingRemoval.code, confirmingRemoval.title, confirmingRemoval.company)}</strong>
+						</p>
+						<p>
+							A vaga deixa de aparecer na lista e as análises antigas continuam salvas.
+							{processes?.has(confirmingRemoval.id) &&
+								" O processo seletivo dela também deixa de ficar acessível."}
+						</p>
+						<div className="dialog-actions">
+							<button type="button" className="btn-secondary" onClick={() => setConfirmingRemoval(null)}>
+								Cancelar
+							</button>
+							<button type="button" className="btn-danger" onClick={() => remove(confirmingRemoval.id)}>
+								Remover vaga
+							</button>
+						</div>
+					</div>
+				)}
+			</Dialog>
 		</>
 	);
 }
