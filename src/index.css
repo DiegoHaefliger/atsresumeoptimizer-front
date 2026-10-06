@@ -3205,3 +3205,12 @@ legend {
 	display: block;
 	color: var(--text-muted);
 }
+
+.process-history-item summary {
+	cursor: pointer;
+}
+
+.process-history-item .process-history-note {
+	margin: var(--space-2) 0;
+	white-space: pre-wrap;
+}

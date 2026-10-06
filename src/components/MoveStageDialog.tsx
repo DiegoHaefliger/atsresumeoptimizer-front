@@ -86,9 +86,23 @@ function MoveStageForm({ process, onClose, onMove }: MoveStageFormProps) {
 			<ol className="process-history">
 				{[...(detail?.history ?? [])].reverse().map((movement) => (
 					<li key={`${movement.movedAt}-${movement.stage}`}>
-						<strong>{STAGE_LABELS[movement.stage]}</strong>
-						<span className="process-history-date">{formatDateTime(movement.movedAt)}</span>
-						{movement.note && <span className="process-history-note">{movement.note}</span>}
+						<details className="process-history-item">
+							<summary>
+								<strong>{STAGE_LABELS[movement.stage]}</strong>
+								<span className="process-history-date">{formatDateTime(movement.movedAt)}</span>
+							</summary>
+							<p className="process-history-note">{movement.note ?? "Sem anotação."}</p>
+							{movement.stage !== process.stage && (
+								<button
+									type="button"
+									className="btn-secondary btn-small"
+									onClick={() => setStage(movement.stage)}
+									disabled={saving}
+								>
+									Voltar para esta etapa
+								</button>
+							)}
+						</details>
 					</li>
 				))}
 			</ol>
