@@ -88,6 +88,7 @@ export type SelectionProcess = {
 	nextStepOn: string | null;
 	contactName: string | null;
 	contactEmail: string | null;
+	contactPhone: string | null;
 	salary: number | null;
 	notes: string | null;
 	createdAt: string;

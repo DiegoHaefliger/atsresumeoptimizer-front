@@ -633,6 +633,7 @@ export interface components {
             contactName?: string;
             /** Format: email */
             contactEmail?: string;
+            contactPhone?: string;
             salary?: number;
             notes?: string;
         };
@@ -655,6 +656,7 @@ export interface components {
             nextStepOn?: string;
             contactName?: string;
             contactEmail?: string;
+            contactPhone?: string;
             salary?: number;
             notes?: string;
             /** Format: date-time */

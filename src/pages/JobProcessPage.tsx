@@ -134,6 +134,7 @@ export function JobProcessPage() {
 						{process.nextStepOn && <Fact label="Próxima etapa">{formatDate(process.nextStepOn)}</Fact>}
 						{process.contactName && <Fact label="Contato">{process.contactName}</Fact>}
 						{process.contactEmail && <Fact label="E-mail do contato">{process.contactEmail}</Fact>}
+						{process.contactPhone && <Fact label="Telefone do contato">{process.contactPhone}</Fact>}
 						{process.salary != null && <Fact label="Remuneração">R$ {process.salary.toLocaleString("pt-BR")}</Fact>}
 						{process.notes && <Fact label="Observações">{process.notes}</Fact>}
 					</dl>
