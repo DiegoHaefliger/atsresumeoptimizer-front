@@ -66,7 +66,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 			<label>
 				<span className="job-filters-label">Aderência mínima</span>
 				<select className={filters.minScore ? "is-active" : undefined} value={filters.minScore} onChange={(event) => update("minScore", Number(event.target.value))}>
-					<option value={0}>Qualquer</option>
+					<option value={0}>Aderência (todas)</option>
 					{MIN_SCORE_OPTIONS.map((value) => (
 						<option key={value} value={value}>
 							{value} ou mais
