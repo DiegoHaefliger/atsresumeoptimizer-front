@@ -74,6 +74,17 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 					))}
 				</select>
 			</label>
+			<label>
+				<span className="job-filters-label">Nota ATS mínima</span>
+				<select className={filters.minAtsScore ? "is-active" : undefined} value={filters.minAtsScore} onChange={(event) => update("minAtsScore", Number(event.target.value))}>
+					<option value={0}>Todas</option>
+					{MIN_SCORE_OPTIONS.map((value) => (
+						<option key={value} value={value}>
+							{value} ou mais
+						</option>
+					))}
+				</select>
+			</label>
 			<div className="job-filters-summary">
 				<span aria-live="polite">
 					{hasActiveFilters(filters)
