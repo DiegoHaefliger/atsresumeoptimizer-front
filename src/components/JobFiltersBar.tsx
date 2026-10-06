@@ -27,7 +27,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 			<label>
 				<span className="sr-only">Modelo de trabalho</span>
 				<select className={filters.workModel ? "is-active" : undefined} value={filters.workModel} onChange={(event) => update("workModel", event.target.value as WorkModel | "")}>
-					<option value="">Todos os modelos</option>
+					<option value="">Modelo (todos)</option>
 					{(Object.keys(WORK_MODEL_LABELS) as WorkModel[]).map((value) => (
 						<option key={value} value={value}>
 							{WORK_MODEL_LABELS[value]}
@@ -42,7 +42,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 					value={filters.contractType}
 					onChange={(event) => update("contractType", event.target.value as ContractType | "")}
 				>
-					<option value="">Todos os contratos</option>
+					<option value="">Contrato (todos)</option>
 					{(Object.keys(CONTRACT_TYPE_LABELS) as ContractType[]).map((value) => (
 						<option key={value} value={value}>
 							{CONTRACT_TYPE_LABELS[value]}
@@ -54,7 +54,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 				<label>
 					<span className="sr-only">Senioridade</span>
 					<select className={filters.seniority ? "is-active" : undefined} value={filters.seniority} onChange={(event) => update("seniority", event.target.value)}>
-						<option value="">Toda senioridade</option>
+						<option value="">Senioridade (todas)</option>
 						{seniorities.map((value) => (
 							<option key={value} value={value}>
 								{value}
@@ -66,7 +66,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 			<label>
 				<span className="sr-only">Aderência mínima</span>
 				<select className={filters.minScore ? "is-active" : undefined} value={filters.minScore} onChange={(event) => update("minScore", Number(event.target.value))}>
-					<option value={0}>Qualquer aderência</option>
+					<option value={0}>Aderência (qualquer)</option>
 					{MIN_SCORE_OPTIONS.map((value) => (
 						<option key={value} value={value}>
 							Aderência a partir de {value}
