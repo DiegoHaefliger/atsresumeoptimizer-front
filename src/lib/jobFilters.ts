@@ -48,3 +48,22 @@ export function filterJobs(jobs: Job[], filters: JobFilters): Job[] {
 		);
 	});
 }
+
+const STORAGE_KEY = "job-filters";
+
+export function loadFilters(): JobFilters {
+	try {
+		const stored = sessionStorage.getItem(STORAGE_KEY);
+		return stored ? { ...EMPTY_FILTERS, ...JSON.parse(stored) } : EMPTY_FILTERS;
+	} catch {
+		return EMPTY_FILTERS;
+	}
+}
+
+export function saveFilters(filters: JobFilters): void {
+	try {
+		sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+	} catch {
+		// sem storage (modo privado): os filtros só não sobrevivem à navegação
+	}
+}
