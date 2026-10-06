@@ -6,7 +6,7 @@ import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
 import type { SelectionProcess } from "../api/types";
 import { EyeIcon, FileTextIcon, KanbanIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
-import { Dialog } from "./Dialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { JobCode } from "./JobCode";
 import { JobFiltersBar } from "./JobFiltersBar";
 import { LoadFailed } from "./LoadFailed";
@@ -226,32 +226,25 @@ export function JobsTable({ jobs, failed, onRetry, onRemove, onPreview, onEdit, 
 			</div>
 			)}
 			{pageSize && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
-			<Dialog
+			<ConfirmDialog
 				open={confirmingRemoval !== null}
 				title="Remover vaga da lista?"
-				onClose={() => setConfirmingRemoval(null)}
+				confirmLabel="Remover vaga"
+				onConfirm={() => confirmingRemoval && remove(confirmingRemoval.id)}
+				onCancel={() => setConfirmingRemoval(null)}
 			>
 				{confirmingRemoval && (
-					<div className="dialog-content">
+					<>
 						<p>
 							<strong>{jobLabel(confirmingRemoval.code, confirmingRemoval.title, confirmingRemoval.company)}</strong>
 						</p>
 						<p>
 							A vaga deixa de aparecer na lista e as análises antigas continuam salvas.
-							{processes?.has(confirmingRemoval.id) &&
-								" O processo seletivo dela também deixa de ficar acessível."}
+							{processes?.has(confirmingRemoval.id) && " O processo seletivo dela também deixa de ficar acessível."}
 						</p>
-						<div className="dialog-actions">
-							<button type="button" className="btn-secondary" onClick={() => setConfirmingRemoval(null)}>
-								Cancelar
-							</button>
-							<button type="button" className="btn-danger" onClick={() => remove(confirmingRemoval.id)}>
-								Remover vaga
-							</button>
-						</div>
-					</div>
+					</>
 				)}
-			</Dialog>
+			</ConfirmDialog>
 		</>
 	);
 }

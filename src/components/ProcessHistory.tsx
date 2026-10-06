@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { apiDelete, errorMessage } from "../api/client";
-import type { SelectionProcess, SelectionStage } from "../api/types";
+import type { SelectionProcess, SelectionStage, StageMovement } from "../api/types";
 import { formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { useApiResource } from "../lib/useApiResource";
 import { PROCESSES_PATH } from "../lib/useProcesses";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { StateMessage } from "./StateMessage";
 
 type ProcessHistoryProps = {
@@ -14,16 +15,16 @@ type ProcessHistoryProps = {
 
 export function ProcessHistory({ processId, currentStage, onPick }: ProcessHistoryProps) {
 	const { data: detail, reload } = useApiResource<SelectionProcess>(`${PROCESSES_PATH}/${processId}`);
-	const [confirming, setConfirming] = useState<string | null>(null);
+	const [confirming, setConfirming] = useState<StageMovement | null>(null);
 	const [removing, setRemoving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const movements = [...(detail?.history ?? [])].reverse();
 
-	async function remove(movementId: string) {
+	async function remove(movement: StageMovement) {
 		setError(null);
 		setRemoving(true);
 		try {
-			await apiDelete(`${PROCESSES_PATH}/${processId}/history/${movementId}`);
+			await apiDelete(`${PROCESSES_PATH}/${processId}/history/${movement.id}`);
 			setConfirming(null);
 			reload();
 		} catch (err) {
@@ -52,29 +53,29 @@ export function ProcessHistory({ processId, currentStage, onPick }: ProcessHisto
 										Voltar para esta etapa
 									</button>
 								)}
-								{index > 0 &&
-									(confirming === movement.id ? (
-										<>
-											<span className="process-history-confirm">
-												Excluir a etapa {STAGE_LABELS[movement.stage]} do histórico?
-											</span>
-											<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(null)} disabled={removing}>
-												Cancelar
-											</button>
-											<button type="button" className="btn-danger btn-small" onClick={() => remove(movement.id)} disabled={removing} aria-busy={removing}>
-												Excluir
-											</button>
-										</>
-									) : (
-										<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(movement.id)}>
-											Excluir etapa
-										</button>
-									))}
+								{index > 0 && (
+									<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(movement)}>
+										Excluir etapa
+									</button>
+								)}
 							</div>
 						</details>
 					</li>
 				))}
 			</ol>
+			<ConfirmDialog
+				open={confirming !== null}
+				title="Excluir etapa do histórico?"
+				confirmLabel="Excluir etapa"
+				busy={removing}
+				onConfirm={() => confirming && remove(confirming)}
+				onCancel={() => setConfirming(null)}
+			>
+				<p>
+					A etapa <strong>{confirming ? STAGE_LABELS[confirming.stage] : ""}</strong> sai do histórico do processo. Não dá
+					pra desfazer.
+				</p>
+			</ConfirmDialog>
 		</>
 	);
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -114,19 +115,6 @@ export function JobProcessPage() {
 							</button>
 						</div>
 					</div>
-					{confirmingDelete && (
-						<div className="process-delete-confirm" role="alertdialog" aria-label="Confirmar exclusão">
-							<span>Excluir o processo seletivo desta vaga? O histórico de etapas também será apagado.</span>
-							<div className="process-detail-actions">
-								<button type="button" className="btn-secondary btn-small" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
-									Cancelar
-								</button>
-								<button type="button" className="btn-danger btn-small" onClick={() => confirmDelete(process.id)} disabled={deleting} aria-busy={deleting}>
-									Excluir processo
-								</button>
-							</div>
-						</div>
-					)}
 					<dl className="process-facts">
 						{job.sourceUrl && (
 							<Fact label="Link da vaga">
@@ -150,6 +138,16 @@ export function JobProcessPage() {
 						{process.notes && <Fact label="Observações">{process.notes}</Fact>}
 					</dl>
 					<ProcessHistory key={process.updatedAt} processId={process.id} currentStage={process.stage} />
+					<ConfirmDialog
+						open={confirmingDelete}
+						title="Excluir processo seletivo?"
+						confirmLabel="Excluir processo"
+						busy={deleting}
+						onConfirm={() => confirmDelete(process.id)}
+						onCancel={() => setConfirmingDelete(false)}
+					>
+						<p>O processo seletivo desta vaga e o histórico de etapas serão apagados. Não dá pra desfazer.</p>
+					</ConfirmDialog>
 					<MoveStageDialog process={moving ? process : null} onClose={() => setMoving(false)} onMove={moveStage} />
 				</section>
 			)}

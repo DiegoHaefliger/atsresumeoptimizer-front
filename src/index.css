@@ -2360,24 +2360,6 @@ legend {
 	min-width: 0;
 }
 
-.saved-resume-confirm {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-2) var(--space-3);
-	padding: var(--space-2) var(--space-3);
-	border-radius: var(--radius-md);
-	background: color-mix(in srgb, var(--error) 8%, transparent);
-	color: var(--error);
-	font-size: var(--font-size-sm);
-}
-
-.saved-resume-confirm-actions {
-	display: flex;
-	gap: var(--space-2);
-}
-
 .recent-jobs-action-col {
 	width: 1%;
 	text-align: right;
@@ -3269,22 +3251,7 @@ legend {
 	gap: var(--space-2);
 }
 
-.process-history-confirm {
-	flex-basis: 100%;
-	font-size: var(--font-size-sm);
-	font-weight: var(--font-weight-semibold);
-}
-
-.process-delete-confirm {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
-	padding: var(--space-3) var(--space-4);
-	border: 1px solid var(--error);
-	border-radius: var(--radius-md);
-	background: color-mix(in srgb, var(--error) 8%, transparent);
-	font-size: var(--font-size-sm);
-	font-weight: var(--font-weight-semibold);
+.confirm-message p {
+	margin: 0;
+	color: var(--text);
 }
