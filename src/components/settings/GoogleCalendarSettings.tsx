@@ -5,6 +5,8 @@ import { useGoogleCalendar } from "../../lib/useGoogleCalendar";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { StateMessage } from "../StateMessage";
 
+const GOOGLE_SETUP_GUIDE = "https://github.com/DiegoHaefliger/atsresumeoptimizer-backend#google-agenda-opcional";
+
 export function GoogleCalendarSettings() {
 	const { status, failed, reload, connect, sync, disconnect } = useGoogleCalendar();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +46,7 @@ export function GoogleCalendarSettings() {
 			</section>
 		);
 	}
-	if (!status?.configured) {
+	if (!status) {
 		return null;
 	}
 
@@ -58,6 +60,14 @@ export function GoogleCalendarSettings() {
 			{returned === "connected" && <StateMessage variant="empty" layout="inline" message="Conta Google conectada." />}
 			{returned === "error" && (
 				<StateMessage variant="error" layout="inline" message="Não deu pra conectar a conta Google. Tenta de novo." />
+			)}
+			{!status.configured && (
+				<p className="field-hint">
+					A integração com o Google ainda não foi configurada no servidor.{" "}
+					<a href={GOOGLE_SETUP_GUIDE} target="_blank" rel="noopener noreferrer" className="link">
+						Ver como configurar
+					</a>
+				</p>
 			)}
 			{status.connected && (
 				<p>
@@ -81,7 +91,11 @@ export function GoogleCalendarSettings() {
 						</button>
 					</>
 				) : (
-					<button type="button" disabled={busy} onClick={() => run(connect, "Não deu pra iniciar a conexão. Tenta de novo.")}>
+					<button
+						type="button"
+						disabled={busy || !status.configured}
+						onClick={() => run(connect, "Não deu pra iniciar a conexão. Tenta de novo.")}
+					>
 						Conectar com o Google
 					</button>
 				)}
