@@ -4,8 +4,7 @@ import { errorMessage } from "../../api/client";
 import { useGoogleCalendar } from "../../lib/useGoogleCalendar";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { StateMessage } from "../StateMessage";
-
-const GOOGLE_SETUP_GUIDE = "https://github.com/DiegoHaefliger/atsresumeoptimizer-backend#google-agenda-opcional";
+import { GoogleSetupGuide } from "./GoogleSetupGuide";
 
 export function GoogleCalendarSettings() {
 	const { status, failed, reload, connect, sync, disconnect } = useGoogleCalendar();
@@ -62,12 +61,7 @@ export function GoogleCalendarSettings() {
 				<StateMessage variant="error" layout="inline" message="Não deu pra conectar a conta Google. Tenta de novo." />
 			)}
 			{!status.configured && (
-				<p className="field-hint">
-					A integração com o Google ainda não foi configurada no servidor.{" "}
-					<a href={GOOGLE_SETUP_GUIDE} target="_blank" rel="noopener noreferrer" className="link">
-						Ver como configurar
-					</a>
-				</p>
+				<p className="field-hint">A integração com o Google ainda não foi configurada no servidor.</p>
 			)}
 			{status.connected && (
 				<p>
@@ -100,6 +94,7 @@ export function GoogleCalendarSettings() {
 					</button>
 				)}
 			</div>
+			{!status.connected && <GoogleSetupGuide redirectUri={status.redirectUri} open={!status.configured} />}
 			<ConfirmDialog
 				open={confirming}
 				title="Desconectar a conta Google?"

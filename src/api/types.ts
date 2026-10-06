@@ -152,4 +152,5 @@ export type GoogleCalendarStatus = {
 	configured: boolean;
 	connected: boolean;
 	accountEmail: string | null;
+	redirectUri: string;
 };

@@ -3562,3 +3562,34 @@ legend {
 .google-panel {
 	margin-top: var(--space-4);
 }
+
+.google-guide summary {
+	cursor: pointer;
+	font-weight: var(--font-weight-semibold);
+}
+
+.google-guide-steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	margin: var(--space-3) 0;
+	padding-left: var(--space-5);
+	font-size: var(--font-size-md);
+}
+
+.google-guide-copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-2);
+	margin-top: var(--space-1);
+}
+
+.google-guide-copy code {
+	padding: var(--space-1) var(--space-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm, 4px);
+	background: var(--bg);
+	white-space: pre-wrap;
+	word-break: break-all;
+}
