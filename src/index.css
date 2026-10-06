@@ -2986,7 +2986,7 @@ legend {
 
 .job-filters {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 	gap: var(--space-2);
 	align-items: center;
 	margin-bottom: var(--space-3);
@@ -2994,8 +2994,13 @@ legend {
 
 .job-filters label {
 	min-width: 0;
-	gap: 0;
+	gap: var(--space-1);
 	font-weight: normal;
+}
+
+.job-filters-label {
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
 }
 
 .job-filters select {
