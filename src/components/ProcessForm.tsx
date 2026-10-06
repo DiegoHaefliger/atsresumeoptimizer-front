@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
-import type { SelectionStage } from "../api/types";
+import type { SelectionProcess, SelectionStage } from "../api/types";
 import type { ProcessDraft } from "../lib/processDraft";
 import { jobLabel, STAGE_LABELS, STAGES } from "../lib/processLabels";
+import { useApiResource } from "../lib/useApiResource";
 import { useJobs } from "../lib/useJobs";
+import { PROCESSES_PATH } from "../lib/useProcesses";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
 import { Link } from "react-router-dom";
 import { StateMessage } from "./StateMessage";
@@ -17,7 +19,15 @@ type ProcessFormProps = {
 };
 
 export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onSave }: ProcessFormProps) {
-	const { jobs, failed: jobsFailed } = useJobs();
+	const { jobs: allJobs, failed: jobsFailed } = useJobs();
+	const { data: processes, failed: processesFailed } = useApiResource<SelectionProcess[]>(PROCESSES_PATH);
+	const jobs = useMemo(() => {
+		if (allJobs === null || processes === null) {
+			return null;
+		}
+		const withProcess = new Set(processes.map((process) => process.jobPostingId));
+		return allJobs.filter((job) => job.id === currentJob?.id || !withProcess.has(job.id));
+	}, [allJobs, processes, currentJob?.id]);
 	const [draft, setDraft] = useState<ProcessDraft>(initial);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -75,12 +85,16 @@ export function ProcessForm({ initial, currentJob, submitLabel, chooseStage, onS
 							</option>
 						))}
 					</select>
-					{jobs?.length === 0 && !currentJob && (
+					{jobs?.length === 0 && (
 						<span className="field-hint">
-							Nenhuma vaga cadastrada. <Link to="/jobs/new" className="link">Cadastre a vaga</Link> antes de criar o processo.
+							{allJobs?.length ? "Todas as vagas cadastradas já têm processo. " : "Nenhuma vaga cadastrada. "}
+							<Link to="/jobs/new" className="link">
+								Cadastre uma vaga
+							</Link>{" "}
+							para criar um novo processo.
 						</span>
 					)}
-					{jobsFailed && <span className="field-hint">Não deu pra carregar as vagas.</span>}
+					{(jobsFailed || processesFailed) && <span className="field-hint">Não deu pra carregar as vagas.</span>}
 				</label>
 				<div className="form-row">
 					<label>
