@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import type { ResumeSummary, ResumeVersionSummary } from "../api/types";
 import { resumeMeta, versionLabel } from "../lib/resumeLabels";
+import { scoreTone, type ScoreTone } from "../lib/score";
 import { DownloadIcon, EyeIcon, FileTextIcon, PencilIcon, SpinnerIcon, StarIcon, TrashIcon } from "./icons";
-import { Badge } from "./Badge";
+import { Badge, type BadgeTone } from "./Badge";
 import { LoadFailed } from "./LoadFailed";
 import { ResumeDownloadDialog } from "./ResumeDownloadDialog";
 import { ResumePreviewDialog } from "./ResumePreviewDialog";
@@ -20,6 +21,8 @@ type ResumeLibraryProps = {
 	emptyMessage: string;
 	onToggleFavorite?: (resumeId: string, favorite: boolean) => Promise<void>;
 };
+
+const SCORE_BADGE_TONES: Record<ScoreTone, BadgeTone> = { high: "success", mid: "warning", low: "error" };
 
 type Previewing = { resume: ResumeSummary; version: ResumeVersionSummary };
 
@@ -130,6 +133,9 @@ export function ResumeLibrary({
 										</Link>
 									)}
 								</span>
+								{resume.atsScore != null && (
+									<Badge tone={SCORE_BADGE_TONES[scoreTone(resume.atsScore)]}>Nota ATS {resume.atsScore}</Badge>
+								)}
 								{resume.favorite && <Badge tone="info">Favorito</Badge>}
 							</span>
 							{resume.id && confirmingId !== resume.id && (
