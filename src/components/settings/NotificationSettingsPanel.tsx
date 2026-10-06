@@ -5,6 +5,7 @@ import { LeadTimeEditor } from "../LeadTimeEditor";
 import { Skeleton } from "../Skeleton";
 import { StateMessage } from "../StateMessage";
 import { NOTIFICATION_SETTINGS_PATH } from "../../lib/notificationsPath";
+import { CalendarFeedSettings } from "./CalendarFeedSettings";
 
 const CHANNEL_LABELS: Record<NotificationChannel, string> = {
 	IN_APP: "No aplicativo",
@@ -109,6 +110,11 @@ export function NotificationSettingsPanel() {
 						</button>
 					</div>
 				</form>
+			)}
+			{settings && (
+				<div className="panel panel-body form form-narrow feed-panel">
+					<CalendarFeedSettings />
+				</div>
 			)}
 		</>
 	);

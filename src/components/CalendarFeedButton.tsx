@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { apiUrl } from "../api/client";
 import type { CalendarFeedInfo } from "../api/types";
 import { useApiResource } from "../lib/useApiResource";
@@ -11,7 +12,11 @@ export function CalendarFeedButton() {
 		return null;
 	}
 	if (!info.enabled || !info.path) {
-		return <p className="field-hint">Para assinar a agenda no Google ou Outlook, defina CALENDAR_FEED_TOKEN no servidor.</p>;
+		return (
+			<Link to="/settings/notifications" className="link">
+				Assinar a agenda no Google ou Outlook
+			</Link>
+		);
 	}
 	const feedPath = info.path;
 
