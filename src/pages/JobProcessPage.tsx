@@ -20,6 +20,8 @@ export function JobProcessPage() {
 	const { processes, failed: processesFailed, reload, moveStage, remove } = useProcesses();
 	const [editing, setEditing] = useState(false);
 	const [moving, setMoving] = useState(false);
+	const [confirmingDelete, setConfirmingDelete] = useState(false);
+	const [deleting, setDeleting] = useState(false);
 	const job = jobs?.find((candidate) => candidate.id === jobId) ?? null;
 	const process = processes?.find((candidate) => candidate.jobPostingId === jobId) ?? null;
 
@@ -32,6 +34,13 @@ export function JobProcessPage() {
 		await apiPutJson(`${PROCESSES_PATH}/${process?.id}`, processRequest(draft));
 		reload();
 		setEditing(false);
+	}
+
+	async function confirmDelete(processId: string) {
+		setDeleting(true);
+		await remove(processId);
+		setDeleting(false);
+		setConfirmingDelete(false);
 	}
 
 	return (
@@ -99,12 +108,25 @@ export function JobProcessPage() {
 								className="process-action process-action-icon"
 								aria-label="Excluir processo"
 								title="Excluir"
-								onClick={() => remove(process.id)}
+								onClick={() => setConfirmingDelete(true)}
 							>
 								<TrashIcon />
 							</button>
 						</div>
 					</div>
+					{confirmingDelete && (
+						<div className="process-delete-confirm" role="alertdialog" aria-label="Confirmar exclusão">
+							<span>Excluir o processo seletivo desta vaga? O histórico de etapas também será apagado.</span>
+							<div className="process-detail-actions">
+								<button type="button" className="btn-secondary btn-small" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+									Cancelar
+								</button>
+								<button type="button" className="btn-danger btn-small" onClick={() => confirmDelete(process.id)} disabled={deleting} aria-busy={deleting}>
+									Excluir processo
+								</button>
+							</div>
+						</div>
+					)}
 					<dl className="process-facts">
 						{job.sourceUrl && (
 							<Fact label="Link da vaga">
