@@ -3,13 +3,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiGet, errorMessage } from "../api/client";
 import type { AnalysisReportView } from "../api/types";
 import { Badge } from "../components/Badge";
+import { KeywordsEditor } from "../components/KeywordsEditor";
 import { PreferenceMatchPanel } from "../components/PreferenceMatchPanel";
 import { ProgressSteps, type ProgressStep } from "../components/ProgressSteps";
 import { ScoreRing } from "../components/ScoreRing";
 import { FindingsSkeleton, KeywordsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { AlertCircleIcon, ArrowRightIcon } from "../components/icons";
-import { modeLabel, statusLabel, statusTone } from "../lib/analysisLabels";
+import { dimensionLabel, modeLabel, statusLabel, statusTone } from "../lib/analysisLabels";
 import { scoreTone } from "../lib/score";
 import { useSteppedProgress } from "../lib/useSteppedProgress";
 
@@ -38,6 +39,12 @@ export function ResultPage() {
 	const navigate = useNavigate();
 	const currentStatus = result?.header?.status;
 	const shownStep = useSteppedProgress(STATUS_STEP_INDEX[currentStatus ?? "PENDING"] ?? 0, MIN_STEP_DISPLAY_MS);
+
+	async function reloadResult() {
+		if (id) {
+			setResult(await apiGet<AnalysisReportView>(`/api/v1/analyses/${id}`));
+		}
+	}
 
 	useEffect(() => {
 		if (!id) {
@@ -142,7 +149,7 @@ export function ResultPage() {
 								return (
 									<div className="dimension-row" key={dimension.code}>
 										<div className="dimension-row-top">
-											<span className="dimension-name">{dimension.code}</span>
+											<span className="dimension-name">{dimensionLabel(dimension.code ?? "")}</span>
 											<span className="dimension-score">{dimension.score}</span>
 										</div>
 										<div className="dimension-track">
@@ -161,13 +168,22 @@ export function ResultPage() {
 				{keywords && (
 					<section>
 						<h2>Palavras-chave</h2>
-						<div className="keyword-groups">
-							<KeywordGroup label="Encontradas" tone="found" words={keywords.found} emptyText="Nenhuma ainda" />
-							<KeywordGroup label="Faltando" tone="missing" words={keywords.missing} emptyText="Nenhuma" />
-							{keywords.semanticOnly && keywords.semanticOnly.length > 0 && (
-								<KeywordGroup label="Só por semântica" tone="semantic" words={keywords.semanticOnly} />
-							)}
-						</div>
+						{keywords.editable && id ? (
+							<KeywordsEditor
+								key={JSON.stringify([keywords.terms, keywords.selected, keywords.found, keywords.missing])}
+								analysisId={id}
+								keywords={keywords}
+								onSaved={reloadResult}
+							/>
+						) : (
+							<div className="keyword-groups">
+								<KeywordGroup label="Encontradas" tone="found" words={keywords.found} emptyText="Nenhuma ainda" />
+								<KeywordGroup label="Faltando" tone="missing" words={keywords.missing} emptyText="Nenhuma" />
+								{keywords.semanticOnly && keywords.semanticOnly.length > 0 && (
+									<KeywordGroup label="Só por semântica" tone="semantic" words={keywords.semanticOnly} />
+								)}
+							</div>
+						)}
 					</section>
 				)}
 			</div>

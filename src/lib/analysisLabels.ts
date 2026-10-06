@@ -27,6 +27,20 @@ const MODE_LABELS: Record<string, string> = {
 	GENERAL: "Avaliação geral",
 };
 
+const DIMENSION_LABELS: Record<string, string> = {
+	PARSEABILITY: "Leitura pelo ATS",
+	STRUCTURE_SECTIONS: "Estrutura e seções",
+	CONTACT_DATA: "Dados de contato",
+	KEYWORD_MATCH: "Palavras-chave da vaga",
+	REQUIREMENTS_SENIORITY: "Requisitos e senioridade",
+	CONTENT_QUALITY: "Qualidade do conteúdo",
+	LANGUAGE: "Idioma e escrita",
+};
+
+export function dimensionLabel(code: string): string {
+	return DIMENSION_LABELS[code] ?? code;
+}
+
 export function statusLabel(status: string): string {
 	return STATUS_LABELS[status] ?? status;
 }

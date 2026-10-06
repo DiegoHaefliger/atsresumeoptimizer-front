@@ -90,7 +90,7 @@ function PreviewSection({
 			{section.kind === "ENTRIES" &&
 				(section.entries ?? []).map((entry, index) =>
 					section.semanticType === "EXPERIENCE" ? (
-						<PreviewExperience key={index} entry={entry} />
+						<PreviewExperience key={index} entry={entry} original={original} showChanges={showChanges} />
 					) : (
 						<PreviewEntry
 							key={index}
@@ -105,7 +105,15 @@ function PreviewSection({
 	);
 }
 
-function PreviewExperience({ entry }: { entry: ResumeEntry }) {
+function PreviewExperience({
+	entry,
+	original,
+	showChanges,
+}: {
+	entry: ResumeEntry;
+	original: OriginalResume;
+	showChanges: boolean;
+}) {
 	const period = experiencePeriod(entry);
 	const { title, location } = experienceTitle(entry);
 	return (
@@ -116,11 +124,18 @@ function PreviewExperience({ entry }: { entry: ResumeEntry }) {
 			</p>
 			{period && <p className="resume-preview-line">{period}</p>}
 			<ul>
-				{experienceBulletSpans(entry).map((line, index) => (
-					<li key={index}>
-						<Spans spans={line} />
-					</li>
-				))}
+				{experienceBulletSpans(entry).map((line, index) => {
+					const text = plainText(line);
+					return (
+						<li key={index}>
+							{showChanges ? (
+								<DiffText before={closestOriginalBullet(original, text)} after={text} showChanges />
+							) : (
+								<Spans spans={line} />
+							)}
+						</li>
+					);
+				})}
 			</ul>
 			{entry.technologies && (
 				<p className="resume-preview-technologies">

@@ -7,6 +7,7 @@ import { RewritePage } from "./pages/RewritePage";
 import { JobEditPage } from "./pages/JobEditPage";
 import { JobFormPage } from "./pages/JobFormPage";
 import { JobsPage } from "./pages/JobsPage";
+import { PromptsPage } from "./pages/PromptsPage";
 import { PreferencesPage } from "./pages/PreferencesPage";
 import { ResumesPage } from "./pages/ResumesPage";
 import { ResumeEditPage } from "./pages/ResumeEditPage";
@@ -28,6 +29,7 @@ export default function App() {
 				<Route path="/analyses/:id" element={<ResultPage />} />
 				<Route path="/analyses/:id/rewrite" element={<RewritePage />} />
 				<Route path="/preferences" element={<PreferencesPage />} />
+				<Route path="/prompts" element={<PromptsPage />} />
 				<Route path="/settings" element={<SettingsPage />} />
 				<Route path="*" element={<Navigate to="/upload" replace />} />
 			</Routes>
