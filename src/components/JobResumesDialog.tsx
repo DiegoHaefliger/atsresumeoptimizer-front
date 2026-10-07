@@ -51,6 +51,7 @@ function JobResumes({ jobId }: { jobId: string }) {
 			onRetry={load}
 			onDelete={deleteResume}
 			onDeleteVersion={deleteVersion}
+			editable={false}
 			emptyMessage="Nenhum currículo foi gerado para esta vaga ainda. Adapte um currículo a partir de uma análise dela."
 		/>
 	);

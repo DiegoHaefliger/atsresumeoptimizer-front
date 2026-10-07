@@ -21,6 +21,7 @@ type ResumeLibraryProps = {
 	onDeleteVersion: (resumeId: string, versionId: string) => Promise<void>;
 	emptyMessage: string;
 	onToggleFavorite?: (resumeId: string, favorite: boolean) => Promise<void>;
+	editable?: boolean;
 };
 
 const SCORE_BADGE_TONES: Record<ScoreTone, BadgeTone> = { high: "success", mid: "warning", low: "error" };
@@ -35,6 +36,7 @@ export function ResumeLibrary({
 	onDeleteVersion,
 	emptyMessage,
 	onToggleFavorite,
+	editable = true,
 }: ResumeLibraryProps) {
 	const [confirmingId, setConfirmingId] = useState<string | null>(null);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -174,15 +176,17 @@ export function ResumeLibrary({
 									>
 										<DownloadIcon />
 									</button>
-									<button
-										type="button"
-										className="btn-icon"
-										onClick={() => edit(resume)}
-										aria-label={`Editar ${resume.title}`}
-										title="Editar currículo"
-									>
-										<PencilIcon />
-									</button>
+									{editable && (
+										<button
+											type="button"
+											className="btn-icon"
+											onClick={() => edit(resume)}
+											aria-label={`Editar ${resume.title}`}
+											title="Editar currículo"
+										>
+											<PencilIcon />
+										</button>
+									)}
 									<button
 										type="button"
 										className="btn-icon"

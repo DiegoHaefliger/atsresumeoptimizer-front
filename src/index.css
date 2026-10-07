@@ -1066,7 +1066,15 @@ ul {
 }
 
 .result-cta {
-	margin-top: var(--space-6);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	margin-top: calc(var(--space-8) + var(--space-4));
+}
+
+.result-cta > button {
+	flex: 1 1 240px;
+	width: auto;
 }
 
 .empty-state {
@@ -2769,6 +2777,18 @@ legend {
 
 .adapted-resumes[open] summary {
 	margin-bottom: var(--space-2);
+}
+
+.cover-letter {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	margin-top: var(--space-8);
+}
+
+.cover-letter-text {
+	min-height: 12rem;
+	line-height: 1.6;
 }
 
 .auto-grow-textarea {
