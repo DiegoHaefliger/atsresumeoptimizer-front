@@ -31,17 +31,30 @@ export function GoogleSetupGuide({ redirectUri, open }: { redirectUri: string; o
 				</li>
 				<li>
 					Em <strong>APIs e serviços &gt; Tela de consentimento OAuth</strong> (ou <strong>Google Auth Platform</strong>),
-					escolha o tipo <strong>Externo</strong>, informe o nome do app e um e-mail de suporte. Em{" "}
-					<strong>Público-alvo</strong>, adicione como usuários de teste os e-mails que vão conectar a agenda.
+					escolha o tipo <strong>Externo</strong> e informe o nome do app e um e-mail de suporte.
 				</li>
 				<li>
-					Em <strong>APIs e serviços &gt; Credenciais &gt; Criar credenciais &gt; ID do cliente OAuth</strong>, escolha{" "}
-					<strong>Aplicativo da Web</strong> e cadastre em <strong>URIs de redirecionamento autorizados</strong>:
+					Ainda na tela de consentimento, abra <strong>Público-alvo</strong> e, em <strong>Usuários de teste</strong>,
+					clique em <strong>+ Adicionar usuários</strong> e inclua o e-mail de cada conta Google que vai conectar a agenda.
+					Sem isso o Google bloqueia o login com o erro <code>403: access_denied</code>.
+				</li>
+				<li>
+					Em <strong>APIs e serviços &gt; Credenciais &gt; Criar credenciais &gt; ID do cliente OAuth</strong>, escolha o
+					tipo <strong>Aplicativo da Web</strong>.
+				</li>
+				<li>
+					No mesmo formulário, role até a seção <strong>URIs de redirecionamento autorizados</strong> (não em
+					&quot;Origens JavaScript autorizadas&quot;), clique em <strong>+ Adicionar URI</strong>, cole o endereço abaixo
+					exatamente como está e clique em <strong>Salvar</strong> no fim da página:
 					<span className="google-guide-copy">
 						<code>{redirectUri}</code>
 						<button type="button" className="btn-secondary btn-small" onClick={() => copy("redirect", redirectUri)}>
 							{copied === "redirect" ? "Copiado" : "Copiar"}
 						</button>
+					</span>
+					<span className="field-hint google-guide-note">
+						Se o endereço estiver diferente (ou em outra seção), o Google mostra o erro{" "}
+						<code>400: redirect_uri_mismatch</code>. Depois de salvar, a mudança pode levar alguns minutos para valer.
 					</span>
 				</li>
 				<li>
