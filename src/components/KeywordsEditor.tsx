@@ -14,6 +14,8 @@ type KeywordsEditorProps = {
 
 type Tone = "found" | "missing" | "semantic" | "pending";
 
+const MAX_MAIN_KEYWORDS = 10;
+
 function toneOf(term: string, keywords: KeywordsPanelView): Tone {
 	if (keywords.found?.includes(term)) {
 		return "found";
@@ -39,9 +41,15 @@ export function KeywordsEditor({ analysisId, keywords, onSaved }: KeywordsEditor
 	const dirty = !sameList(terms, initialTerms) || !sameList(selected, initialSelected);
 	const main = terms.filter((term) => selected.includes(term));
 	const others = terms.filter((term) => !selected.includes(term));
+	const mainFull = main.length >= MAX_MAIN_KEYWORDS;
 
 	function toggle(term: string) {
-		setSelected((current) => (current.includes(term) ? current.filter((item) => item !== term) : [...current, term]));
+		setSelected((current) => {
+			if (current.includes(term)) {
+				return current.filter((item) => item !== term);
+			}
+			return current.length < MAX_MAIN_KEYWORDS ? [...current, term] : current;
+		});
 	}
 
 	function remove(term: string) {
@@ -84,7 +92,8 @@ export function KeywordsEditor({ analysisId, keywords, onSaved }: KeywordsEditor
 									type="button"
 									className="keyword-pill-label"
 									onClick={() => toggle(term)}
-									title={isMain ? "Mover para Outras" : "Tornar principal"}
+									disabled={!isMain && mainFull}
+									title={isMain ? "Mover para Outras" : mainFull ? `Limite de ${MAX_MAIN_KEYWORDS} principais` : "Tornar principal"}
 								>
 									{term}
 								</button>
@@ -109,7 +118,12 @@ export function KeywordsEditor({ analysisId, keywords, onSaved }: KeywordsEditor
 
 	return (
 		<div className="keyword-groups">
-			{renderGroup("Principais", "Estas guiam a adaptação do currículo. O × move a palavra para Outras, sem apagá-la.", main, true)}
+			{renderGroup(
+				`Principais (${main.length}/${MAX_MAIN_KEYWORDS})`,
+				`Estas guiam a adaptação do currículo; escolha até ${MAX_MAIN_KEYWORDS}. O × move a palavra para Outras, sem apagá-la.`,
+				main,
+				true,
+			)}
 			{renderGroup("Outras", "Entram na nota da análise, mas não são destacadas nos cargos. Clique na palavra para torná-la principal; o × apaga da lista.", others, false)}
 			<form className="keyword-add" onSubmit={add}>
 				<input
