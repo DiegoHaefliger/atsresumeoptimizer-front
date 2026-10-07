@@ -1,11 +1,21 @@
 import type { ComponentType, SVGProps } from "react";
 import { NavLink } from "react-router-dom";
-import { BriefcaseIcon, ClipboardCheckIcon, FileTextIcon, MessageSquareIcon, SettingsIcon, SlidersIcon } from "./icons";
+import { NotificationBell } from "./NotificationBell";
+import {
+	BriefcaseIcon,
+	CalendarIcon,
+	ClipboardCheckIcon,
+	FileTextIcon,
+	MessageSquareIcon,
+	SettingsIcon,
+	SlidersIcon,
+} from "./icons";
 
 const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
 	{ to: "/upload", label: "Nova análise", Icon: ClipboardCheckIcon },
 	{ to: "/resumes", label: "Currículos", Icon: FileTextIcon },
 	{ to: "/jobs", label: "Vagas", Icon: BriefcaseIcon },
+	{ to: "/calendar", label: "Agenda", Icon: CalendarIcon },
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
@@ -27,6 +37,7 @@ export function AppHeader() {
 						</NavLink>
 					))}
 				</nav>
+				<NotificationBell />
 			</div>
 		</header>
 	);

@@ -5,7 +5,6 @@ export type ProcessDraft = {
 	processUrl: string;
 	stage: SelectionStage;
 	appliedOn: string;
-	nextStepOn: string;
 	contactName: string;
 	contactEmail: string;
 	contactPhone: string;
@@ -18,7 +17,6 @@ export const EMPTY_PROCESS: ProcessDraft = {
 	processUrl: "",
 	stage: "INTERESTED",
 	appliedOn: "",
-	nextStepOn: "",
 	contactName: "",
 	contactEmail: "",
 	contactPhone: "",
@@ -32,7 +30,6 @@ export function draftFromProcess(process: SelectionProcess): ProcessDraft {
 		processUrl: process.processUrl ?? "",
 		stage: process.stage,
 		appliedOn: process.appliedOn ?? "",
-		nextStepOn: process.nextStepOn ?? "",
 		contactName: process.contactName ?? "",
 		contactEmail: process.contactEmail ?? "",
 		contactPhone: process.contactPhone ?? "",
@@ -48,7 +45,6 @@ export function processRequest(draft: ProcessDraft) {
 		processUrl: draft.processUrl.trim() || undefined,
 		stage: draft.stage,
 		appliedOn: draft.appliedOn || undefined,
-		nextStepOn: draft.nextStepOn || undefined,
 		contactName: draft.contactName.trim() || undefined,
 		contactEmail: draft.contactEmail.trim() || undefined,
 		contactPhone: draft.contactPhone.trim() || undefined,

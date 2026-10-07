@@ -4,16 +4,20 @@ import { apiPostJson, apiPutJson } from "../api/client";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
 import { MoveStageDialog } from "../components/MoveStageDialog";
-import { ProcessHistory } from "../components/ProcessHistory";
 import { ProcessForm } from "../components/ProcessForm";
+import { ProcessHistory } from "../components/ProcessHistory";
+import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
 import { ArrowLeftIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
-import { formatDate } from "../lib/processLabels";
+import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
+import { PROCESSES_PATH } from "../lib/processPath";
+import { createSchedule } from "../lib/scheduleApi";
+import { emptyScheduleDraft, type ScheduleDraft } from "../lib/scheduleDraft";
 import { useJobs } from "../lib/useJobs";
-import { PROCESSES_PATH, useProcesses } from "../lib/useProcesses";
+import { useProcesses } from "../lib/useProcesses";
 
 export function JobProcessPage() {
 	const { jobId } = useParams<{ jobId: string }>();
@@ -21,6 +25,8 @@ export function JobProcessPage() {
 	const { processes, failed: processesFailed, reload, moveStage, remove } = useProcesses();
 	const [editing, setEditing] = useState(false);
 	const [moving, setMoving] = useState(false);
+	const [scheduling, setScheduling] = useState(false);
+	const [historyVersion, setHistoryVersion] = useState(0);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [deleting, setDeleting] = useState(false);
 	const job = jobs?.find((candidate) => candidate.id === jobId) ?? null;
@@ -35,6 +41,12 @@ export function JobProcessPage() {
 		await apiPutJson(`${PROCESSES_PATH}/${process?.id}`, processRequest(draft));
 		reload();
 		setEditing(false);
+	}
+
+	async function schedule(draft: ScheduleDraft) {
+		await createSchedule(process?.id ?? "", draft);
+		setHistoryVersion((version) => version + 1);
+		reload();
 	}
 
 	async function confirmDelete(processId: string) {
@@ -95,6 +107,9 @@ export function JobProcessPage() {
 							<button type="button" className="process-action" onClick={() => setMoving(true)}>
 								Mover etapa
 							</button>
+							<button type="button" className="process-action" onClick={() => setScheduling(true)}>
+								Agendar
+							</button>
 							<button
 								type="button"
 								className="process-action process-action-icon"
@@ -131,14 +146,25 @@ export function JobProcessPage() {
 							</Fact>
 						)}
 						{process.appliedOn && <Fact label="Candidatura">{formatDate(process.appliedOn)}</Fact>}
-						{process.nextStepOn && <Fact label="Próxima etapa">{formatDate(process.nextStepOn)}</Fact>}
+						{process.nextSchedule ? (
+							<Fact label="Próxima etapa">
+								{formatDateTime(process.nextSchedule.scheduledAt)} - {STAGE_LABELS[process.nextSchedule.stage]}
+							</Fact>
+						) : (
+							process.nextStepOn && <Fact label="Próxima etapa">{formatDate(process.nextStepOn)}</Fact>
+						)}
 						{process.contactName && <Fact label="Contato">{process.contactName}</Fact>}
 						{process.contactEmail && <Fact label="E-mail do contato">{process.contactEmail}</Fact>}
 						{process.contactPhone && <Fact label="Telefone do contato">{process.contactPhone}</Fact>}
 						{process.salary != null && <Fact label="Remuneração">R$ {process.salary.toLocaleString("pt-BR")}</Fact>}
 						{process.notes && <Fact label="Observações">{process.notes}</Fact>}
 					</dl>
-					<ProcessHistory key={process.updatedAt} processId={process.id} currentStage={process.stage} />
+					<ProcessHistory
+						key={`${process.updatedAt}:${historyVersion}`}
+						processId={process.id}
+						currentStage={process.stage}
+						onScheduleChange={reload}
+					/>
 					<ConfirmDialog
 						open={confirmingDelete}
 						title="Excluir processo seletivo?"
@@ -150,6 +176,12 @@ export function JobProcessPage() {
 						<p>O processo seletivo desta vaga e o histórico de etapas serão apagados. Não dá pra desfazer.</p>
 					</ConfirmDialog>
 					<MoveStageDialog process={moving ? process : null} onClose={() => setMoving(false)} onMove={moveStage} />
+					<ScheduleDialog
+						title="Agendar etapa"
+						initial={scheduling ? emptyScheduleDraft(process.stage) : null}
+						onClose={() => setScheduling(false)}
+						onSave={schedule}
+					/>
 				</section>
 			)}
 		</div>

@@ -1,37 +1,72 @@
 import { useState } from "react";
 import { apiDelete, errorMessage } from "../api/client";
-import type { SelectionProcess, SelectionStage, StageMovement } from "../api/types";
+import type { SelectionProcess, SelectionSchedule, SelectionStage, StageMovement } from "../api/types";
+import { PROCESSES_PATH } from "../lib/processPath";
 import { formatDateTime, STAGE_LABELS } from "../lib/processLabels";
+import { buildTimeline } from "../lib/processTimeline";
+import { cancelSchedule, completeSchedule, rescheduleSchedule } from "../lib/scheduleApi";
+import { draftFromSchedule, type ScheduleDraft } from "../lib/scheduleDraft";
 import { useApiResource } from "../lib/useApiResource";
-import { PROCESSES_PATH } from "../lib/useProcesses";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { ScheduleDialog } from "./ScheduleDialog";
+import { ScheduleHistoryItem } from "./ScheduleHistoryItem";
 import { StateMessage } from "./StateMessage";
 
 type ProcessHistoryProps = {
 	processId: string;
 	currentStage: SelectionStage;
 	onPick?: (stage: SelectionStage) => void;
+	onScheduleChange?: () => void;
 };
 
-export function ProcessHistory({ processId, currentStage, onPick }: ProcessHistoryProps) {
+export function ProcessHistory({ processId, currentStage, onPick, onScheduleChange }: ProcessHistoryProps) {
 	const { data: detail, reload } = useApiResource<SelectionProcess>(`${PROCESSES_PATH}/${processId}`);
 	const [confirming, setConfirming] = useState<StageMovement | null>(null);
-	const [removing, setRemoving] = useState(false);
+	const [cancelling, setCancelling] = useState<SelectionSchedule | null>(null);
+	const [rescheduling, setRescheduling] = useState<SelectionSchedule | null>(null);
+	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const movements = [...(detail?.history ?? [])].reverse();
+	const timeline = buildTimeline(detail?.history ?? [], detail?.schedules ?? []);
+	const currentMovementId = detail?.history.at(-1)?.id;
 
-	async function remove(movement: StageMovement) {
+	async function run(action: () => Promise<unknown>, failure: string) {
 		setError(null);
-		setRemoving(true);
+		setBusy(true);
 		try {
-			await apiDelete(`${PROCESSES_PATH}/${processId}/history/${movement.id}`);
-			setConfirming(null);
+			await action();
 			reload();
+			onScheduleChange?.();
+			return true;
 		} catch (err) {
-			setError(errorMessage(err, "Não deu pra excluir a etapa. Tenta de novo."));
+			setError(errorMessage(err, failure));
+			return false;
 		} finally {
-			setRemoving(false);
+			setBusy(false);
 		}
+	}
+
+	async function removeMovement(movement: StageMovement) {
+		const removed = await run(
+			() => apiDelete(`${PROCESSES_PATH}/${processId}/history/${movement.id}`),
+			"Não deu pra excluir a etapa. Tenta de novo.",
+		);
+		if (removed) {
+			setConfirming(null);
+		}
+	}
+
+	async function cancelScheduled(schedule: SelectionSchedule) {
+		const canceled = await run(() => cancelSchedule(processId, schedule.id), "Não deu pra cancelar o agendamento. Tenta de novo.");
+		if (canceled) {
+			setCancelling(null);
+		}
+	}
+
+	function reschedule(draft: ScheduleDraft) {
+		return rescheduleSchedule(processId, rescheduling?.id ?? "", draft).then(() => {
+			reload();
+			onScheduleChange?.();
+		});
 	}
 
 	return (
@@ -39,27 +74,43 @@ export function ProcessHistory({ processId, currentStage, onPick }: ProcessHisto
 			<h3 className="process-history-title">Histórico</h3>
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
 			<ol className="process-history">
-				{movements.map((movement, index) => (
-					<li key={movement.id}>
-						<details className="process-history-item">
-							<summary>
-								<strong>{STAGE_LABELS[movement.stage]}</strong>
-								<span className="process-history-date">{formatDateTime(movement.movedAt)}</span>
-							</summary>
-							<p className="process-history-note">{movement.note ?? "Sem anotação."}</p>
-							<div className="process-history-actions">
-								{onPick && movement.stage !== currentStage && (
-									<button type="button" className="btn-secondary btn-small" onClick={() => onPick(movement.stage)}>
-										Voltar para esta etapa
-									</button>
-								)}
-								{index > 0 && (
-									<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(movement)}>
-										Excluir etapa
-									</button>
-								)}
-							</div>
-						</details>
+				{timeline.map((item) => (
+					<li key={item.id}>
+						{item.kind === "schedule" ? (
+							<ScheduleHistoryItem
+								schedule={item.schedule}
+								busy={busy}
+								onReschedule={setRescheduling}
+								onComplete={(schedule) =>
+									run(() => completeSchedule(processId, schedule.id), "Não deu pra concluir o agendamento. Tenta de novo.")
+								}
+								onCancel={setCancelling}
+							/>
+						) : (
+							<details className="process-history-item">
+								<summary>
+									<strong>{STAGE_LABELS[item.movement.stage]}</strong>
+									<span className="process-history-date">{formatDateTime(item.movement.movedAt)}</span>
+								</summary>
+								<p className="process-history-note">{item.movement.note ?? "Sem anotação."}</p>
+								<div className="process-history-actions">
+									{onPick && item.movement.stage !== currentStage && (
+										<button
+											type="button"
+											className="btn-secondary btn-small"
+											onClick={() => onPick(item.movement.stage)}
+										>
+											Voltar para esta etapa
+										</button>
+									)}
+									{item.movement.id !== currentMovementId && (
+										<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(item.movement)}>
+											Excluir etapa
+										</button>
+									)}
+								</div>
+							</details>
+						)}
 					</li>
 				))}
 			</ol>
@@ -67,8 +118,8 @@ export function ProcessHistory({ processId, currentStage, onPick }: ProcessHisto
 				open={confirming !== null}
 				title="Excluir etapa do histórico?"
 				confirmLabel="Excluir etapa"
-				busy={removing}
-				onConfirm={() => confirming && remove(confirming)}
+				busy={busy}
+				onConfirm={() => confirming && removeMovement(confirming)}
 				onCancel={() => setConfirming(null)}
 			>
 				<p>
@@ -76,6 +127,26 @@ export function ProcessHistory({ processId, currentStage, onPick }: ProcessHisto
 					pra desfazer.
 				</p>
 			</ConfirmDialog>
+			<ConfirmDialog
+				open={cancelling !== null}
+				title="Cancelar agendamento?"
+				confirmLabel="Cancelar agendamento"
+				busy={busy}
+				onConfirm={() => cancelling && cancelScheduled(cancelling)}
+				onCancel={() => setCancelling(null)}
+			>
+				<p>
+					O agendamento de <strong>{cancelling ? formatDateTime(cancelling.scheduledAt) : ""}</strong> fica como cancelado no
+					histórico e o lembrete não é mais enviado.
+				</p>
+			</ConfirmDialog>
+			<ScheduleDialog
+				title="Reagendar"
+				initial={rescheduling ? draftFromSchedule(rescheduling) : null}
+				ignoreScheduleId={rescheduling?.id}
+				onClose={() => setRescheduling(null)}
+				onSave={reschedule}
+			/>
 		</>
 	);
 }
