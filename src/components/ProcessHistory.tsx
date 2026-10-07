@@ -143,6 +143,7 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 			<ScheduleDialog
 				title="Reagendar"
 				initial={rescheduling ? draftFromSchedule(rescheduling) : null}
+				ignoreScheduleId={rescheduling?.id}
 				onClose={() => setRescheduling(null)}
 				onSave={reschedule}
 			/>

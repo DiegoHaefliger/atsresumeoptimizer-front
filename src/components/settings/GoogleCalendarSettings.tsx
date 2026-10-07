@@ -26,7 +26,8 @@ export function GoogleCalendarSettings() {
 		setMessage(null);
 		setBusy(true);
 		try {
-			setMessage((await action()) ?? null);
+			const result = await action();
+			setMessage(typeof result === "string" ? result : null);
 			setConfirming(false);
 		} catch (err) {
 			setError(errorMessage(err, failure));

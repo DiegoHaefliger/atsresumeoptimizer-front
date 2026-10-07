@@ -154,3 +154,12 @@ export type GoogleCalendarStatus = {
 	accountEmail: string | null;
 	redirectUri: string;
 };
+
+export type GoogleCalendarEvent = {
+	id: string;
+	title: string;
+	start: string;
+	end: string;
+	allDay: boolean;
+	link: string | null;
+};

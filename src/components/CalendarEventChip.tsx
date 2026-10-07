@@ -1,18 +1,30 @@
 import { Link } from "react-router-dom";
-import type { CalendarEvent } from "../api/types";
 import { timeLabel } from "../lib/calendarRange";
-import { eventTitle } from "../lib/calendarLabels";
+import type { CalendarItem } from "../lib/calendarItems";
 
-export function CalendarEventChip({ event }: { event: CalendarEvent }) {
-	const title = eventTitle(event);
+export function CalendarEventChip({ item }: { item: CalendarItem }) {
+	const time = timeLabel(item);
+	const content = (
+		<>
+			<span className="calendar-chip-time">{time}</span>
+			<span className="calendar-chip-title">{item.title}</span>
+		</>
+	);
+	if (item.source === "google") {
+		const label = `${time} ${item.title} (Google Agenda)`;
+		return item.link ? (
+			<a href={item.link} target="_blank" rel="noopener noreferrer" className="calendar-chip calendar-chip-google" title={label}>
+				{content}
+			</a>
+		) : (
+			<span className="calendar-chip calendar-chip-google" title={label}>
+				{content}
+			</span>
+		);
+	}
 	return (
-		<Link
-			to={`/processes/${event.processId}`}
-			className={`calendar-chip calendar-chip-${event.status}`}
-			title={`${timeLabel(event.scheduledAt)} ${title}`}
-		>
-			<span className="calendar-chip-time">{timeLabel(event.scheduledAt)}</span>
-			<span className="calendar-chip-title">{title}</span>
+		<Link to={`/processes/${item.processId}`} className={`calendar-chip calendar-chip-${item.status}`} title={`${time} ${item.title}`}>
+			{content}
 		</Link>
 	);
 }

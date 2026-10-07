@@ -3,7 +3,9 @@ import { errorMessage } from "../api/client";
 import type { SelectionStage } from "../api/types";
 import { STAGE_LABELS, STAGES } from "../lib/processLabels";
 import type { ScheduleDraft } from "../lib/scheduleDraft";
+import { useScheduleConflicts } from "../lib/useScheduleConflicts";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
+import { ConflictWarning } from "./ConflictWarning";
 import { Dialog } from "./Dialog";
 import { StateMessage } from "./StateMessage";
 
@@ -12,28 +14,31 @@ const MAX_DURATION_MINUTES = 1440;
 type ScheduleDialogProps = {
 	title: string;
 	initial: ScheduleDraft | null;
+	ignoreScheduleId?: string;
 	onClose: () => void;
 	onSave: (draft: ScheduleDraft) => Promise<void>;
 };
 
-export function ScheduleDialog({ title, initial, onClose, onSave }: ScheduleDialogProps) {
+export function ScheduleDialog({ title, initial, ignoreScheduleId, onClose, onSave }: ScheduleDialogProps) {
 	return (
 		<Dialog open={initial !== null} title={title} onClose={onClose}>
-			{initial && <ScheduleForm initial={initial} onClose={onClose} onSave={onSave} />}
+			{initial && <ScheduleForm initial={initial} ignoreScheduleId={ignoreScheduleId} onClose={onClose} onSave={onSave} />}
 		</Dialog>
 	);
 }
 
 type ScheduleFormProps = {
 	initial: ScheduleDraft;
+	ignoreScheduleId?: string;
 	onClose: () => void;
 	onSave: ScheduleDialogProps["onSave"];
 };
 
-function ScheduleForm({ initial, onClose, onSave }: ScheduleFormProps) {
+function ScheduleForm({ initial, ignoreScheduleId, onClose, onSave }: ScheduleFormProps) {
 	const [draft, setDraft] = useState<ScheduleDraft>(initial);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const conflicts = useScheduleConflicts(draft.scheduledAt, draft.durationMinutes, ignoreScheduleId);
 
 	function update<K extends keyof ScheduleDraft>(field: K, value: ScheduleDraft[K]) {
 		setDraft((current) => ({ ...current, [field]: value }));
@@ -107,6 +112,7 @@ function ScheduleForm({ initial, onClose, onSave }: ScheduleFormProps) {
 					/>
 				</label>
 			</fieldset>
+			{conflicts.length > 0 && <ConflictWarning conflicts={conflicts} />}
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
 			<div className="dialog-actions">
 				<button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>

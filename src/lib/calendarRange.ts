@@ -1,4 +1,4 @@
-import type { CalendarEvent } from "../api/types";
+import type { CalendarItem } from "./calendarItems";
 
 export type CalendarView = "month" | "week" | "list";
 
@@ -71,15 +71,15 @@ export function dayLabel(date: Date): string {
 	return `${weekdayFormat.format(date)}, ${dayFormat.format(date)}`;
 }
 
-export function timeLabel(instant: string): string {
-	return timeFormat.format(new Date(instant));
+export function timeLabel(item: CalendarItem): string {
+	return item.allDay ? "Dia todo" : timeFormat.format(item.start);
 }
 
-export function groupByDay(events: CalendarEvent[]): Map<string, CalendarEvent[]> {
-	const groups = new Map<string, CalendarEvent[]>();
-	for (const event of events) {
-		const key = dayKey(new Date(event.scheduledAt));
-		groups.set(key, [...(groups.get(key) ?? []), event]);
+export function groupByDay(items: CalendarItem[]): Map<string, CalendarItem[]> {
+	const groups = new Map<string, CalendarItem[]>();
+	for (const item of items) {
+		const key = dayKey(item.start);
+		groups.set(key, [...(groups.get(key) ?? []), item]);
 	}
 	return groups;
 }
