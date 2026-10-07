@@ -11,6 +11,7 @@ import { FindingsSkeleton, KeywordsSkeleton, ScoreRingSkeleton, Skeleton } from 
 import { StateMessage } from "../components/StateMessage";
 import { AlertCircleIcon, ArrowRightIcon } from "../components/icons";
 import { dimensionLabel, modeLabel, statusLabel, statusTone } from "../lib/analysisLabels";
+import { rewritePath } from "../lib/rewriteRoutes";
 import { scoreTone } from "../lib/score";
 import { useSteppedProgress } from "../lib/useSteppedProgress";
 
@@ -189,13 +190,24 @@ export function ResultPage() {
 			</div>
 
 			{status && REWRITABLE_STATUSES.has(status) && (
-				<button
-					type="button"
-					className="btn-block result-cta"
-					onClick={() => navigate(`/analyses/${id}/rewrite`)}
-				>
-					Adaptar currículo <ArrowRightIcon />
-				</button>
+				<div className="result-cta">
+					{result.header?.hasAdaptedResume && (
+						<button
+							type="button"
+							className="btn-block"
+							onClick={() => navigate(rewritePath(id ?? "", true))}
+						>
+							Ver currículo adaptado{result.header.hasJobContext ? " e apresentação" : ""} <ArrowRightIcon />
+						</button>
+					)}
+					<button
+						type="button"
+						className={result.header?.hasAdaptedResume ? "btn-block btn-secondary" : "btn-block"}
+						onClick={() => navigate(rewritePath(id ?? ""))}
+					>
+						{result.header?.hasAdaptedResume ? "Adaptar de novo" : "Adaptar currículo"} <ArrowRightIcon />
+					</button>
+				</div>
 			)}
 		</div>
 	);

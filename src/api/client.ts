@@ -48,6 +48,11 @@ export async function apiGet<T>(path: string): Promise<T> {
 	return (await request(path)).json();
 }
 
+export async function apiGetOptional<T>(path: string): Promise<T | null> {
+	const response = await request(path);
+	return response.status === 204 ? null : response.json();
+}
+
 export function apiPostJson<T>(path: string, body: unknown): Promise<T> {
 	return sendJson("POST", path, body);
 }

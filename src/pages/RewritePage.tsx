@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { apiDownload, apiGet, apiPostJson, errorMessage } from "../api/client";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { apiDownload, apiGet, apiGetOptional, apiPostJson, errorMessage } from "../api/client";
 import type {
 	AnalysisReportView,
 	EditedDocumentsView,
@@ -10,6 +10,7 @@ import type {
 	StructuredResume,
 } from "../api/types";
 import { Badge } from "../components/Badge";
+import { CoverLetterPanel } from "../components/CoverLetterPanel";
 import { BulletsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { ResumeEditor } from "../components/ResumeEditor";
@@ -19,6 +20,7 @@ import { ScoreRing } from "../components/ScoreRing";
 import { SegmentedTabs } from "../components/SegmentedTabs";
 import { TemplatePicker } from "../components/TemplatePicker";
 import { parseOriginal } from "../lib/originalResume";
+import { isSavedView } from "../lib/rewriteRoutes";
 import { useSteppedProgress } from "../lib/useSteppedProgress";
 import { AlertCircleIcon, ArrowRightIcon, DownloadIcon, SpinnerIcon } from "../components/icons";
 
@@ -43,6 +45,9 @@ const MIN_STEP_DISPLAY_MS = 900;
 
 export function RewritePage() {
 	const { id } = useParams<{ id: string }>();
+	const [searchParams] = useSearchParams();
+	const savedView = isSavedView(searchParams);
+	const [loadingSaved, setLoadingSaved] = useState(savedView);
 	const [template, setTemplate] = useState<ResumeTemplate>("CLASSIC");
 	const [hasJobContext, setHasJobContext] = useState(false);
 	const [highlightJob, setHighlightJob] = useState(true);
@@ -89,6 +94,21 @@ export function RewritePage() {
 			.then((analysis) => setHasJobContext(analysis.header?.hasJobContext ?? false))
 			.catch(() => setHasJobContext(false));
 	}, [id]);
+
+	useEffect(() => {
+		if (!id || !savedView) {
+			return;
+		}
+		apiGetOptional<RewriteResultView>(`/api/v1/analyses/${id}/rewrite`)
+			.then((saved) => {
+				if (saved) {
+					setTemplate(saved.template ?? "CLASSIC");
+					showResponse(saved);
+				}
+			})
+			.catch((err) => setError(errorMessage(err, "Não deu pra abrir o currículo adaptado.")))
+			.finally(() => setLoadingSaved(false));
+	}, [id, savedView]);
 
 	useEffect(() => {
 		if (!id || !loading || pendingResponse) {
@@ -188,6 +208,14 @@ export function RewritePage() {
 		return <RewritePageSkeleton currentIndex={shownStep} />;
 	}
 
+	if (loadingSaved) {
+		return (
+			<div className="page" aria-busy="true">
+				<Skeleton width="100%" height={320} />
+			</div>
+		);
+	}
+
 	if (!result) {
 		return (
 			<div className="page">
@@ -232,6 +260,7 @@ export function RewritePage() {
 	const after = result.scoreComparison?.after;
 	const hasDelta = before !== undefined && after !== undefined;
 	const deltaUp = hasDelta && after >= before;
+	const canShowChanges = (result.originalSections ?? []).length > 0;
 
 	return (
 		<div className="page">
@@ -339,7 +368,7 @@ export function RewritePage() {
 				<section>
 					<div className="preview-toolbar">
 						<SegmentedTabs label="Modo" options={VIEW_OPTIONS} value={view} onChange={setView} />
-						{view === "preview" && (
+						{view === "preview" && canShowChanges && (
 							<label className="preview-toggle">
 								<input
 									type="checkbox"
@@ -352,7 +381,7 @@ export function RewritePage() {
 					</div>
 					{view === "preview" ? (
 						<>
-							{showChanges && (
+							{showChanges && canShowChanges && (
 								<p className="diff-legend">
 									<ins className="diff-added">verde</ins> é texto novo ou alterado,{" "}
 									<del className="diff-removed">riscado</del> é o que saiu do original.
@@ -363,7 +392,7 @@ export function RewritePage() {
 								contact={contact}
 								original={original}
 								template={template}
-								showChanges={showChanges}
+								showChanges={showChanges && canShowChanges}
 							/>
 						</>
 					) : (
@@ -376,6 +405,8 @@ export function RewritePage() {
 					)}
 				</section>
 			)}
+
+			{id && hasJobContext && <CoverLetterPanel analysisId={id} beforeGenerate={currentDocuments} />}
 		</div>
 	);
 }

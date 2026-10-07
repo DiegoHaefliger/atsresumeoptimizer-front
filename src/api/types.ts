@@ -27,6 +27,7 @@ export type KeyValueLine = components["schemas"]["KeyValueLine"];
 export type ResumeContact = components["schemas"]["ResumeContact"];
 export type OriginalSection = components["schemas"]["OriginalSection"];
 export type EditedDocumentsView = components["schemas"]["EditedDocumentsView"];
+export type CoverLetterResponse = components["schemas"]["CoverLetterResponse"];
 
 export type JobPreferenceRequest = components["schemas"]["JobPreferenceRequest"];
 export type JobPreferenceResponse = components["schemas"]["JobPreferenceResponse"];

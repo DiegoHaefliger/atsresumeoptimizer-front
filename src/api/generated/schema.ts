@@ -733,6 +733,19 @@ export interface components {
             /** Format: uuid */
             pdfVersionId?: string;
         };
+        CoverLetterRequest: {
+            content: string;
+        };
+        CoverLetterResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            jobPostingId?: string;
+            content?: string;
+            aiModel?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         EditedDocumentsView: {
             /** Format: uuid */
             resumeId?: string;
@@ -918,6 +931,8 @@ export interface components {
             evidencedRequirements?: components["schemas"]["RequirementEvidence"][];
             aiProvider?: string;
             aiModel?: string;
+            /** @enum {string} */
+            template?: "CLASSIC" | "MODERN_BLUE";
         };
         ScoreComparisonView: {
             /** Format: int32 */
@@ -1019,6 +1034,7 @@ export interface components {
             /** @enum {string} */
             mode?: "JOB_MATCH" | "GENERAL";
             hasJobContext?: boolean;
+            hasAdaptedResume?: boolean;
         };
         AnalysisJobView: {
             title?: string;
