@@ -6,7 +6,8 @@ const LABELED_LINE = /^([^:,]{1,40}):\s*(.*)$/;
 const SENTENCE_END = /[.!?]$/;
 const INVISIBLE_CHARS = /\u200B|\u200C|\u200D|\uFEFF|\u2060/g;
 const MIN_BULLET_SIMILARITY = 0.3;
-const SUMMARY_TITLES = ["resumo", "perfil", "sobre", "summary", "objetivo"];
+const OBJECTIVE_TITLE = "objetivo";
+const SUMMARY_TITLES = ["resumo", "perfil", "sobre", "summary"];
 
 export type OriginalResume = {
 	bullets: string[];
@@ -75,14 +76,20 @@ export function closestOriginalBullet(original: OriginalResume, text: string): s
 	return best;
 }
 
+function sectionTitled(original: OriginalResume, candidates: string[]) {
+	return original.sections.find((section) =>
+		candidates.some((candidate) => normalizedLabel(section.title).includes(candidate)),
+	);
+}
+
 export function originalSectionText(original: OriginalResume, title: string, isSummary: boolean): string | null {
 	const wanted = normalizedLabel(title);
-	const match =
-		original.sections.find((section) => normalizedLabel(section.title) === wanted) ??
-		(isSummary
-			? original.sections.find((section) =>
-					SUMMARY_TITLES.some((candidate) => normalizedLabel(section.title).includes(candidate)),
-				)
-			: undefined);
+	const exact = original.sections.find((section) => normalizedLabel(section.title) === wanted);
+	const similar = wanted.startsWith(OBJECTIVE_TITLE)
+		? sectionTitled(original, [OBJECTIVE_TITLE])
+		: isSummary
+			? (sectionTitled(original, SUMMARY_TITLES) ?? sectionTitled(original, [OBJECTIVE_TITLE]))
+			: undefined;
+	const match = exact ?? similar;
 	return match ? match.text.replace(/\s+/g, " ").trim() : null;
 }
