@@ -369,7 +369,7 @@ export function AiSettingsPanel() {
 											type="number"
 											min={0}
 											max={2}
-											step={0.05}
+											step="any"
 											value={general.temperature}
 											onChange={(event) => updateGeneral("temperature", event.target.value)}
 										/>
@@ -380,7 +380,7 @@ export function AiSettingsPanel() {
 											type="number"
 											min={256}
 											max={128000}
-											step={256}
+											step={1}
 											value={general.maxOutputTokens}
 											onChange={(event) => updateGeneral("maxOutputTokens", event.target.value)}
 										/>
