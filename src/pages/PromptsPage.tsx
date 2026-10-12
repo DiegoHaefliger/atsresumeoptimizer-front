@@ -16,6 +16,8 @@ const KEY_LABELS: Record<string, string> = {
 	"job-structuring": "Estruturação da vaga",
 	"requirement-evidence": "Evidência de exigências",
 	"bullet-review": "Revisão de bullets",
+	"cover-letter": "Apresentação para a vaga",
+	"interview-questions": "Perguntas técnicas da vaga",
 	rewrite: "Reescrita (legado)",
 };
 const KEY_FORMAT = /^[a-z0-9]+(-[a-z0-9]+)*$/;

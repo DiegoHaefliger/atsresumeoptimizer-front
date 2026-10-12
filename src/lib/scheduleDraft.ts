@@ -1,6 +1,8 @@
 import type { SelectionSchedule, SelectionStage } from "../api/types";
 import { inputToInstant, instantToInput } from "./dateTimeInput";
 
+export const MAX_DURATION_MINUTES = 1440;
+
 export type ScheduleDraft = {
 	stage: SelectionStage;
 	scheduledAt: string;

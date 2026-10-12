@@ -1,21 +1,32 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Dialog } from "../components/Dialog";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
-import { JobPreview } from "../components/JobPreview";
-import { JobsTable } from "../components/JobsTable";
+import { JobPreviewDialog } from "../components/JobPreviewDialog";
+import { JobList } from "../components/JobList";
 import { StateMessage } from "../components/StateMessage";
-import { jobLabel } from "../lib/jobCode";
 import { useJobs, type Job } from "../lib/useJobs";
 import { useProcesses } from "../lib/useProcesses";
 
+export type JobsPageState = { analyzeJobId?: string };
+
 export function JobsPage() {
+	const location = useLocation();
 	const { jobs, failed, reload, remove } = useJobs();
 	const { processes } = useProcesses();
 	const processByJob = useMemo(() => new Map((processes ?? []).map((process) => [process.jobPostingId, process])), [processes]);
 	const [previewing, setPreviewing] = useState<Job | null>(null);
 	const [viewingResumes, setViewingResumes] = useState<Job | null>(null);
+	const [analyzingId, setAnalyzingId] = useState<string | null>(
+		() => (location.state as JobsPageState | null)?.analyzeJobId ?? null,
+	);
+	const analyzing = jobs?.find((job) => job.id === analyzingId) ?? null;
 	const navigate = useNavigate();
+
+	function closeAnalyze() {
+		setAnalyzingId(null);
+		navigate(location.pathname, { replace: true, state: null });
+	}
 
 	return (
 		<div className="page jobs-page">
@@ -41,29 +52,31 @@ export function JobsPage() {
 					action={{ label: "Cadastrar a primeira vaga", to: "/jobs/new" }}
 				/>
 			) : (
-				<JobsTable
+				<JobList
+					view="cards"
 					jobs={jobs}
 					failed={failed}
 					onRetry={reload}
 					onRemove={remove}
+					onAnalyze={(job) => setAnalyzingId(job.id)}
 					onPreview={setPreviewing}
 					onResumes={setViewingResumes}
 					processes={processByJob}
 					onProcess={(job) => navigate(`/jobs/${job.id}/process`)}
+					onAssistant={(job) => navigate(`/jobs/${job.id}/assistant`)}
 					onEdit={(job) => navigate(`/jobs/${job.id}/edit`)}
 				/>
 			)}
-			<JobResumesDialog job={viewingResumes} onClose={() => setViewingResumes(null)} />
-			<Dialog
-				open={previewing !== null}
-				title={previewing ? jobLabel(previewing.code, previewing.title, null) : ""}
-				onClose={() => setPreviewing(null)}
-				size="large"
-			>
-				<div className="dialog-content">
-					<JobPreview job={previewing} />
-				</div>
-			</Dialog>
+			<JobResumesDialog
+				job={viewingResumes}
+				onClose={() => setViewingResumes(null)}
+				onAnalyze={(job) => {
+					setViewingResumes(null);
+					setAnalyzingId(job.id);
+				}}
+			/>
+			<AnalyzeJobDialog job={analyzing} onClose={closeAnalyze} />
+			<JobPreviewDialog job={previewing} onClose={() => setPreviewing(null)} />
 		</div>
 	);
 }

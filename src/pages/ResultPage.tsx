@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { apiGet, errorMessage } from "../api/client";
 import type { AnalysisReportView } from "../api/types";
-import { Badge } from "../components/Badge";
+import { FindingsPanel } from "../components/FindingsPanel";
 import { KeywordsEditor } from "../components/KeywordsEditor";
-import { PreferenceMatchPanel } from "../components/PreferenceMatchPanel";
 import { ProgressSteps, type ProgressStep } from "../components/ProgressSteps";
-import { ScoreRing } from "../components/ScoreRing";
+import { ResultSummary } from "../components/ResultSummary";
 import { FindingsSkeleton, KeywordsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
-import { AlertCircleIcon, ArrowRightIcon } from "../components/icons";
-import { dimensionLabel, modeLabel, statusLabel, statusTone } from "../lib/analysisLabels";
-import { rewritePath } from "../lib/rewriteRoutes";
+import { AlertCircleIcon } from "../components/icons";
+import { dimensionLabel } from "../lib/analysisLabels";
 import { scoreTone } from "../lib/score";
 import { useSteppedProgress } from "../lib/useSteppedProgress";
 
@@ -37,7 +35,6 @@ export function ResultPage() {
 	const [result, setResult] = useState<AnalysisReportView | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [sawProcessing, setSawProcessing] = useState(false);
-	const navigate = useNavigate();
 	const currentStatus = result?.header?.status;
 	const shownStep = useSteppedProgress(STATUS_STEP_INDEX[currentStatus ?? "PENDING"] ?? 0, MIN_STEP_DISPLAY_MS);
 
@@ -84,7 +81,7 @@ export function ResultPage() {
 	if (error) {
 		return (
 			<div className="page">
-				<StateMessage variant="error" layout="page" message={error} action={{ label: "Voltar", to: "/upload" }} />
+				<StateMessage variant="error" layout="page" message={error} action={{ label: "Voltar pra vagas", to: "/jobs" }} />
 			</div>
 		);
 	}
@@ -94,7 +91,6 @@ export function ResultPage() {
 	}
 
 	const status = result.header?.status;
-	const mode = result.header?.mode;
 	const dimensions = result.score?.dimensions ?? [];
 	const keywords = result.keywords;
 	const processing = status !== undefined && !TERMINAL_STATUSES.has(status);
@@ -116,7 +112,7 @@ export function ResultPage() {
 	}
 
 	return (
-		<div className="page">
+		<div className="page result-page">
 			<ResultPageHeader />
 
 			{status === "FAILED" && (
@@ -126,88 +122,69 @@ export function ResultPage() {
 				</p>
 			)}
 
-			<div className="result-hero">
-				{result.score && <ScoreRing value={result.score.overall ?? 0} label="score geral" />}
-				<div className="result-hero-meta">
-					<div className="result-hero-status">
-						{status && <Badge tone={statusTone(status)}>{statusLabel(status)}</Badge>}
-					</div>
-					{mode && <span className="result-hero-mode">{modeLabel(mode)}</span>}
-				</div>
-			</div>
-
-			{mode === "JOB_MATCH" && TERMINAL_STATUSES.has(status ?? "") && (
-				<PreferenceMatchPanel job={result.job} match={result.preferenceMatch} />
-			)}
+			{id && <ResultSummary analysisId={id} result={result} canAdapt={REWRITABLE_STATUSES.has(status ?? "")} />}
 
 			<div className="result-grid">
 				{dimensions.length > 0 && (
-					<section>
-						<h2>Dimensões</h2>
-						<div className="dimensions">
-							{dimensions.map((dimension) => {
-								const tone = scoreTone(dimension.score ?? 0);
-								return (
-									<div className="dimension-row" key={dimension.code}>
-										<div className="dimension-row-top">
-											<span className="dimension-name">{dimensionLabel(dimension.code ?? "")}</span>
-											<span className="dimension-score">{dimension.score}</span>
+					<section className="panel result-panel" aria-labelledby="result-dimensions">
+						<div className="panel-header">
+							<h2 id="result-dimensions">Dimensões</h2>
+							<p>Como o currículo foi avaliado em cada critério, de 0 a 100.</p>
+						</div>
+						<div className="panel-body">
+							<div className="dimensions">
+								{dimensions.map((dimension) => {
+									const tone = scoreTone(dimension.score ?? 0);
+									return (
+										<div className="dimension-row" key={dimension.code}>
+											<div className="dimension-row-top">
+												<span className="dimension-name">{dimensionLabel(dimension.code ?? "")}</span>
+												<span className={`dimension-score dimension-score-${tone}`}>{dimension.score}</span>
+											</div>
+											<div className="dimension-track">
+												<div
+													className={`dimension-fill dimension-fill-${tone}`}
+													style={{ width: `${dimension.score ?? 0}%` }}
+												/>
+											</div>
 										</div>
-										<div className="dimension-track">
-											<div
-												className={`dimension-fill dimension-fill-${tone}`}
-												style={{ width: `${dimension.score ?? 0}%` }}
-											/>
-										</div>
-									</div>
-								);
-							})}
+									);
+								})}
+							</div>
 						</div>
 					</section>
 				)}
 
 				{keywords && (
-					<section>
-						<h2>Palavras-chave</h2>
-						{keywords.editable && id ? (
-							<KeywordsEditor
-								key={JSON.stringify([keywords.terms, keywords.selected, keywords.found, keywords.missing])}
-								analysisId={id}
-								keywords={keywords}
-								onSaved={reloadResult}
-							/>
-						) : (
-							<div className="keyword-groups">
-								<KeywordGroup label="Encontradas" tone="found" words={keywords.found} emptyText="Nenhuma ainda" />
-								<KeywordGroup label="Faltando" tone="missing" words={keywords.missing} emptyText="Nenhuma" />
-								{keywords.semanticOnly && keywords.semanticOnly.length > 0 && (
-									<KeywordGroup label="Só por semântica" tone="semantic" words={keywords.semanticOnly} />
-								)}
-							</div>
-						)}
+					<section className="panel result-panel" aria-labelledby="result-keywords">
+						<div className="panel-header">
+							<h2 id="result-keywords">Palavras-chave</h2>
+							<p>Termos da vaga procurados no currículo.</p>
+						</div>
+						<div className="panel-body">
+							{keywords.editable && id ? (
+								<KeywordsEditor
+									key={JSON.stringify([keywords.terms, keywords.selected, keywords.found, keywords.missing])}
+									analysisId={id}
+									keywords={keywords}
+									onSaved={reloadResult}
+								/>
+							) : (
+								<div className="keyword-groups">
+									<KeywordGroup label="Encontradas" tone="found" words={keywords.found} emptyText="Nenhuma ainda" />
+									<KeywordGroup label="Faltando" tone="missing" words={keywords.missing} emptyText="Nenhuma" />
+									{keywords.semanticOnly && keywords.semanticOnly.length > 0 && (
+										<KeywordGroup label="Só por semântica" tone="semantic" words={keywords.semanticOnly} />
+									)}
+								</div>
+							)}
+						</div>
 					</section>
 				)}
 			</div>
 
-			{status && REWRITABLE_STATUSES.has(status) && (
-				<div className="result-cta">
-					{result.header?.hasAdaptedResume && (
-						<button
-							type="button"
-							className="btn-block"
-							onClick={() => navigate(rewritePath(id ?? "", true))}
-						>
-							Ver currículo adaptado{result.header.hasJobContext ? " e apresentação" : ""} <ArrowRightIcon />
-						</button>
-					)}
-					<button
-						type="button"
-						className={result.header?.hasAdaptedResume ? "btn-block btn-secondary" : "btn-block"}
-						onClick={() => navigate(rewritePath(id ?? ""))}
-					>
-						{result.header?.hasAdaptedResume ? "Adaptar de novo" : "Adaptar currículo"} <ArrowRightIcon />
-					</button>
-				</div>
+			{id && result.findings?.items && TERMINAL_STATUSES.has(status ?? "") && (
+				<FindingsPanel analysisId={id} findings={result.findings.items} />
 			)}
 		</div>
 	);
@@ -244,9 +221,6 @@ function ResultPageHeader() {
 				<span className="eyebrow">Análise</span>
 				<h1>Resultado da análise</h1>
 			</div>
-			<Link to="/upload" className="link">
-				Nova análise
-			</Link>
 		</header>
 	);
 }
@@ -264,33 +238,36 @@ function ResultPageSkeleton() {
 function ResultBodySkeleton() {
 	return (
 		<div aria-hidden="true">
-			<div className="result-hero">
+			<div className="panel result-summary">
 				<ScoreRingSkeleton />
-				<div className="result-hero-meta">
-					<Skeleton width={90} height={24} radius="var(--radius-full)" />
-					<Skeleton width={140} height={16} />
+				<div className="result-summary-main">
+					<Skeleton width={90} height={22} radius="var(--radius-full)" />
+					<Skeleton width="60%" height={22} />
+					<Skeleton width="80%" height={14} />
 				</div>
 			</div>
-
-			<section>
-				<h2>Dimensões</h2>
-				<div className="dimensions">
-					{Array.from({ length: 4 }).map((_, index) => (
-						<div className="dimension-row" key={index}>
-							<Skeleton width="100%" height={8} radius="var(--radius-full)" />
+			<div className="result-grid">
+				<section className="panel result-panel">
+					<div className="panel-body">
+						<div className="dimensions">
+							{Array.from({ length: 5 }).map((_, index) => (
+								<div className="dimension-row" key={index}>
+									<Skeleton width="100%" height={8} radius="var(--radius-full)" />
+								</div>
+							))}
 						</div>
-					))}
+					</div>
+				</section>
+				<section className="panel result-panel">
+					<div className="panel-body">
+						<KeywordsSkeleton />
+					</div>
+				</section>
+			</div>
+			<section className="panel result-panel">
+				<div className="panel-body">
+					<FindingsSkeleton />
 				</div>
-			</section>
-
-			<section>
-				<h2>Palavras-chave</h2>
-				<KeywordsSkeleton />
-			</section>
-
-			<section>
-				<h2>Achados</h2>
-				<FindingsSkeleton />
 			</section>
 		</div>
 	);

@@ -9,6 +9,7 @@ export const SECTION_PRESETS: SectionPreset[] = [
 	{ title: "Experiência profissional", semanticType: "EXPERIENCE", kind: "ENTRIES" },
 	{ title: "Formação acadêmica", semanticType: "EDUCATION", kind: "ENTRIES" },
 	{ title: "Competências técnicas", semanticType: "SKILLS", kind: "KEY_VALUE" },
+	{ title: "Habilidades", semanticType: "SOFT_SKILLS", kind: "KEY_VALUE" },
 	{ title: "Projetos", semanticType: "PROJECTS", kind: "ENTRIES" },
 	{ title: "Certificações", semanticType: "CERTIFICATIONS", kind: "RICH_LINES" },
 	{ title: "Idiomas", semanticType: "LANGUAGES", kind: "KEY_VALUE" },

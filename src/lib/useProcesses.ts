@@ -3,21 +3,23 @@ import { apiDelete, apiPostJson } from "../api/client";
 import type { SelectionProcess, SelectionStage } from "../api/types";
 import { PROCESSES_PATH } from "./processPath";
 import { createSchedule } from "./scheduleApi";
-import { emptyScheduleDraft } from "./scheduleDraft";
+import { inputToInstant } from "./dateTimeInput";
+import type { ScheduleDraft } from "./scheduleDraft";
 import { useApiResource } from "./useApiResource";
 
 export function useProcesses() {
 	const { data, setData, failed, reload } = useApiResource<SelectionProcess[]>(PROCESSES_PATH);
 
 	const moveStage = useCallback(
-		async (processId: string, stage: SelectionStage, note: string, scheduledAt: string) => {
+		async (processId: string, stage: SelectionStage, note: string, stageAt: string, schedule: ScheduleDraft | null) => {
 			const moved = await apiPostJson<SelectionProcess>(`${PROCESSES_PATH}/${processId}/stage`, {
 				stage,
 				note: note.trim() || undefined,
+				stageAt: stageAt ? inputToInstant(stageAt) : undefined,
 			});
 			setData((current) => (current ?? []).map((process) => (process.id === processId ? moved : process)));
-			if (scheduledAt) {
-				await createSchedule(processId, emptyScheduleDraft(stage, scheduledAt));
+			if (schedule) {
+				await createSchedule(processId, schedule);
 				reload();
 			}
 		},

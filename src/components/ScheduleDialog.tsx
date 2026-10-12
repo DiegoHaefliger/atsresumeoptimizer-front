@@ -2,14 +2,13 @@ import { useState, type FormEvent } from "react";
 import { errorMessage } from "../api/client";
 import type { SelectionStage } from "../api/types";
 import { STAGE_LABELS, STAGES } from "../lib/processLabels";
-import type { ScheduleDraft } from "../lib/scheduleDraft";
+import { MAX_DURATION_MINUTES, type ScheduleDraft } from "../lib/scheduleDraft";
 import { useScheduleConflicts } from "../lib/useScheduleConflicts";
 import { AutoGrowTextarea } from "./AutoGrowTextarea";
 import { ConflictWarning } from "./ConflictWarning";
+import { DateTimeField } from "./DateTimeField";
 import { Dialog } from "./Dialog";
 import { StateMessage } from "./StateMessage";
-
-const MAX_DURATION_MINUTES = 1440;
 
 type ScheduleDialogProps = {
 	title: string;
@@ -72,15 +71,6 @@ function ScheduleForm({ initial, ignoreScheduleId, onClose, onSave }: ScheduleFo
 						</select>
 					</label>
 					<label>
-						Data e hora
-						<input
-							type="datetime-local"
-							required
-							value={draft.scheduledAt}
-							onChange={(event) => update("scheduledAt", event.target.value)}
-						/>
-					</label>
-					<label>
 						Duração (minutos)
 						<input
 							type="number"
@@ -93,6 +83,7 @@ function ScheduleForm({ initial, ignoreScheduleId, onClose, onSave }: ScheduleFo
 						/>
 					</label>
 				</div>
+				<DateTimeField legend="Data e hora" required value={draft.scheduledAt} onChange={(value) => update("scheduledAt", value)} />
 				<label>
 					Local ou link da reunião
 					<input
