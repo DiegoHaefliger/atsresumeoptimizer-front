@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { OnboardingPanel } from "./components/OnboardingPanel";
 import { UpdateBanner } from "./components/UpdateBanner";
 import { ResultPage } from "./pages/ResultPage";
 import { RewritePage } from "./pages/RewritePage";
@@ -26,6 +27,7 @@ export default function App() {
 				<AppSidebar />
 				<main className="app-main">
 					<UpdateBanner />
+					<OnboardingPanel />
 					<Routes>
 						<Route path="/upload" element={<Navigate to="/jobs" replace />} />
 						<Route path="/jobs" element={<JobsPage />} />
