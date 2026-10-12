@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
 import { jobLabel } from "../lib/jobCode";
 import { jobMeta } from "../lib/jobMeta";
+import { byProcessStage } from "../lib/jobOrder";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
 import type { SelectionProcess } from "../api/types";
@@ -32,10 +33,6 @@ type JobListProps = Omit<JobActionHandlers, "onRemove"> & {
 };
 
 const SKELETON_ITEMS = [0, 1, 2];
-
-function byNewestRegistration(a: Job, b: Job): number {
-	return (b.registeredAt ?? "").localeCompare(a.registeredAt ?? "");
-}
 
 function ScoreCell({ score }: { score: number | null | undefined }) {
 	return (
@@ -68,10 +65,7 @@ export function JobList({
 	}
 	const seniorities = useMemo(() => seniorityOptions(jobs ?? []), [jobs]);
 	const visibleJobs = useMemo(() => filterJobs(jobs ?? [], filters), [jobs, filters]);
-	const orderedJobs = useMemo(
-		() => (pageSize ? [...visibleJobs].sort(byNewestRegistration) : visibleJobs),
-		[visibleJobs, pageSize],
-	);
+	const orderedJobs = useMemo(() => [...visibleJobs].sort(byProcessStage(processes)), [visibleJobs, processes]);
 	const pageCount = pageSize ? Math.max(1, Math.ceil(orderedJobs.length / pageSize)) : 1;
 	const currentPage = Math.min(page, pageCount - 1);
 	const pageJobs = pageSize ? orderedJobs.slice(currentPage * pageSize, (currentPage + 1) * pageSize) : orderedJobs;
