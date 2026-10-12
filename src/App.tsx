@@ -42,6 +42,7 @@ export default function App() {
 						<Route path="/prompts" element={<PromptsPage />} />
 						<Route path="/settings" element={<SettingsPage />} />
 						<Route path="/settings/notifications" element={<SettingsPage />} />
+						<Route path="/settings/database" element={<SettingsPage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
 						<Route path="/calendar" element={<CalendarPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />

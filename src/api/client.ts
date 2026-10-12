@@ -73,6 +73,10 @@ export async function apiDelete(path: string): Promise<void> {
 	await request(path, { method: "DELETE" });
 }
 
+export async function apiDeleteJson<T>(path: string): Promise<T> {
+	return (await request(path, { method: "DELETE" })).json();
+}
+
 export async function apiDownload(path: string): Promise<{ blob: Blob; fileName: string }> {
 	const response = await request(path);
 	const disposition = response.headers.get("Content-Disposition") ?? "";
