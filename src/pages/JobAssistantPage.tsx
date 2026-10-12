@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { ResumeSummary } from "../api/types";
+import { CandidateQuestionsHistory } from "../components/CandidateQuestionsHistory";
 import { CoverLetterHistory } from "../components/CoverLetterHistory";
 import { InterviewQuestionsHistory } from "../components/InterviewQuestionsHistory";
 import { JobCode } from "../components/JobCode";
 import { ResumeVersionPicker } from "../components/ResumeVersionPicker";
-import { SegmentedTabs } from "../components/SegmentedTabs";
+import { PageTabs } from "../components/PageTabs";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { ArrowLeftIcon } from "../components/icons";
@@ -14,11 +15,12 @@ import { resumeVersionOptions } from "../lib/resumeVersionOptions";
 import { useApiResource } from "../lib/useApiResource";
 import { useJobs } from "../lib/useJobs";
 
-type AssistantTab = "questions" | "cover-letter";
+type AssistantTab = "questions" | "cover-letter" | "doubts";
 
 const TABS: { value: AssistantTab; label: string }[] = [
 	{ value: "questions", label: "Perguntas técnicas" },
 	{ value: "cover-letter", label: "Apresentação" },
+	{ value: "doubts", label: "Perguntas Entrevista - Dúvidas" },
 ];
 
 export function JobAssistantPage() {
@@ -58,10 +60,14 @@ export function JobAssistantPage() {
 				</div>
 			) : (
 				<section className="panel panel-body assistant">
-					<ResumeVersionPicker options={options} value={resumeVersionId} onChange={setPickedVersionId} />
-					<SegmentedTabs label="O que gerar" options={TABS} value={tab} onChange={setTab} />
+					{tab !== "doubts" && (
+						<ResumeVersionPicker options={options} value={resumeVersionId} onChange={setPickedVersionId} />
+					)}
+					<PageTabs label="O que gerar" options={TABS} value={tab} onChange={setTab} />
 					{tab === "questions" ? (
 						<InterviewQuestionsHistory jobId={job.id} resumeVersionId={resumeVersionId} resumeOptions={options} />
+					) : tab === "doubts" ? (
+						<CandidateQuestionsHistory jobId={job.id} />
 					) : (
 						<CoverLetterHistory jobId={job.id} resumeVersionId={resumeVersionId} resumeOptions={options} />
 					)}

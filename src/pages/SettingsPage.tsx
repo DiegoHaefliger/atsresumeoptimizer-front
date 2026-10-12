@@ -4,7 +4,7 @@ import { AppVersionInfo } from "../components/settings/AppVersionInfo";
 import { DatabaseSettingsPanel } from "../components/settings/DatabaseSettingsPanel";
 import { NotificationSettingsPanel } from "../components/settings/NotificationSettingsPanel";
 import { OnboardingToggle } from "../components/settings/OnboardingToggle";
-import { SegmentedTabs } from "../components/SegmentedTabs";
+import { PageTabs } from "../components/PageTabs";
 import { useDesktopDatabase } from "../lib/useDesktopDatabase";
 
 type SettingsTab = "ai" | "notifications" | "database";
@@ -41,7 +41,7 @@ export function SettingsPage() {
 					<h1>{TAB_TITLES[tab]}</h1>
 				</div>
 			</header>
-			<SegmentedTabs
+			<PageTabs
 				label="Seções de configuração"
 				options={tabs.map((value) => ({ value, label: TAB_TITLES[value] }))}
 				value={tab}

@@ -18,9 +18,9 @@ const KEY_LABELS: Record<string, string> = {
 	"bullet-review": "Revisão de bullets",
 	"cover-letter": "Apresentação para a vaga",
 	"interview-questions": "Perguntas técnicas da vaga",
+	"candidate-questions": "Perguntas para o recrutador (dúvidas)",
 	rewrite: "Reescrita (legado)",
 };
-const KEY_FORMAT = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 const labelOf = (key: string) => KEY_LABELS[key] ?? key;
 
@@ -32,8 +32,6 @@ export function PromptsPage() {
 	const [loaded, setLoaded] = useState<PromptTemplateView | null>(null);
 	const [content, setContent] = useState("");
 	const [aiSettings, setAiSettings] = useState<AiSettingsView | null>(null);
-	const [creating, setCreating] = useState(false);
-	const [newKey, setNewKey] = useState("");
 	const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
@@ -63,7 +61,6 @@ export function PromptsPage() {
 
 	const open = useCallback(
 		async (key: string) => {
-			setCreating(false);
 			setSelectedKey(key);
 			try {
 				const [current, versions] = await Promise.all([
@@ -102,12 +99,8 @@ export function PromptsPage() {
 
 	async function handleSubmit(event: FormEvent) {
 		event.preventDefault();
-		const key = creating ? newKey.trim() : selectedKey;
+		const key = selectedKey;
 		if (!key) {
-			return;
-		}
-		if (creating && !KEY_FORMAT.test(key)) {
-			setError("O identificador usa só letras minúsculas, números e hífen (ex.: nova-instrucao).");
 			return;
 		}
 		setSaving(true);
@@ -124,17 +117,6 @@ export function PromptsPage() {
 		} finally {
 			setSaving(false);
 		}
-	}
-
-	function startCreating() {
-		setCreating(true);
-		setSelectedKey(null);
-		setLoaded(null);
-		setHistory([]);
-		setNewKey("");
-		setContent("");
-		setSaved(false);
-		setError(null);
 	}
 
 	const usedModels = modelsInUse(aiSettings, selectedKey ?? "");
@@ -176,15 +158,12 @@ export function PromptsPage() {
 								</li>
 							))}
 						</ul>
-						<button type="button" className="btn-secondary btn-small" onClick={startCreating}>
-							+ Nova instrução
-						</button>
 					</div>
 				</aside>
 
 				<form className="panel prompts-editor" onSubmit={handleSubmit}>
 					<div className="panel-header">
-						<h2>{creating ? "Nova instrução" : selectedKey ? labelOf(selectedKey) : "Selecione uma instrução"}</h2>
+						<h2>{selectedKey ? labelOf(selectedKey) : "Selecione uma instrução"}</h2>
 						{loaded && (
 							<p>
 								{viewingOlder
@@ -194,17 +173,7 @@ export function PromptsPage() {
 						)}
 					</div>
 					<div className="panel-body">
-						{creating && (
-							<label>
-								Identificador
-								<input
-									value={newKey}
-									onChange={(event) => setNewKey(event.target.value)}
-									placeholder="ex.: nova-instrucao"
-								/>
-							</label>
-						)}
-						{(creating || loaded) && (
+						{loaded && (
 							<>
 								<p className="field-hint">
 									{usedModels.length > 0
@@ -231,9 +200,9 @@ export function PromptsPage() {
 								<span>Nova versão salva e já em uso.</span>
 							</p>
 						)}
-						{(creating || loaded) && (
+						{loaded && (
 							<div className="form-actions">
-								<button type="submit" disabled={saving || !content.trim() || (!creating && !dirty)}>
+								<button type="submit" disabled={saving || !content.trim() || !dirty}>
 									<BusyLabel busy={saving} busyText="Salvando...">
 										Salvar nova versão
 									</BusyLabel>

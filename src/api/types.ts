@@ -193,6 +193,20 @@ export type InterviewQuestionSet = {
 	questions: InterviewQuestion[];
 };
 
+export type CandidateQuestion = {
+	question: string;
+	topic: string | null;
+	reason: string | null;
+};
+
+export type CandidateQuestionSet = {
+	id: string;
+	jobPostingId: string;
+	aiModel: string | null;
+	createdAt: string;
+	questions: CandidateQuestion[];
+};
+
 export type AppVersion = components["schemas"]["AppVersionResponse"];
 export type DatabaseSettings = components["schemas"]["DatabaseSettingsResponse"];
 export type ExternalDatabaseRequest = components["schemas"]["ExternalDatabaseRequest"];

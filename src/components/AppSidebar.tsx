@@ -6,6 +6,7 @@ import {
 	BriefcaseIcon,
 	CalendarIcon,
 	FileTextIcon,
+	InfoIcon,
 	MessageSquareIcon,
 	SettingsIcon,
 	SlidersIcon,
@@ -18,6 +19,7 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
+	{ to: "/about", label: "Sobre", Icon: InfoIcon },
 ];
 
 export function AppSidebar() {
