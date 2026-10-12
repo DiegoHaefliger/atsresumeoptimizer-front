@@ -10,6 +10,9 @@ import { useProcesses } from "../lib/useProcesses";
 
 export type JobsPageState = { analyzeJobId?: string };
 
+const JOBS_PER_PAGE = 30;
+const PAGE_SIZE_OPTIONS = [30, 60, 100] as const;
+
 export function JobsPage() {
 	const location = useLocation();
 	const { jobs, failed, reload, remove } = useJobs();
@@ -62,6 +65,8 @@ export function JobsPage() {
 					onPreview={setPreviewing}
 					onResumes={setViewingResumes}
 					processes={processByJob}
+					pageSize={JOBS_PER_PAGE}
+					pageSizeOptions={PAGE_SIZE_OPTIONS}
 					onProcess={(job) => navigate(`/jobs/${job.id}/process`)}
 					onAssistant={(job) => navigate(`/jobs/${job.id}/assistant`)}
 					onEdit={(job) => navigate(`/jobs/${job.id}/edit`)}

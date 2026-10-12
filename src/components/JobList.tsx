@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
 import { jobLabel } from "../lib/jobCode";
 import { jobMeta } from "../lib/jobMeta";
 import { byProcessStage } from "../lib/jobOrder";
+import { loadPageSize, savePageSize } from "../lib/jobPageSize";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
 import type { SelectionProcess } from "../api/types";
@@ -30,6 +31,7 @@ type JobListProps = Omit<JobActionHandlers, "onRemove"> & {
 	selectedId?: string | null;
 	onSelect?: (job: Job) => void;
 	pageSize?: number;
+	pageSizeOptions?: readonly number[];
 };
 
 const SKELETON_ITEMS = [0, 1, 2];
@@ -51,17 +53,31 @@ export function JobList({
 	processes,
 	selectedId,
 	onSelect,
-	pageSize,
+	pageSize: initialPageSize,
+	pageSizeOptions,
 	...actions
 }: JobListProps) {
 	const [removingId, setRemovingId] = useState<string | null>(null);
 	const [confirmingRemoval, setConfirmingRemoval] = useState<Job | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
 	const [page, setPage] = useState(0);
+	const [pageSize, setPageSize] = useState(() =>
+		pageSizeOptions && initialPageSize ? loadPageSize(pageSizeOptions, initialPageSize) : initialPageSize,
+	);
+	const listTop = useRef<HTMLDivElement>(null);
 	function changeFilters(next: JobFilters) {
 		setFilters(next);
 		setPage(0);
 		saveFilters(next);
+	}
+	function changePage(next: number) {
+		setPage(next);
+		listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	}
+	function changePageSize(next: number) {
+		setPageSize(next);
+		setPage(0);
+		savePageSize(next);
 	}
 	const seniorities = useMemo(() => seniorityOptions(jobs ?? []), [jobs]);
 	const visibleJobs = useMemo(() => filterJobs(jobs ?? [], filters), [jobs, filters]);
@@ -111,6 +127,7 @@ export function JobList({
 	const selectable = Boolean(onSelect);
 	return (
 		<>
+			<div ref={listTop} className="job-list-top" />
 			<JobFiltersBar
 				filters={filters}
 				onChange={changeFilters}
@@ -203,7 +220,21 @@ export function JobList({
 					</table>
 				</div>
 			)}
-			{pageSize && <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />}
+			{pageSize && (
+				<Pagination
+					page={currentPage}
+					pageCount={pageCount}
+					onChange={changePage}
+					pageSize={
+						pageSizeOptions && {
+							value: pageSize,
+							options: pageSizeOptions,
+							total: visibleJobs.length,
+							onChange: changePageSize,
+						}
+					}
+				/>
+			)}
 			<ConfirmDialog
 				open={confirmingRemoval !== null}
 				title="Remover vaga da lista?"
