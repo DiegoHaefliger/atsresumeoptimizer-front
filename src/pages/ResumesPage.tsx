@@ -6,7 +6,7 @@ import { AnalyzeResumeDialog, type ResumeToAnalyze } from "../components/Analyze
 import { ResumeLibrary } from "../components/ResumeLibrary";
 import { ResumeForm, type ResumeDraft } from "../components/ResumeForm";
 import { RegistrationModeChoice, type RegistrationMode } from "../components/RegistrationModeChoice";
-import { SegmentedTabs } from "../components/SegmentedTabs";
+import { PageTabs } from "../components/PageTabs";
 import { splitByOrigin } from "../lib/resumeLabels";
 import { starterResume } from "../lib/resumeSections";
 import { useResumes } from "../lib/useResumes";
@@ -77,17 +77,15 @@ export function ResumesPage() {
 				<h2 id="registered-resumes" className="page-section-title">
 					Currículos cadastrados
 				</h2>
-				<div className="preview-toolbar">
-					<SegmentedTabs
-						label="Tipo de currículo"
-						options={[
-							{ value: "BASE", label: tabLabel("Currículos base", base) },
-							{ value: "ADAPTED", label: tabLabel("Gerados por análise", adapted) },
-						]}
-						value={libraryTab}
-						onChange={setLibraryTab}
-					/>
-				</div>
+				<PageTabs
+					label="Tipo de currículo"
+					options={[
+						{ value: "BASE", label: tabLabel("Currículos base", base) },
+						{ value: "ADAPTED", label: tabLabel("Gerados por análise", adapted) },
+					]}
+					value={libraryTab}
+					onChange={setLibraryTab}
+				/>
 				<p className="field-hint">{LIBRARY_TABS[libraryTab].hint}</p>
 				<ResumeLibrary
 					key={libraryTab}

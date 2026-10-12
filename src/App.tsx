@@ -17,6 +17,7 @@ import { ResumeEditPage } from "./pages/ResumeEditPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
+import { AboutPage } from "./pages/AboutPage";
 import { ProcessRedirectPage } from "./pages/ProcessRedirectPage";
 
 export default function App() {
@@ -47,6 +48,8 @@ export default function App() {
 						<Route path="/settings/database" element={<SettingsPage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
 						<Route path="/calendar" element={<CalendarPage />} />
+						<Route path="/changelog" element={<Navigate to="/about" replace />} />
+						<Route path="/about" element={<AboutPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
 						<Route path="*" element={<Navigate to="/jobs" replace />} />
 					</Routes>
