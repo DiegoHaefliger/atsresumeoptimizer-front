@@ -22,6 +22,9 @@ npm run dev
 
 Outros scripts: `npm run build` (tipos + build) e `npm run lint`.
 
+`npm run build:desktop` gera o build que vai dentro do backend (app instalado): a API é chamada na mesma origem,
+sem `VITE_API_BASE_URL`.
+
 Precisa do backend (`atsresumeoptimizer-backend`) rodando com CORS
 liberado pra origem do Vite (`app.cors.allowed-origins`).
 
