@@ -192,3 +192,10 @@ export type InterviewQuestionSet = {
 	createdAt: string;
 	questions: InterviewQuestion[];
 };
+
+export type AppVersion = components["schemas"]["AppVersionResponse"];
+export type DatabaseSettings = components["schemas"]["DatabaseSettingsResponse"];
+export type ExternalDatabaseRequest = components["schemas"]["ExternalDatabaseRequest"];
+export type ConnectionCheck = components["schemas"]["ConnectionCheckResponse"];
+export type DatabaseSwitch = components["schemas"]["DatabaseSwitchResponse"];
+export type SslMode = NonNullable<ExternalDatabaseRequest["sslMode"]>;

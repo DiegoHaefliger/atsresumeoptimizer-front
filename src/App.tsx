@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { UpdateBanner } from "./components/UpdateBanner";
 import { ResultPage } from "./pages/ResultPage";
 import { RewritePage } from "./pages/RewritePage";
 import { JobEditPage } from "./pages/JobEditPage";
@@ -24,6 +25,7 @@ export default function App() {
 			<div className="app-shell">
 				<AppSidebar />
 				<main className="app-main">
+					<UpdateBanner />
 					<Routes>
 						<Route path="/upload" element={<Navigate to="/jobs" replace />} />
 						<Route path="/jobs" element={<JobsPage />} />
@@ -40,6 +42,7 @@ export default function App() {
 						<Route path="/prompts" element={<PromptsPage />} />
 						<Route path="/settings" element={<SettingsPage />} />
 						<Route path="/settings/notifications" element={<SettingsPage />} />
+						<Route path="/settings/database" element={<SettingsPage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
 						<Route path="/calendar" element={<CalendarPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
