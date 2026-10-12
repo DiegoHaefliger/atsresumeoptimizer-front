@@ -2,6 +2,7 @@ import type { components } from "./generated/schema";
 
 export type AnalysisCreatedResponse = components["schemas"]["AnalysisCreatedResponse"];
 export type RecentJobView = components["schemas"]["RecentJobView"];
+export type JobCreatedResponse = components["schemas"]["JobCreatedResponse"];
 
 export type AnalysisReportView = components["schemas"]["AnalysisReportView"];
 export type AnalysisHeaderView = components["schemas"]["AnalysisHeaderView"];
@@ -10,6 +11,7 @@ export type KeywordsPanelView = components["schemas"]["KeywordsPanelView"];
 export type FindingsListView = components["schemas"]["FindingsListView"];
 export type DimensionView = components["schemas"]["DimensionView"];
 export type FindingView = components["schemas"]["FindingView"];
+export type AnalysisAtsView = components["schemas"]["AnalysisAtsView"];
 
 export type ResumeTemplate = "CLASSIC" | "MODERN_BLUE";
 
@@ -27,7 +29,6 @@ export type KeyValueLine = components["schemas"]["KeyValueLine"];
 export type ResumeContact = components["schemas"]["ResumeContact"];
 export type OriginalSection = components["schemas"]["OriginalSection"];
 export type EditedDocumentsView = components["schemas"]["EditedDocumentsView"];
-export type CoverLetterResponse = components["schemas"]["CoverLetterResponse"];
 
 export type JobPreferenceRequest = components["schemas"]["JobPreferenceRequest"];
 export type JobPreferenceResponse = components["schemas"]["JobPreferenceResponse"];
@@ -73,6 +74,7 @@ export type StageMovement = {
 	id: string;
 	stage: SelectionStage;
 	note: string | null;
+	stageAt: string | null;
 	movedAt: string;
 };
 
@@ -163,4 +165,30 @@ export type GoogleCalendarEvent = {
 	end: string;
 	allDay: boolean;
 	link: string | null;
+};
+
+export type CoverLetter = {
+	id: string;
+	jobPostingId: string;
+	resumeVersionId: string | null;
+	content: string;
+	aiModel: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type InterviewQuestion = {
+	question: string;
+	requirement: string | null;
+	reason: string | null;
+	answerTip: string | null;
+};
+
+export type InterviewQuestionSet = {
+	id: string;
+	jobPostingId: string;
+	resumeVersionId: string | null;
+	aiModel: string | null;
+	createdAt: string;
+	questions: InterviewQuestion[];
 };

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { apiDownload } from "../api/client";
+import { exportResume } from "../api/resumeExport";
 import type { ResumeSummary, ResumeVersionSummary } from "../api/types";
 import { versionLabel } from "../lib/resumeLabels";
 import { Dialog } from "./Dialog";
@@ -14,7 +14,7 @@ type ResumePreviewDialogProps = {
 export function ResumePreviewDialog({ resume, version, onClose }: ResumePreviewDialogProps) {
 	const load = useCallback(
 		async () =>
-			(await apiDownload(`/api/v1/resumes/${resume.id}/versions/${version.id}/export?format=PDF`)).blob,
+			(await exportResume(resume.id, version.id, "PDF")).blob,
 		[resume.id, version.id],
 	);
 

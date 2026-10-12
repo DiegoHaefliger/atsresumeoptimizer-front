@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { apiDownload, apiGet, apiGetOptional, apiPostJson, errorMessage } from "../api/client";
+import { downloadResume, type ResumeExportFormat } from "../api/resumeExport";
+import { apiGet, apiGetOptional, apiPostJson, errorMessage } from "../api/client";
 import type {
 	AnalysisReportView,
 	EditedDocumentsView,
@@ -10,7 +11,6 @@ import type {
 	StructuredResume,
 } from "../api/types";
 import { Badge } from "../components/Badge";
-import { CoverLetterPanel } from "../components/CoverLetterPanel";
 import { BulletsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { ResumeEditor } from "../components/ResumeEditor";
@@ -175,15 +175,7 @@ export function RewritePage() {
 			if (!current.resumeId || !current.docxVersionId) {
 				return;
 			}
-			const { blob, fileName } = await apiDownload(
-				`/api/v1/resumes/${current.resumeId}/versions/${current.docxVersionId}/export?format=${kind.toUpperCase()}`,
-			);
-			const url = URL.createObjectURL(blob);
-			const link = document.createElement("a");
-			link.href = url;
-			link.download = fileName;
-			link.click();
-			URL.revokeObjectURL(url);
+			await downloadResume(current.resumeId, current.docxVersionId, kind.toUpperCase() as ResumeExportFormat);
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra baixar o arquivo."));
 		} finally {
@@ -406,7 +398,6 @@ export function RewritePage() {
 				</section>
 			)}
 
-			{id && hasJobContext && <CoverLetterPanel analysisId={id} beforeGenerate={currentDocuments} />}
 		</div>
 	);
 }

@@ -215,7 +215,7 @@ export function AiSettingsPanel() {
 	}
 
 	if (loadError) {
-		return <StateMessage variant="error" layout="page" message={loadError} action={{ label: "Voltar", to: "/upload" }} />;
+		return <StateMessage variant="error" layout="page" message={loadError} action={{ label: "Voltar", to: "/jobs" }} />;
 	}
 
 	const providers = settings?.providers ?? [];

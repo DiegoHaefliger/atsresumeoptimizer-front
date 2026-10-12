@@ -1,14 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { apiGet, apiPutJson, errorMessage } from "../api/client";
 import type { ContractType, JobPreferenceRequest, JobPreferenceResponse, WorkModel } from "../api/types";
+import { AddOptionField } from "../components/AddOptionField";
 import { ChoiceGroup } from "../components/ChoiceGroup";
 import { SettingsLayoutSkeleton } from "../components/Skeleton";
 import { BusyLabel } from "../components/BusyLabel";
 import { StateMessage } from "../components/StateMessage";
+import { TagInput } from "../components/TagInput";
 import { BENEFIT_OPTIONS, CONTRACT_TYPE_LABELS, matchingOption, SENIORITY_OPTIONS, WORK_MODEL_LABELS } from "../lib/jobLabels";
-import { formatList, parseList } from "../lib/listText";
 
-type ListFieldName = "otherBenefits" | "locations" | "preferredCompanies" | "avoidedCompanies";
+type TagFieldName = "locations" | "preferredCompanies" | "avoidedCompanies";
 
 type FormState = {
 	workModels: WorkModel[];
@@ -17,7 +18,8 @@ type FormState = {
 	desiredSalary: string;
 	seniorities: string[];
 	benefits: string[];
-} & Record<ListFieldName, string>;
+	customBenefits: string[];
+} & Record<TagFieldName, string[]>;
 
 const SENIORITY_CHOICES = toChoices(SENIORITY_OPTIONS);
 const BENEFIT_CHOICES = toChoices(BENEFIT_OPTIONS);
@@ -26,32 +28,27 @@ function toChoices(options: readonly string[]): Record<string, string> {
 	return Object.fromEntries(options.map((option) => [option, option]));
 }
 
-type ListFieldConfig = { name: ListFieldName; label: string; placeholder: string };
+type TagFieldConfig = { name: TagFieldName; label: string; placeholder: string };
 
-const OTHER_BENEFITS_FIELD: ListFieldConfig = {
-	name: "otherBenefits",
-	label: "Outros benefícios",
-	placeholder: "Ex.: auxílio academia, bolsa de estudos",
-};
-
-const PLACE_FIELDS: ListFieldConfig[] = [
+const PLACE_FIELDS: TagFieldConfig[] = [
 	{ name: "locations", label: "Cidades aceitas (vagas híbridas ou presenciais)", placeholder: "Ex.: Curitiba, São Paulo" },
 	{ name: "preferredCompanies", label: "Empresas preferidas", placeholder: "Ex.: Nubank, Itaú" },
 	{ name: "avoidedCompanies", label: "Empresas que você quer evitar", placeholder: "Ex.: Acme" },
 ];
 
 function toForm(preference: JobPreferenceResponse): FormState {
+	const benefits = (preference.benefits ?? []).map((value) => matchingOption(BENEFIT_OPTIONS, value) ?? value);
 	return {
 		workModels: preference.workModels ?? [],
 		contractTypes: preference.contractTypes ?? [],
 		minSalary: preference.minSalary?.toString() ?? "",
 		desiredSalary: preference.desiredSalary?.toString() ?? "",
 		seniorities: (preference.seniorities ?? []).map((value) => matchingOption(SENIORITY_OPTIONS, value) ?? value),
-		benefits: (preference.benefits ?? []).flatMap((value) => matchingOption(BENEFIT_OPTIONS, value) ?? []),
-		otherBenefits: formatList((preference.benefits ?? []).filter((value) => !matchingOption(BENEFIT_OPTIONS, value))),
-		locations: formatList(preference.locations),
-		preferredCompanies: formatList(preference.preferredCompanies),
-		avoidedCompanies: formatList(preference.avoidedCompanies),
+		benefits,
+		customBenefits: benefits.filter((value) => !matchingOption(BENEFIT_OPTIONS, value)),
+		locations: preference.locations ?? [],
+		preferredCompanies: preference.preferredCompanies ?? [],
+		avoidedCompanies: preference.avoidedCompanies ?? [],
 	};
 }
 
@@ -61,11 +58,11 @@ function toRequest(form: FormState): JobPreferenceRequest {
 		contractTypes: form.contractTypes,
 		minSalary: form.minSalary ? Number(form.minSalary) : undefined,
 		desiredSalary: form.desiredSalary ? Number(form.desiredSalary) : undefined,
-		benefits: [...form.benefits, ...parseList(form.otherBenefits)],
+		benefits: form.benefits,
 		seniorities: form.seniorities,
-		locations: parseList(form.locations),
-		preferredCompanies: parseList(form.preferredCompanies),
-		avoidedCompanies: parseList(form.avoidedCompanies),
+		locations: form.locations,
+		preferredCompanies: form.preferredCompanies,
+		avoidedCompanies: form.avoidedCompanies,
 	};
 }
 
@@ -84,6 +81,22 @@ export function PreferencesPage() {
 
 	function update<K extends keyof FormState>(field: K, value: FormState[K]) {
 		setForm((current) => (current ? { ...current, [field]: value } : current));
+		setSaved(false);
+	}
+
+	function addBenefit(value: string) {
+		setForm((current) => {
+			if (!current) {
+				return current;
+			}
+			const existing = matchingOption([...BENEFIT_OPTIONS, ...current.customBenefits], value);
+			const benefit = existing ?? value;
+			return {
+				...current,
+				customBenefits: existing ? current.customBenefits : [...current.customBenefits, value],
+				benefits: current.benefits.includes(benefit) ? current.benefits : [...current.benefits, benefit],
+			};
+		});
 		setSaved(false);
 	}
 
@@ -108,7 +121,7 @@ export function PreferencesPage() {
 	if (loadError) {
 		return (
 			<div className="page">
-				<StateMessage variant="error" layout="page" message={loadError} action={{ label: "Voltar", to: "/upload" }} />
+				<StateMessage variant="error" layout="page" message={loadError} action={{ label: "Voltar", to: "/jobs" }} />
 			</div>
 		);
 	}
@@ -201,11 +214,15 @@ export function PreferencesPage() {
 							<div className="panel-body">
 								<ChoiceGroup
 									legend="Benefícios que você quer"
-									options={BENEFIT_CHOICES}
+									options={{ ...BENEFIT_CHOICES, ...toChoices(form.customBenefits) }}
 									selected={form.benefits}
 									onChange={(value) => update("benefits", value)}
 								/>
-								<ListField field={OTHER_BENEFITS_FIELD} value={form.otherBenefits} onChange={update} />
+								<AddOptionField
+									label="Adicionar outro benefício"
+									placeholder="Ex.: auxílio academia"
+									onAdd={addBenefit}
+								/>
 							</div>
 						</section>
 
@@ -216,7 +233,13 @@ export function PreferencesPage() {
 							</div>
 							<div className="panel-body">
 								{PLACE_FIELDS.map((field) => (
-									<ListField key={field.name} field={field} value={form[field.name]} onChange={update} />
+									<TagInput
+										key={field.name}
+										label={field.label}
+										placeholder={field.placeholder}
+										values={form[field.name]}
+										onChange={(values) => update(field.name, values)}
+									/>
 								))}
 							</div>
 						</section>
@@ -261,33 +284,17 @@ export function PreferencesPage() {
 	);
 }
 
-type ListFieldProps = {
-	field: ListFieldConfig;
-	value: string;
-	onChange: (name: ListFieldName, value: string) => void;
-};
-
-function ListField({ field, value, onChange }: ListFieldProps) {
-	return (
-		<label>
-			{field.label}
-			<input value={value} onChange={(event) => onChange(field.name, event.target.value)} placeholder={field.placeholder} />
-			<span className="field-hint">Separe por vírgula</span>
-		</label>
-	);
-}
-
 function criteriaSummary(form: FormState): { label: string; active: boolean }[] {
 	return [
 		{ label: "Modelo de trabalho", active: form.workModels.length > 0 },
 		{ label: "Remuneração", active: Boolean(form.minSalary || form.desiredSalary) },
 		{ label: "Tipo de contrato", active: form.contractTypes.length > 0 },
-		{ label: "Benefícios", active: form.benefits.length > 0 || parseList(form.otherBenefits).length > 0 },
+		{ label: "Benefícios", active: form.benefits.length > 0 },
 		{
 			label: "Empresa",
-			active: parseList(form.preferredCompanies).length > 0 || parseList(form.avoidedCompanies).length > 0,
+			active: form.preferredCompanies.length > 0 || form.avoidedCompanies.length > 0,
 		},
 		{ label: "Senioridade", active: form.seniorities.length > 0 },
-		{ label: "Localização", active: parseList(form.locations).length > 0 },
+		{ label: "Localização", active: form.locations.length > 0 },
 	];
 }

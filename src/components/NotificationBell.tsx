@@ -8,8 +8,8 @@ export function NotificationBell() {
 	const unread = useUnreadCount();
 	const label = unread > 0 ? `Notificações, ${unread} não lidas` : "Notificações";
 	return (
-		<NavLink to="/notifications" className="app-bell" aria-label={label} title="Notificações">
-			<BellIcon className="app-bell-icon" />
+		<NavLink to="/notifications" className="app-icon-button app-bell" aria-label={label} title="Notificações">
+			<BellIcon className="app-icon-button-icon" />
 			{unread > 0 && (
 				<span className="app-bell-badge" aria-hidden="true">
 					{unread > MAX_BADGE ? `${MAX_BADGE}+` : unread}

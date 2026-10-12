@@ -6,7 +6,7 @@ type DialogProps = {
 	title: string;
 	onClose: () => void;
 	children: ReactNode;
-	size?: "small" | "large" | "full";
+	size?: "small" | "medium" | "large" | "full";
 };
 
 export function Dialog({ open, title, onClose, children, size = "small" }: DialogProps) {

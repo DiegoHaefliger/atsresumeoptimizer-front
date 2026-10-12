@@ -175,7 +175,7 @@ export function JobProcessPage() {
 					>
 						<p>O processo seletivo desta vaga e o histórico de etapas serão apagados. Não dá pra desfazer.</p>
 					</ConfirmDialog>
-					<MoveStageDialog process={moving ? process : null} onClose={() => setMoving(false)} onMove={moveStage} />
+					<MoveStageDialog process={moving ? process : null} onClose={() => setMoving(false)} onMove={moveStage} onHistoryChange={reload} />
 					<ScheduleDialog
 						title="Agendar etapa"
 						initial={scheduling ? emptyScheduleDraft(process.stage) : null}

@@ -2,21 +2,16 @@ import { useState } from "react";
 import { apiPostJson } from "../api/client";
 import type { EditedDocumentsView, ResumeOrigin, ResumeSummary } from "../api/types";
 import { ResumeFileUpload } from "../components/ResumeFileUpload";
+import { AnalyzeResumeDialog, type ResumeToAnalyze } from "../components/AnalyzeResumeDialog";
 import { ResumeLibrary } from "../components/ResumeLibrary";
 import { ResumeForm, type ResumeDraft } from "../components/ResumeForm";
+import { RegistrationModeChoice, type RegistrationMode } from "../components/RegistrationModeChoice";
 import { SegmentedTabs } from "../components/SegmentedTabs";
 import { splitByOrigin } from "../lib/resumeLabels";
 import { starterResume } from "../lib/resumeSections";
 import { useResumes } from "../lib/useResumes";
 
 const EMPTY_DRAFT: ResumeDraft = { template: "CLASSIC", content: starterResume(), contact: {} };
-
-type RegistrationMode = "upload" | "compose";
-
-const MODE_OPTIONS: { value: RegistrationMode; label: string }[] = [
-	{ value: "upload", label: "Enviar arquivo" },
-	{ value: "compose", label: "Criar no sistema" },
-];
 
 const LIBRARY_TABS: Record<ResumeOrigin, { hint: string; emptyMessage: string }> = {
 	BASE: {
@@ -38,6 +33,7 @@ export function ResumesPage() {
 	const [libraryTab, setLibraryTab] = useState<ResumeOrigin>("BASE");
 	const { resumes, failed, reload, remove, removeVersion, setFavorite } = useResumes();
 	const [formKey, setFormKey] = useState(0);
+	const [analyzing, setAnalyzing] = useState<ResumeToAnalyze | null>(null);
 	const { base, adapted } = resumes ? splitByOrigin(resumes) : { base: null, adapted: null };
 
 	function registered() {
@@ -67,9 +63,8 @@ export function ResumesPage() {
 				<h2 id="new-resume" className="page-section-title">
 					Novo currículo
 				</h2>
-				<div className="preview-toolbar">
-					<SegmentedTabs label="Como cadastrar" options={MODE_OPTIONS} value={mode} onChange={setMode} />
-				</div>
+				<p className="field-hint">Escolha como quer cadastrar:</p>
+				<RegistrationModeChoice value={mode} onChange={setMode} />
 
 				{mode === "upload" ? (
 					<ResumeFileUpload key={formKey} onUploaded={registered} />
@@ -103,8 +98,14 @@ export function ResumesPage() {
 					onDeleteVersion={removeVersion}
 					onToggleFavorite={libraryTab === "BASE" ? setFavorite : undefined}
 					emptyMessage={LIBRARY_TABS[libraryTab].emptyMessage}
+					onAnalyze={(resume, version) =>
+						resume.id &&
+						version.id &&
+						setAnalyzing({ resumeId: resume.id, versionId: version.id, title: resume.title ?? "Currículo", version: version.number ?? 1 })
+					}
 				/>
 			</section>
+			<AnalyzeResumeDialog resume={analyzing} onClose={() => setAnalyzing(null)} />
 		</div>
 	);
 }

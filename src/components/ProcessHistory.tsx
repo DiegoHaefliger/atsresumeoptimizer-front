@@ -27,7 +27,9 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const timeline = buildTimeline(detail?.history ?? [], detail?.schedules ?? []);
-	const currentMovementId = detail?.history.at(-1)?.id;
+	const history = detail?.history ?? [];
+	const currentMovementId = history.at(-1)?.id;
+	const previousStage = history.at(-2)?.stage;
 
 	async function run(action: () => Promise<unknown>, failure: string) {
 		setError(null);
@@ -91,6 +93,9 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 								<summary>
 									<strong>{STAGE_LABELS[item.movement.stage]}</strong>
 									<span className="process-history-date">{formatDateTime(item.movement.movedAt)}</span>
+									{item.movement.stageAt && (
+										<span className="process-history-stage-at">Etapa em {formatDateTime(item.movement.stageAt)}</span>
+									)}
 								</summary>
 								<p className="process-history-note">{item.movement.note ?? "Sem anotação."}</p>
 								<div className="process-history-actions">
@@ -103,7 +108,7 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 											Voltar para esta etapa
 										</button>
 									)}
-									{item.movement.id !== currentMovementId && (
+									{history.length > 1 && (
 										<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(item.movement)}>
 											Excluir etapa
 										</button>
@@ -126,6 +131,11 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 					A etapa <strong>{confirming ? STAGE_LABELS[confirming.stage] : ""}</strong> sai do histórico do processo. Não dá
 					pra desfazer.
 				</p>
+				{confirming?.id === currentMovementId && previousStage && (
+					<p>
+						Como é a etapa atual, o processo volta para <strong>{STAGE_LABELS[previousStage]}</strong>.
+					</p>
+				)}
 			</ConfirmDialog>
 			<ConfirmDialog
 				open={cancelling !== null}

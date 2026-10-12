@@ -707,7 +707,7 @@ export interface components {
         ResumeSection: {
             title?: string;
             /** @enum {string} */
-            semanticType?: "SUMMARY" | "EXPERIENCE" | "PROJECTS" | "EDUCATION" | "SKILLS" | "CERTIFICATIONS" | "LANGUAGES" | "OTHER";
+            semanticType?: "SUMMARY" | "EXPERIENCE" | "PROJECTS" | "EDUCATION" | "SKILLS" | "SOFT_SKILLS" | "CERTIFICATIONS" | "LANGUAGES" | "OTHER";
             /** @enum {string} */
             kind?: "PARAGRAPH" | "KEY_VALUE" | "RICH_LINES" | "ENTRIES";
             paragraph?: string;

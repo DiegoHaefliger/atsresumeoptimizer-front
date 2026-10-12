@@ -18,7 +18,7 @@ const CONTACT_SEPARATOR = " | ";
 const LINK_TOKEN = /^(https?:\/\/\S+|www\.\S+|[\w.+-]+@[\w-]+\.[\w.-]+|(linkedin|github)\.com\/\S+)$/i;
 const LIST_MARKER = /^(- |\d+\. )/;
 
-const CONTACT_ORDER: (keyof ResumeContact)[] = ["email", "phone", "linkedIn", "github", "portfolio", "location"];
+const CONTACT_ORDER: (keyof ResumeContact)[] = ["location", "phone", "email", "linkedIn", "github", "portfolio"];
 
 export function ResumePreview({ content, contact, original, template, showChanges }: ResumePreviewProps) {
 	const contactLine = CONTACT_ORDER.map((key) => contact[key]).filter((value) => value && value.trim());
@@ -73,7 +73,7 @@ function PreviewSection({
 			{section.kind === "KEY_VALUE" &&
 				(section.keyValues ?? []).map((line, index) => (
 					<p key={index} className="resume-preview-line">
-						<strong>{line.label}: </strong>
+						{section.semanticType === "SOFT_SKILLS" ? `${line.label}: ` : <strong>{line.label}: </strong>}
 						<DiffText
 							before={original.labeledLines.get(normalizedLabel(line.label ?? "")) ?? null}
 							after={line.value ?? ""}
@@ -159,10 +159,10 @@ function PreviewEntry({
 	isEducation: boolean;
 }) {
 	return (
-		<div className="resume-preview-entry">
+		<div className={isEducation ? "resume-preview-entry resume-preview-entry-education" : "resume-preview-entry"}>
 			{isEducation ? (
-				<p className="resume-preview-entry-heading">
-					<strong>{educationHeadline(entry).title}</strong>
+				<p>
+					{educationHeadline(entry).title}
 					{educationHeadline(entry).period && <span> | {educationHeadline(entry).period}</span>}
 				</p>
 			) : (

@@ -35,7 +35,7 @@ function certificationSpans({ name, institution, year }: Certification): TextSpa
 	const title = [name, institution].map((part) => part.trim()).filter(Boolean).join(NAME_SEPARATOR);
 	const spans: TextSpan[] = [];
 	if (title) {
-		spans.push({ text: title, bold: true });
+		spans.push({ text: title, bold: false });
 	}
 	if (year.trim()) {
 		spans.push({ text: title ? `${YEAR_SEPARATOR}${year.trim()}` : year.trim(), bold: false });
@@ -52,8 +52,11 @@ export function certificationsToLines(items: Certification[]): TextSpan[][] {
 }
 
 export function formatCertificationLine(line: TextSpan[]): TextSpan[] {
-	if (line.some((span) => span.bold) || line.every((span) => !(span.text ?? "").trim())) {
+	if (line.every((span) => !(span.text ?? "").trim())) {
 		return line;
+	}
+	if (line.some((span) => span.bold)) {
+		return line.map((span) => ({ ...span, bold: false }));
 	}
 	const [formatted] = certificationsToLines([parseCertification(line.map((span) => span.text ?? "").join(""))]);
 	return formatted;

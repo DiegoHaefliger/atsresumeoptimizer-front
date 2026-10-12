@@ -5,6 +5,7 @@ import { Pagination } from "../components/Pagination";
 import { SegmentedTabs } from "../components/SegmentedTabs";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
+import { groupByDay } from "../lib/notificationGroups";
 import { useNotifications } from "../lib/useNotifications";
 
 type Filter = "all" | "unread";
@@ -20,6 +21,7 @@ export function NotificationsPage() {
 	const [filter, setFilter] = useState<Filter>("all");
 	const [page, setPage] = useState(0);
 	const [error, setError] = useState<string | null>(null);
+	const [today] = useState(() => new Date());
 	const { notifications, failed, reload, markRead, markAllRead, remove } = useNotifications(filter === "unread");
 	const pageCount = Math.max(1, Math.ceil((notifications?.length ?? 0) / PAGE_SIZE));
 	const visible = (notifications ?? []).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -65,7 +67,7 @@ export function NotificationsPage() {
 					variant="error"
 					layout="page"
 					message="Não deu pra carregar as notificações."
-					action={{ label: "Voltar", to: "/upload" }}
+					action={{ label: "Voltar", to: "/jobs" }}
 				/>
 			) : notifications === null ? (
 				<div role="status" aria-busy="true">
@@ -80,16 +82,25 @@ export function NotificationsPage() {
 				/>
 			) : (
 				<>
-					<ul className="notification-list panel">
-						{visible.map((notification) => (
-							<NotificationItem
-								key={notification.id}
-								notification={notification}
-								onRead={(id) => act(() => markRead(id))}
-								onRemove={(id) => act(() => remove(id))}
-							/>
+					<div className="notification-feed">
+						{groupByDay(visible, today).map((group) => (
+							<section key={group.key} className="notification-group panel" aria-labelledby={`notification-day-${group.key}`}>
+								<h2 id={`notification-day-${group.key}`} className="notification-group-title">
+									{group.label}
+								</h2>
+								<ul className="notification-list">
+									{group.items.map((notification) => (
+										<NotificationItem
+											key={notification.id}
+											notification={notification}
+											onRead={(id) => act(() => markRead(id))}
+											onRemove={(id) => act(() => remove(id))}
+										/>
+									))}
+								</ul>
+							</section>
 						))}
-					</ul>
+					</div>
 					<Pagination page={Math.min(page, pageCount - 1)} pageCount={pageCount} onChange={setPage} />
 				</>
 			)}

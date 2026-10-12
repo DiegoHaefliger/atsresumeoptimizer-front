@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { apiDownload, errorMessage } from "../api/client";
+import { errorMessage } from "../api/client";
+import { downloadResume, type ResumeExportFormat } from "../api/resumeExport";
 import type { ResumeSummary, ResumeVersionSummary } from "../api/types";
 import { versionLabel } from "../lib/resumeLabels";
 import { BusyLabel } from "./BusyLabel";
@@ -7,9 +8,7 @@ import { Dialog } from "./Dialog";
 import { DownloadIcon } from "./icons";
 import { StateMessage } from "./StateMessage";
 
-type DownloadFormat = "PDF" | "DOCX";
-
-const FORMATS: { value: DownloadFormat; label: string }[] = [
+const FORMATS: { value: ResumeExportFormat; label: string }[] = [
 	{ value: "PDF", label: "PDF" },
 	{ value: "DOCX", label: "Word (DOCX)" },
 ];
@@ -21,22 +20,14 @@ type ResumeDownloadDialogProps = {
 };
 
 export function ResumeDownloadDialog({ resume, version, onClose }: ResumeDownloadDialogProps) {
-	const [downloading, setDownloading] = useState<DownloadFormat | null>(null);
+	const [downloading, setDownloading] = useState<ResumeExportFormat | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	async function download(format: DownloadFormat) {
+	async function download(format: ResumeExportFormat) {
 		setDownloading(format);
 		setError(null);
 		try {
-			const { blob, fileName } = await apiDownload(
-				`/api/v1/resumes/${resume.id}/versions/${version.id}/export?format=${format}`,
-			);
-			const url = URL.createObjectURL(blob);
-			const link = document.createElement("a");
-			link.href = url;
-			link.download = fileName;
-			link.click();
-			URL.revokeObjectURL(url);
+			await downloadResume(resume.id, version.id, format);
 			onClose();
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra baixar o arquivo."));

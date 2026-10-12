@@ -4,7 +4,7 @@ import { errorMessage } from "../api/client";
 import type { ResumeSummary, ResumeVersionSummary } from "../api/types";
 import { resumeMeta, versionLabel } from "../lib/resumeLabels";
 import { scoreTone, type ScoreTone } from "../lib/score";
-import { DownloadIcon, EyeIcon, FileTextIcon, PencilIcon, StarIcon, TrashIcon } from "./icons";
+import { ArrowRightIcon, ClipboardCheckIcon, DownloadIcon, EyeIcon, FileTextIcon, PencilIcon, StarIcon, TrashIcon } from "./icons";
 import { Badge, type BadgeTone } from "./Badge";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { LoadFailed } from "./LoadFailed";
@@ -21,7 +21,7 @@ type ResumeLibraryProps = {
 	onDeleteVersion: (resumeId: string, versionId: string) => Promise<void>;
 	emptyMessage: string;
 	onToggleFavorite?: (resumeId: string, favorite: boolean) => Promise<void>;
-	editable?: boolean;
+	onAnalyze?: (resume: ResumeSummary, version: ResumeVersionSummary) => void;
 };
 
 const SCORE_BADGE_TONES: Record<ScoreTone, BadgeTone> = { high: "success", mid: "warning", low: "error" };
@@ -36,7 +36,7 @@ export function ResumeLibrary({
 	onDeleteVersion,
 	emptyMessage,
 	onToggleFavorite,
-	editable = true,
+	onAnalyze,
 }: ResumeLibraryProps) {
 	const [confirmingId, setConfirmingId] = useState<string | null>(null);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -134,8 +134,10 @@ export function ResumeLibrary({
 									<span className="saved-resume-title">{resume.title}</span>
 									<span className="saved-resume-meta">{resumeMeta(resume)}</span>
 									{resume.sourceAnalysisId && (
-										<Link to={`/analyses/${resume.sourceAnalysisId}`} className="link saved-resume-meta">
+										<Link to={`/analyses/${resume.sourceAnalysisId}`} className="analysis-link">
+											<ClipboardCheckIcon />
 											Ver análise de origem
+											<ArrowRightIcon />
 										</Link>
 									)}
 								</span>
@@ -146,6 +148,16 @@ export function ResumeLibrary({
 							</span>
 							{resume.id && (
 								<div className="saved-resume-actions">
+									{onAnalyze && version && (
+										<button
+											type="button"
+											className="btn-small saved-resume-analyze"
+											onClick={() => onAnalyze(resume, version)}
+											aria-label={`Analisar ${resume.title}`}
+										>
+											<ClipboardCheckIcon /> Analisar
+										</button>
+									)}
 									{canFavorite && (
 										<button
 											type="button"
@@ -176,17 +188,15 @@ export function ResumeLibrary({
 									>
 										<DownloadIcon />
 									</button>
-									{editable && (
-										<button
-											type="button"
-											className="btn-icon"
-											onClick={() => edit(resume)}
-											aria-label={`Editar ${resume.title}`}
-											title="Editar currículo"
-										>
-											<PencilIcon />
-										</button>
-									)}
+									<button
+										type="button"
+										className="btn-icon"
+										onClick={() => edit(resume)}
+										aria-label={`Editar ${resume.title}`}
+										title="Editar currículo"
+									>
+										<PencilIcon />
+									</button>
 									<button
 										type="button"
 										className="btn-icon"
