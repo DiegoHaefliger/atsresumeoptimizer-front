@@ -3,6 +3,7 @@ import { AiSettingsPanel } from "../components/settings/AiSettingsPanel";
 import { AppVersionInfo } from "../components/settings/AppVersionInfo";
 import { DatabaseSettingsPanel } from "../components/settings/DatabaseSettingsPanel";
 import { NotificationSettingsPanel } from "../components/settings/NotificationSettingsPanel";
+import { OnboardingToggle } from "../components/settings/OnboardingToggle";
 import { SegmentedTabs } from "../components/SegmentedTabs";
 import { useDesktopDatabase } from "../lib/useDesktopDatabase";
 
@@ -50,6 +51,7 @@ export function SettingsPage() {
 			{tab === "notifications" && <NotificationSettingsPanel />}
 			{tab === "database" && database && <DatabaseSettingsPanel settings={database} />}
 			<AppVersionInfo />
+			<OnboardingToggle />
 		</div>
 	);
 }

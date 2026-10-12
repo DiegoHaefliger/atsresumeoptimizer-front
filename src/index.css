@@ -4625,3 +4625,124 @@ legend {
 .job-list-top {
 	scroll-margin-top: var(--space-4);
 }
+
+.onboarding {
+	margin: var(--space-4) max(var(--gutter), calc((100% - var(--content-width)) / 2 + var(--gutter))) 0;
+	padding: var(--space-5);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: var(--surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.onboarding-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--space-3);
+}
+
+.onboarding-header h2 {
+	margin: 0;
+	font-size: var(--font-size-lg);
+}
+
+.onboarding-header p {
+	margin: var(--space-1) 0 0;
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
+}
+
+.onboarding-progress {
+	height: 6px;
+	margin: var(--space-4) 0;
+	border-radius: 999px;
+	background: var(--track);
+	overflow: hidden;
+}
+
+.onboarding-progress span {
+	display: block;
+	height: 100%;
+	background: var(--brand-gradient);
+	transition: width 0.3s ease;
+}
+
+.onboarding-steps {
+	display: grid;
+	gap: var(--space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.onboarding-step {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-3);
+	padding: var(--space-3);
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+}
+
+.onboarding-step-current {
+	border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+	background: var(--brand-soft);
+}
+
+.onboarding-step-marker {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: var(--track);
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+}
+
+.onboarding-step-current .onboarding-step-marker {
+	background: var(--accent);
+	color: var(--accent-text);
+}
+
+.onboarding-step-done .onboarding-step-marker {
+	background: color-mix(in srgb, var(--success) 15%, transparent);
+	color: var(--success);
+}
+
+.onboarding-step-body {
+	display: grid;
+	flex: 1 1 16rem;
+	gap: var(--space-1);
+	font-size: var(--font-size-sm);
+	color: var(--text-muted);
+}
+
+.onboarding-step-body strong {
+	color: var(--text);
+	font-size: var(--font-size-md);
+}
+
+.onboarding-step-done .onboarding-step-body strong {
+	color: var(--text-muted);
+}
+
+.onboarding-step-optional {
+	font-weight: normal;
+	color: var(--text-muted);
+}
+
+.onboarding-step-action {
+	padding: var(--space-2) var(--space-4);
+	font-size: var(--font-size-sm);
+}
+
+.onboarding-toggle {
+	margin-top: var(--space-3);
+}
