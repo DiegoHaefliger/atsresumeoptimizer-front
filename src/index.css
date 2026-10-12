@@ -4548,3 +4548,61 @@ legend {
 	margin: 0;
 	font-size: var(--font-size-xs);
 }
+
+.update-banner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-3);
+	margin: var(--space-4) max(var(--gutter), calc((100% - var(--content-width)) / 2 + var(--gutter))) 0;
+	padding: var(--space-3) var(--space-4);
+	border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+	border-radius: var(--radius-md);
+	background: var(--brand-soft);
+	color: var(--text);
+	font-size: var(--font-size-md);
+}
+
+.update-banner-icon {
+	flex: none;
+	color: var(--accent);
+	font-size: var(--font-size-lg);
+}
+
+.update-banner-text {
+	flex: 1 1 16rem;
+	margin: 0;
+}
+
+.update-banner-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.update-banner-download {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--space-1) var(--space-3);
+	border-radius: var(--radius-md);
+	background: var(--brand-gradient);
+	color: var(--accent-text);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+}
+
+.update-banner-download:hover {
+	filter: brightness(1.08);
+}
+
+.update-banner-download:focus-visible {
+	outline: 2px solid var(--brand-600);
+	outline-offset: 2px;
+}
+
+.app-version-info {
+	margin-top: var(--space-8);
+	font-size: var(--font-size-sm);
+	color: var(--text-muted);
+}

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { AiSettingsPanel } from "../components/settings/AiSettingsPanel";
+import { AppVersionInfo } from "../components/settings/AppVersionInfo";
 import { NotificationSettingsPanel } from "../components/settings/NotificationSettingsPanel";
 import { SegmentedTabs } from "../components/SegmentedTabs";
 
@@ -30,6 +31,7 @@ export function SettingsPage() {
 			</header>
 			<SegmentedTabs label="Seções de configuração" options={TAB_OPTIONS} value={tab} onChange={(next) => navigate(TAB_PATHS[next])} />
 			{tab === "ai" ? <AiSettingsPanel /> : <NotificationSettingsPanel />}
+			<AppVersionInfo />
 		</div>
 	);
 }

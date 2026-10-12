@@ -192,3 +192,5 @@ export type InterviewQuestionSet = {
 	createdAt: string;
 	questions: InterviewQuestion[];
 };
+
+export type AppVersion = components["schemas"]["AppVersionResponse"];
