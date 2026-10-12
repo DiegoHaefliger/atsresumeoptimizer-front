@@ -392,22 +392,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/resumes/{resumeId}/versions/{versionId}/download": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["download"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/prompt-templates": {
         parameters: {
             query?: never;
@@ -864,7 +848,6 @@ export interface components {
             resumeId?: string;
             /** Format: uuid */
             resumeVersionId?: string;
-            storageKey?: string;
             /** Format: int64 */
             sizeBytes?: number;
             sha256?: string;
@@ -1947,29 +1930,6 @@ export interface operations {
             query: {
                 format: "PDF" | "DOCX";
             };
-            header?: never;
-            path: {
-                resumeId: string;
-                versionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    download: {
-        parameters: {
-            query?: never;
             header?: never;
             path: {
                 resumeId: string;
