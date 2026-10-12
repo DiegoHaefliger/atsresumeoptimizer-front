@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/desktop/database": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["current_1"];
+        put: operations["useExternal"];
+        post?: never;
+        delete: operations["useEmbedded"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses/{id}/keywords": {
         parameters: {
             query?: never;
@@ -440,6 +456,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/desktop/database/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses": {
         parameters: {
             query?: never;
@@ -513,7 +545,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["test"];
+        post: operations["test_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1188,6 +1220,20 @@ export interface components {
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
         };
+        ExternalDatabaseRequest: {
+            host: string;
+            /** Format: int32 */
+            port?: number;
+            database: string;
+            username: string;
+            password: string;
+            /** @enum {string} */
+            sslMode: "REQUIRE" | "VERIFY_FULL" | "DISABLE";
+            copyData?: boolean;
+        };
+        DatabaseSwitchResponse: {
+            restarting?: boolean;
+        };
         AnalysisKeywordsRequest: {
             keywords: string[];
             selected: string[];
@@ -1330,6 +1376,10 @@ export interface components {
         GoogleSyncResponse: {
             /** Format: int32 */
             synced?: number;
+        };
+        ConnectionCheckResponse: {
+            serverVersion?: string;
+            empty?: boolean;
         };
         RewriteRequest: {
             /** @enum {string} */
@@ -1485,6 +1535,17 @@ export interface components {
         };
         GoogleAuthorizationResponse: {
             url?: string;
+        };
+        DatabaseSettingsResponse: {
+            /** @enum {string} */
+            mode?: "EMBEDDED" | "EXTERNAL";
+            host?: string;
+            /** Format: int32 */
+            port?: number;
+            database?: string;
+            username?: string;
+            /** @enum {string} */
+            sslMode?: "REQUIRE" | "VERIFY_FULL" | "DISABLE";
         };
         CalendarEventResponse: {
             /** Format: uuid */
@@ -1993,6 +2054,70 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["JobPreferenceResponse"];
+                };
+            };
+        };
+    };
+    current_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatabaseSettingsResponse"];
+                };
+            };
+        };
+    };
+    useExternal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalDatabaseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatabaseSwitchResponse"];
+                };
+            };
+        };
+    };
+    useEmbedded: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatabaseSwitchResponse"];
                 };
             };
         };
@@ -2599,6 +2724,30 @@ export interface operations {
             };
         };
     };
+    test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalDatabaseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConnectionCheckResponse"];
+                };
+            };
+        };
+    };
     create_4: {
         parameters: {
             query?: {
@@ -2728,7 +2877,7 @@ export interface operations {
             };
         };
     };
-    test: {
+    test_1: {
         parameters: {
             query?: never;
             header?: never;
