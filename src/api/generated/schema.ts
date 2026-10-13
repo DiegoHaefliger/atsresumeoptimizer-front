@@ -993,7 +993,7 @@ export interface components {
             jobPostingId: string;
             processUrl?: string;
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             /** Format: date */
             appliedOn?: string;
             /** Format: date */
@@ -1017,7 +1017,7 @@ export interface components {
             jobUrl?: string;
             processUrl?: string;
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             /** Format: date */
             appliedOn?: string;
             /** Format: date */
@@ -1041,7 +1041,7 @@ export interface components {
             /** Format: uuid */
             processId?: string;
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             /** Format: date-time */
             scheduledAt?: string;
             /** Format: int32 */
@@ -1059,7 +1059,7 @@ export interface components {
             /** Format: uuid */
             id?: string;
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             note?: string;
             /** Format: date-time */
             stageAt?: string;
@@ -1284,7 +1284,7 @@ export interface components {
         };
         SelectionScheduleRequest: {
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             /** Format: date-time */
             scheduledAt: string;
             /** Format: int32 */
@@ -1294,7 +1294,7 @@ export interface components {
         };
         MoveStageRequest: {
             /** @enum {string} */
-            stage: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             note?: string;
             /** Format: date-time */
             stageAt?: string;
@@ -1555,7 +1555,7 @@ export interface components {
             company?: string;
             jobTitle?: string;
             /** @enum {string} */
-            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+            stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             /** @enum {string} */
             status?: "SCHEDULED" | "DONE" | "CANCELED" | "RESCHEDULED";
             /** Format: date-time */
@@ -2193,7 +2193,7 @@ export interface operations {
     list: {
         parameters: {
             query?: {
-                stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
+                stage?: "INTERESTED" | "APPLIED" | "SCREENING" | "HR_INTERVIEW" | "TECHNICAL_TEST" | "TECHNICAL_INTERVIEW" | "MANAGER_INTERVIEW" | "OFFER" | "HIRED" | "REJECTED" | "WITHDRAWN";
             };
             header?: never;
             path?: never;

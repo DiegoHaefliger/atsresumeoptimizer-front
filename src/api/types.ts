@@ -62,6 +62,7 @@ export type SelectionStage =
 	| "INTERESTED"
 	| "APPLIED"
 	| "SCREENING"
+	| "HR_INTERVIEW"
 	| "TECHNICAL_TEST"
 	| "TECHNICAL_INTERVIEW"
 	| "MANAGER_INTERVIEW"
