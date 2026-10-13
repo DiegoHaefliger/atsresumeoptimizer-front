@@ -157,6 +157,7 @@ export type GoogleCalendarStatus = {
 	connected: boolean;
 	accountEmail: string | null;
 	redirectUri: string;
+	clientId: string | null;
 };
 
 export type GoogleCalendarEvent = {

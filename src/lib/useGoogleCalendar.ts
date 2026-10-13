@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { apiDelete, apiGet, apiPostJson } from "../api/client";
+import { apiDelete, apiGet, apiPostJson, apiPutJson } from "../api/client";
 import type { GoogleCalendarStatus } from "../api/types";
 import { useApiResource } from "./useApiResource";
 
@@ -20,5 +20,18 @@ export function useGoogleCalendar() {
 		reload();
 	}, [reload]);
 
-	return { status: data, failed, reload, connect, sync, disconnect };
+	const saveCredentials = useCallback(
+		async (clientId: string, clientSecret: string) => {
+			await apiPutJson<void>(`${GOOGLE_PATH}/credentials`, { clientId, clientSecret });
+			reload();
+		},
+		[reload],
+	);
+
+	const clearCredentials = useCallback(async () => {
+		await apiDelete(`${GOOGLE_PATH}/credentials`);
+		reload();
+	}, [reload]);
+
+	return { status: data, failed, reload, connect, sync, disconnect, saveCredentials, clearCredentials };
 }

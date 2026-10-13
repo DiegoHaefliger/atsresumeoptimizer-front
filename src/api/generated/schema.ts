@@ -1524,6 +1524,7 @@ export interface components {
             connected?: boolean;
             accountEmail?: string;
             redirectUri?: string;
+            clientId?: string;
         };
         GoogleEventResponse: {
             id?: string;
