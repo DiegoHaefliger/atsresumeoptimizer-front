@@ -1,8 +1,17 @@
 import { useState } from "react";
+import { GoogleCredentialsForm } from "./GoogleCredentialsForm";
 
 const CONSOLE_URL = "https://console.cloud.google.com";
 
-export function GoogleSetupGuide({ redirectUri, open }: { redirectUri: string; open: boolean }) {
+type GoogleSetupGuideProps = {
+	redirectUri: string;
+	clientId: string | null;
+	open: boolean;
+	onSaveCredentials: (clientId: string, clientSecret: string) => Promise<void>;
+	onClearCredentials: () => Promise<void>;
+};
+
+export function GoogleSetupGuide({ redirectUri, clientId, open, onSaveCredentials, onClearCredentials }: GoogleSetupGuideProps) {
 	const [copied, setCopied] = useState<string | null>(null);
 
 	async function copy(label: string, text: string) {
@@ -15,7 +24,7 @@ export function GoogleSetupGuide({ redirectUri, open }: { redirectUri: string; o
 			<summary>Como configurar a integração com o Google</summary>
 			<p className="field-hint">
 				O Google só abre a tela de login para aplicativos registrados. Este registro é feito uma única vez, por quem
-				administra o servidor, e leva uns 5 minutos.
+				instalou o app, e leva uns 5 minutos.
 			</p>
 			<ol className="google-guide-steps">
 				<li>
@@ -58,18 +67,9 @@ export function GoogleSetupGuide({ redirectUri, open }: { redirectUri: string; o
 					</span>
 				</li>
 				<li>
-					Copie o <strong>ID do cliente</strong> e a <strong>chave secreta</strong> para o arquivo <code>.env</code> do
-					backend e reinicie o servidor:
-					<span className="google-guide-copy">
-						<code>GOOGLE_CLIENT_ID=...{"\n"}GOOGLE_CLIENT_SECRET=...</code>
-						<button
-							type="button"
-							className="btn-secondary btn-small"
-							onClick={() => copy("env", "GOOGLE_CLIENT_ID=\nGOOGLE_CLIENT_SECRET=\n")}
-						>
-							{copied === "env" ? "Copiado" : "Copiar"}
-						</button>
-					</span>
+					Copie o <strong>ID do cliente</strong> e a <strong>chave secreta</strong> e cole aqui. A chave fica guardada
+					criptografada no banco do app:
+					<GoogleCredentialsForm clientId={clientId} onSave={onSaveCredentials} onClear={onClearCredentials} />
 				</li>
 				<li>Volte a esta tela e clique em <strong>Conectar com o Google</strong>.</li>
 			</ol>

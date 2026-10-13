@@ -14,6 +14,16 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.1",
+		date: "2026-10-13",
+		summary: "Google Agenda configurável pelo app, etapa Entrevista RH e correção no campo de anotação.",
+		changes: [
+			{ kind: "feat", text: "Credenciais do Google Agenda (ID do cliente e chave secreta) agora são informadas na própria tela da integração, sem editar arquivo .env." },
+			{ kind: "feat", text: "Nova etapa Entrevista RH no processo seletivo, logo após a Triagem." },
+			{ kind: "fix", text: "Campo Anotação ao mover a etapa do processo não aparece mais cortado." },
+		],
+	},
+	{
 		version: "1.1.0",
 		date: "2026-10-12",
 		summary: "Perguntas para fazer ao recrutador no fim da entrevista.",

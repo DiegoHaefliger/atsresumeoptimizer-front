@@ -7,7 +7,7 @@ import { StateMessage } from "../StateMessage";
 import { GoogleSetupGuide } from "./GoogleSetupGuide";
 
 export function GoogleCalendarSettings() {
-	const { status, failed, reload, connect, sync, disconnect } = useGoogleCalendar();
+	const { status, failed, reload, connect, sync, disconnect, saveCredentials, clearCredentials } = useGoogleCalendar();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [returned] = useState(() => searchParams.get("google"));
 	const [confirming, setConfirming] = useState(false);
@@ -62,7 +62,7 @@ export function GoogleCalendarSettings() {
 				<StateMessage variant="error" layout="inline" message="Não deu pra conectar a conta Google. Tenta de novo." />
 			)}
 			{!status.configured && (
-				<p className="field-hint">A integração com o Google ainda não foi configurada no servidor.</p>
+				<p className="field-hint">A integração com o Google ainda não foi configurada. Siga o passo a passo abaixo.</p>
 			)}
 			{status.connected && (
 				<p>
@@ -95,7 +95,15 @@ export function GoogleCalendarSettings() {
 					</button>
 				)}
 			</div>
-			{!status.connected && <GoogleSetupGuide redirectUri={status.redirectUri} open={!status.configured} />}
+			{!status.connected && (
+				<GoogleSetupGuide
+					redirectUri={status.redirectUri}
+					clientId={status.clientId}
+					open={!status.configured}
+					onSaveCredentials={saveCredentials}
+					onClearCredentials={clearCredentials}
+				/>
+			)}
 			<ConfirmDialog
 				open={confirming}
 				title="Desconectar a conta Google?"

@@ -62,6 +62,7 @@ export type SelectionStage =
 	| "INTERESTED"
 	| "APPLIED"
 	| "SCREENING"
+	| "HR_INTERVIEW"
 	| "TECHNICAL_TEST"
 	| "TECHNICAL_INTERVIEW"
 	| "MANAGER_INTERVIEW"
@@ -156,6 +157,7 @@ export type GoogleCalendarStatus = {
 	connected: boolean;
 	accountEmail: string | null;
 	redirectUri: string;
+	clientId: string | null;
 };
 
 export type GoogleCalendarEvent = {
