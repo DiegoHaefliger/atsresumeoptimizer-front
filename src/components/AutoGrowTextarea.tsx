@@ -13,8 +13,20 @@ export function AutoGrowTextarea({ value, className, textareaRef, ...props }: Au
 		if (!element) {
 			return;
 		}
-		element.style.height = "auto";
-		element.style.height = `${element.scrollHeight}px`;
+		const resize = () => {
+			element.style.height = "auto";
+			element.style.height = `${element.scrollHeight}px`;
+		};
+		resize();
+		let lastWidth = element.clientWidth;
+		const observer = new ResizeObserver(() => {
+			if (element.clientWidth !== lastWidth) {
+				lastWidth = element.clientWidth;
+				resize();
+			}
+		});
+		observer.observe(element);
+		return () => observer.disconnect();
 	}, [value]);
 
 	return <textarea ref={ref} className={`auto-grow-textarea ${className ?? ""}`.trim()} value={value} {...props} />;
