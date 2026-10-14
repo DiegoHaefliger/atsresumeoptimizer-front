@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
+import { JobNotesDialog } from "../components/JobNotesDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobPreviewDialog } from "../components/JobPreviewDialog";
 import { JobList } from "../components/JobList";
@@ -20,6 +21,7 @@ export function JobsPage() {
 	const processByJob = useMemo(() => new Map((processes ?? []).map((process) => [process.jobPostingId, process])), [processes]);
 	const [previewing, setPreviewing] = useState<Job | null>(null);
 	const [viewingResumes, setViewingResumes] = useState<Job | null>(null);
+	const [noting, setNoting] = useState<Job | null>(null);
 	const [analyzingId, setAnalyzingId] = useState<string | null>(
 		() => (location.state as JobsPageState | null)?.analyzeJobId ?? null,
 	);
@@ -64,6 +66,7 @@ export function JobsPage() {
 					onAnalyze={(job) => setAnalyzingId(job.id)}
 					onPreview={setPreviewing}
 					onResumes={setViewingResumes}
+					onNotes={setNoting}
 					processes={processByJob}
 					pageSize={JOBS_PER_PAGE}
 					pageSizeOptions={PAGE_SIZE_OPTIONS}
@@ -80,6 +83,7 @@ export function JobsPage() {
 					setAnalyzingId(job.id);
 				}}
 			/>
+			<JobNotesDialog job={noting} onClose={() => setNoting(null)} />
 			<AnalyzeJobDialog job={analyzing} onClose={closeAnalyze} />
 			<JobPreviewDialog job={previewing} onClose={() => setPreviewing(null)} />
 		</div>

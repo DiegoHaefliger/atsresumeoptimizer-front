@@ -219,6 +219,16 @@ export function MessageSquareIcon(props: SVGProps<SVGSVGElement>) {
 	);
 }
 
+export function NotebookIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5z" />
+			<path d="M15 3v6h6" />
+			<path d="M8 13h8M8 17h5" />
+		</Icon>
+	);
+}
+
 export function KanbanIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<Icon {...props}>

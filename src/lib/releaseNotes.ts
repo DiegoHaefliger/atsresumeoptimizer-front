@@ -14,6 +14,17 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.2",
+		date: "2026-10-14",
+		summary: "Notas na vaga e uma nota pessoal, ambas só suas e fora das análises de IA.",
+		changes: [
+			{ kind: "feat", text: "Nota em cada vaga, aberta pelo ícone de caderno no card, com negrito, itálico, sublinhado e listas. É um texto único, sem histórico." },
+			{ kind: "feat", text: "Nova tela Notas no menu lateral para anotar seus pontos fortes e comportamentos. Não fica ligada a vaga nem a currículo." },
+			{ kind: "improvement", text: "As notas nunca são lidas pela IA, em nenhuma análise ou adaptação." },
+			{ kind: "improvement", text: "Em Sobre, as versões antigas ficam recolhidas e só a mais recente aparece aberta." },
+		],
+	},
+	{
 		version: "1.1.1",
 		date: "2026-10-13",
 		summary: "Google Agenda configurável pelo app, etapa Entrevista RH e correção no campo de anotação.",

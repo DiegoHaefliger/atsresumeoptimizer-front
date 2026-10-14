@@ -79,6 +79,11 @@ export type StageMovement = {
 	movedAt: string;
 };
 
+export type NoteText = {
+	content: string;
+	updatedAt: string | null;
+};
+
 export type ScheduleStatus = "SCHEDULED" | "DONE" | "CANCELED" | "RESCHEDULED";
 
 export type SelectionSchedule = {
