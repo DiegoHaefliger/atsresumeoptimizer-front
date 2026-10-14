@@ -3026,7 +3026,7 @@ legend {
 .rich-text-field {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-1);
+	gap: var(--space-3);
 }
 
 .rich-text-toolbar {
@@ -5010,8 +5010,58 @@ legend {
 	gap: var(--space-3);
 }
 
-.note-editor .rich-text-field {
-	gap: var(--space-3);
+.rich-note-editor {
+	min-height: 3.4em;
+	padding: var(--space-2-5) var(--space-3);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius-md);
+	background-color: var(--surface);
+	box-shadow: inset 0 1px 1px rgb(16 24 40 / 0.03);
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+	outline: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rich-note-editor:focus-visible {
+	border-color: var(--brand-600);
+	box-shadow: var(--ring);
+}
+
+.rich-note-editor[data-placeholder]:empty::before {
+	content: attr(data-placeholder);
+	color: color-mix(in srgb, var(--text-muted) 75%, transparent);
+	pointer-events: none;
+}
+
+.rich-note-editor ul,
+.rich-note-editor ol {
+	margin: 0;
+	padding-left: var(--space-6);
+}
+
+.rich-note-editor ul {
+	list-style: disc;
+}
+
+.rich-note-editor ol {
+	list-style: decimal;
+}
+
+.rich-note-editor hr {
+	margin: var(--space-3) 0;
+	border: 0;
+	border-top: 1px solid var(--border-strong);
+}
+
+.rich-note-editor li > ul {
+	list-style: circle;
+}
+
+.rich-text-button-on {
+	background: var(--surface-2);
+	color: var(--text);
+	border-color: var(--brand-600);
 }
 
 .note-editor-footer {

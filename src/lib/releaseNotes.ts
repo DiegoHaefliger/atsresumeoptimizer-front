@@ -14,6 +14,16 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.3",
+		date: "2026-10-14",
+		summary: "Editor de texto formatado nas notas e no currículo, e tela de abertura nova.",
+		changes: [
+			{ kind: "improvement", text: "Nas notas e nos campos de texto do editor de currículo, o negrito, o itálico, o sublinhado, os tópicos e a numeração aparecem formatados enquanto você escreve." },
+			{ kind: "feat", text: "Nas notas, novo botão para inserir uma linha separadora entre trechos." },
+			{ kind: "improvement", text: "Tela de abertura do app instalado redesenhada, com barra de progresso animada e aviso de que a primeira abertura pode demorar." },
+		],
+	},
+	{
 		version: "1.1.2",
 		date: "2026-10-14",
 		summary: "Notas na vaga e uma nota pessoal, ambas só suas e fora das análises de IA.",

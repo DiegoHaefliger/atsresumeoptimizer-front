@@ -38,7 +38,7 @@ export function NoteEditor({ label, initial, placeholder, rows = 10, onSave }: N
 
 	return (
 		<div className="note-editor">
-			<RichTextField label={label} value={content} onChange={setContent} rows={rows} placeholder={placeholder} />
+			<RichTextField label={label} value={content} onChange={setContent} rows={rows} placeholder={placeholder} separator />
 			{tooLong && <StateMessage variant="error" layout="inline" message={`A nota passa de ${NOTE_MAX_LENGTH} caracteres.`} />}
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
 			<div className="note-editor-footer">
