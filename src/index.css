@@ -3404,6 +3404,13 @@ legend {
 	gap: var(--space-2);
 }
 
+.job-notes {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+
 .confirm-message p {
 	margin: 0;
 	color: var(--text);
@@ -3892,7 +3899,7 @@ legend {
 /* Cartões de vaga */
 .job-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(375px, 100%), 1fr));
 	gap: var(--space-4);
 }
 
@@ -4206,6 +4213,12 @@ legend {
 
 .job-card-footer .job-actions {
 	flex: 1;
+	justify-content: flex-end;
+	gap: 0;
+}
+
+.job-card-footer .job-actions .btn-icon {
+	padding: var(--space-1) 5px;
 }
 
 .job-card-analyze,
@@ -4763,6 +4776,37 @@ legend {
 	padding: var(--space-6);
 }
 
+.release-older > summary {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	cursor: pointer;
+	list-style: none;
+}
+
+.release-older > summary::-webkit-details-marker {
+	display: none;
+}
+
+.release-older > summary::before {
+	content: "▸";
+	flex: none;
+	color: var(--text-muted);
+	transition: transform 0.15s ease;
+}
+
+.release-older[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.release-older > summary .release-header {
+	flex: 1;
+}
+
+.release-older[open] > summary {
+	margin-bottom: var(--space-2);
+}
+
 .release-header {
 	display: flex;
 	flex-wrap: wrap;
@@ -4958,4 +5002,21 @@ legend {
 .page-tab:focus-visible {
 	outline: 2px solid var(--brand-600);
 	outline-offset: -2px;
+}
+
+.note-editor {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.note-editor .rich-text-field {
+	gap: var(--space-3);
+}
+
+.note-editor-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
 }

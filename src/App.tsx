@@ -11,6 +11,7 @@ import { JobsPage } from "./pages/JobsPage";
 import { JobAssistantPage } from "./pages/JobAssistantPage";
 import { JobProcessPage } from "./pages/JobProcessPage";
 import { PromptsPage } from "./pages/PromptsPage";
+import { NotesPage } from "./pages/NotesPage";
 import { PreferencesPage } from "./pages/PreferencesPage";
 import { ResumesPage } from "./pages/ResumesPage";
 import { ResumeEditPage } from "./pages/ResumeEditPage";
@@ -41,6 +42,7 @@ export default function App() {
 						<Route path="/resumes/:resumeId/edit" element={<ResumeEditPage />} />
 						<Route path="/analyses/:id" element={<ResultPage />} />
 						<Route path="/analyses/:id/rewrite" element={<RewritePage />} />
+						<Route path="/notes" element={<NotesPage />} />
 						<Route path="/preferences" element={<PreferencesPage />} />
 						<Route path="/prompts" element={<PromptsPage />} />
 						<Route path="/settings" element={<SettingsPage />} />

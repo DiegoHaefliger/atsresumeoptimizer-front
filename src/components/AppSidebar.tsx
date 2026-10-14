@@ -8,6 +8,7 @@ import {
 	FileTextIcon,
 	InfoIcon,
 	MessageSquareIcon,
+	NotebookIcon,
 	SettingsIcon,
 	SlidersIcon,
 } from "./icons";
@@ -16,6 +17,7 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/jobs", label: "Vagas", Icon: BriefcaseIcon },
 	{ to: "/resumes", label: "Currículos", Icon: FileTextIcon },
 	{ to: "/calendar", label: "Agenda", Icon: CalendarIcon },
+	{ to: "/notes", label: "Notas", Icon: NotebookIcon },
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
