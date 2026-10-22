@@ -1951,6 +1951,7 @@ export interface components {
             /** Format: int32 */
             atsScore?: number;
             companyInfo?: string;
+            benefitsMarkup?: string[];
         };
         CostByModel: {
             model?: string;

@@ -1,5 +1,4 @@
 import type { ContractType, WorkModel } from "../api/types";
-import { parseInline } from "./richText";
 
 export type JobDraft = {
 	title: string;
@@ -32,20 +31,14 @@ export const EMPTY_JOB: JobDraft = {
 const BENEFIT_LINE_SEPARATOR = /\n+/;
 const BENEFIT_INLINE_SEPARATOR = /[,;]+/;
 const LIST_MARKER = /^(?:[-•]\s+|\d+[.)]\s+)/;
-
-function plainText(markup: string): string {
-	return parseInline(markup)
-		.map((span) => span.text ?? "")
-		.join("")
-		.trim();
-}
+const SEPARATOR_LINE = "---";
 
 export function benefitsFromText(text: string): string[] {
 	const separator = text.includes("\n") ? BENEFIT_LINE_SEPARATOR : BENEFIT_INLINE_SEPARATOR;
 	return text
 		.split(separator)
-		.map((benefit) => plainText(benefit.trim().replace(LIST_MARKER, "")))
-		.filter(Boolean);
+		.map((benefit) => benefit.trim().replace(LIST_MARKER, "").trim())
+		.filter((benefit) => benefit !== "" && benefit !== SEPARATOR_LINE);
 }
 
 export function benefitsToText(benefits: string[] | undefined): string {

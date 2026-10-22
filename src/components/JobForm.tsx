@@ -68,7 +68,7 @@ export function JobForm({ initial, submitLabel, onSave }: JobFormProps) {
 					value={draft.benefits}
 					onChange={(markup) => update("benefits", markup)}
 					rows={3}
-					inline={false}
+					separator
 					placeholder="Um por linha. Ex.: Vale-refeição, Plano de saúde"
 				/>
 			</div>
