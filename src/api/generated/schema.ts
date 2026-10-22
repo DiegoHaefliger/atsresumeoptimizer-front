@@ -68,7 +68,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/notification-settings": {
+    "/api/v1/personal-note": {
         parameters: {
             query?: never;
             header?: never;
@@ -77,6 +77,38 @@ export interface paths {
         };
         get: operations["get_1"];
         put: operations["save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_2"];
+        put: operations["save_1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{jobId}/note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_3"];
+        put: operations["save_2"];
         post?: never;
         delete?: never;
         options?: never;
@@ -123,10 +155,26 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_2"];
-        put: operations["save_1"];
+        get: operations["get_4"];
+        put: operations["save_3"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/google-calendar/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["saveCredentials"];
+        post?: never;
+        delete: operations["clearCredentials"];
         options?: never;
         head?: never;
         patch?: never;
@@ -143,6 +191,22 @@ export interface paths {
         put: operations["useExternal"];
         post?: never;
         delete: operations["useEmbedded"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/conversations/{conversationId}/jobs/{jobId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["attach"];
+        post?: never;
+        delete: operations["detach"];
         options?: never;
         head?: never;
         patch?: never;
@@ -171,8 +235,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_3"];
-        put: operations["save_2"];
+        get: operations["get_5"];
+        put: operations["save_4"];
         post?: never;
         delete?: never;
         options?: never;
@@ -420,6 +484,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{jobId}/candidate-questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_5"];
+        put?: never;
+        post: operations["generate_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integrations/jobs": {
         parameters: {
             query?: never;
@@ -472,6 +552,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_6"];
+        put?: never;
+        post: operations["create_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/conversations/{conversationId}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["sendWithFiles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/conversations/{conversationId}/messages/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["regenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses": {
         parameters: {
             query?: never;
@@ -481,7 +609,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_4"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -568,6 +696,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_6"];
+        put?: never;
+        post?: never;
+        delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch: operations["rename"];
+        trace?: never;
+    };
     "/api/v1/resumes/{resumeId}/versions": {
         parameters: {
             query?: never;
@@ -607,7 +751,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_5"];
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -655,7 +799,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_6"];
+        get: operations["list_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -760,6 +904,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/files/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["image"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar/events": {
         parameters: {
             query?: never;
@@ -799,7 +959,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_4"];
+        get: operations["get_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -914,7 +1074,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_1"];
+        delete: operations["delete_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -946,7 +1106,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_2"];
+        delete: operations["delete_3"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1144,6 +1304,14 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        PersonalNoteRequest: {
+            content: string;
+        };
+        PersonalNoteResponse: {
+            content?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         NotificationSettingsRequest: {
             leadMinutes: number[];
             channels: ("IN_APP" | "EMAIL" | "PUSH")[];
@@ -1159,6 +1327,14 @@ export interface components {
             channels?: ("IN_APP" | "EMAIL" | "PUSH")[];
             timezone?: string;
             availableChannels?: components["schemas"]["ChannelOptionResponse"][];
+        };
+        JobNoteRequest: {
+            content: string;
+        };
+        JobNoteResponse: {
+            content?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
         CoverLetterRequest: {
             content: string;
@@ -1190,6 +1366,7 @@ export interface components {
             seniority?: string;
             /** @enum {string} */
             contractType?: "CLT" | "PJ" | "INTERNSHIP" | "TEMPORARY";
+            companyInfo?: string;
         };
         JobCreatedResponse: {
             /** Format: uuid */
@@ -1220,6 +1397,10 @@ export interface components {
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
         };
+        GoogleCredentialsRequest: {
+            clientId: string;
+            clientSecret: string;
+        };
         ExternalDatabaseRequest: {
             host: string;
             /** Format: int32 */
@@ -1233,6 +1414,16 @@ export interface components {
         };
         DatabaseSwitchResponse: {
             restarting?: boolean;
+        };
+        AttachJobRequest: {
+            /** Format: uuid */
+            resumeVersionId?: string;
+        };
+        AttachmentResponse: {
+            /** Format: uuid */
+            jobPostingId?: string;
+            /** Format: uuid */
+            resumeVersionId?: string;
         };
         AnalysisKeywordsRequest: {
             keywords: string[];
@@ -1373,6 +1564,21 @@ export interface components {
             /** Format: uuid */
             resumeVersionId: string;
         };
+        CandidateQuestionResponse: {
+            question?: string;
+            topic?: string;
+            reason?: string;
+        };
+        CandidateQuestionSetResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            jobPostingId?: string;
+            aiModel?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            questions?: components["schemas"]["CandidateQuestionResponse"][];
+        };
         GoogleSyncResponse: {
             /** Format: int32 */
             synced?: number;
@@ -1380,6 +1586,25 @@ export interface components {
         ConnectionCheckResponse: {
             serverVersion?: string;
             empty?: boolean;
+        };
+        CreateConversationRequest: {
+            title?: string;
+        };
+        ConversationSummaryResponse: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        SseEmitter: {
+            /** Format: int64 */
+            timeout?: number;
+        };
+        SendMessageRequest: {
+            content: string;
         };
         RewriteRequest: {
             /** @enum {string} */
@@ -1470,6 +1695,9 @@ export interface components {
             models?: string[];
             message?: string;
         };
+        RenameConversationRequest: {
+            title: string;
+        };
         ResumeSummary: {
             /** Format: uuid */
             id?: string;
@@ -1547,6 +1775,44 @@ export interface components {
             username?: string;
             /** @enum {string} */
             sslMode?: "REQUIRE" | "VERIFY_FULL" | "DISABLE";
+        };
+        ConversationDetailResponse: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            attachments?: components["schemas"]["AttachmentResponse"][];
+            messages?: components["schemas"]["MessageResponse"][];
+        };
+        FileResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "IMAGE" | "DOCUMENT";
+            fileName?: string;
+            mimeType?: string;
+            /** Format: int64 */
+            sizeBytes?: number;
+        };
+        MessageResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            role?: "USER" | "ASSISTANT";
+            content?: string;
+            aiModel?: string;
+            /** Format: int32 */
+            tokensIn?: number;
+            /** Format: int32 */
+            tokensOut?: number;
+            costUsd?: number;
+            interrupted?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            files?: components["schemas"]["FileResponse"][];
         };
         CalendarEventResponse: {
             /** Format: uuid */
@@ -1654,10 +1920,6 @@ export interface components {
             /** @enum {string} */
             phase?: "READING" | "REWRITING" | "CHECKING" | "EXPORTING" | "SCORING";
         };
-        SseEmitter: {
-            /** Format: int64 */
-            timeout?: number;
-        };
         AnalysisAtsView: {
             rawText?: string;
             structuredText?: string;
@@ -1688,6 +1950,8 @@ export interface components {
             preferenceScore?: number;
             /** Format: int32 */
             atsScore?: number;
+            companyInfo?: string;
+            benefitsMarkup?: string[];
         };
         CostByModel: {
             model?: string;
@@ -1933,12 +2197,56 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["NotificationSettingsResponse"];
+                    "*/*": components["schemas"]["PersonalNoteResponse"];
                 };
             };
         };
     };
     save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PersonalNoteResponse"];
+                };
+            };
+        };
+    };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+        };
+    };
+    save_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1958,6 +2266,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+        };
+    };
+    get_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["JobNoteResponse"];
+                };
+            };
+        };
+    };
+    save_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JobNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["JobNoteResponse"];
                 };
             };
         };
@@ -2015,7 +2371,7 @@ export interface operations {
             };
         };
     };
-    get_2: {
+    get_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -2035,7 +2391,7 @@ export interface operations {
             };
         };
     };
-    save_1: {
+    save_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -2056,6 +2412,46 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["JobPreferenceResponse"];
                 };
+            };
+        };
+    };
+    saveCredentials: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleCredentialsRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    clearCredentials: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2123,6 +2519,54 @@ export interface operations {
             };
         };
     };
+    attach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AttachJobRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AttachmentResponse"];
+                };
+            };
+        };
+    };
+    detach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateKeywords: {
         parameters: {
             query?: never;
@@ -2147,7 +2591,7 @@ export interface operations {
             };
         };
     };
-    get_3: {
+    get_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -2167,7 +2611,7 @@ export interface operations {
             };
         };
     };
-    save_2: {
+    save_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -2667,6 +3111,50 @@ export interface operations {
             };
         };
     };
+    list_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CandidateQuestionSetResponse"][];
+                };
+            };
+        };
+    };
+    generate_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CandidateQuestionSetResponse"];
+                };
+            };
+        };
+    };
     create_3: {
         parameters: {
             query?: never;
@@ -2749,7 +3237,104 @@ export interface operations {
             };
         };
     };
+    list_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConversationSummaryResponse"][];
+                };
+            };
+        };
+    };
     create_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateConversationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConversationSummaryResponse"];
+                };
+            };
+        };
+    };
+    sendWithFiles: {
+        parameters: {
+            query?: {
+                content?: string;
+            };
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    files?: string[];
+                };
+                "application/json": components["schemas"]["SendMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["SseEmitter"];
+                };
+            };
+        };
+    };
+    regenerate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["SseEmitter"];
+                };
+            };
+        };
+    };
+    create_5: {
         parameters: {
             query?: {
                 jobDescription?: string;
@@ -2926,6 +3511,74 @@ export interface operations {
             };
         };
     };
+    get_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConversationDetailResponse"];
+                };
+            };
+        };
+    };
+    delete_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    rename: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameConversationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConversationSummaryResponse"];
+                };
+            };
+        };
+    };
     versions: {
         parameters: {
             query?: never;
@@ -2973,7 +3626,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -3038,7 +3691,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_8: {
         parameters: {
             query?: {
                 unreadOnly?: boolean;
@@ -3187,6 +3840,28 @@ export interface operations {
             };
         };
     };
+    image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     events_1: {
         parameters: {
             query: {
@@ -3230,7 +3905,7 @@ export interface operations {
             };
         };
     };
-    get_4: {
+    get_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -3379,7 +4054,7 @@ export interface operations {
             };
         };
     };
-    delete_1: {
+    delete_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -3420,7 +4095,7 @@ export interface operations {
             };
         };
     };
-    delete_2: {
+    delete_3: {
         parameters: {
             query?: never;
             header?: never;

@@ -1,4 +1,5 @@
 import { JobCode } from "./JobCode";
+import { RichTextView } from "./RichTextView";
 import { workModelLabel } from "../lib/jobLabels";
 import type { Job } from "../lib/useJobs";
 
@@ -33,7 +34,9 @@ export function JobPreview({ job }: { job: Job | null }) {
 					Abrir link da entrevista
 				</a>
 			)}
-			<p className="job-preview-text">{job.jobDescription}</p>
+			<div className="job-preview-text">
+				<RichTextView markup={job.jobDescription ?? ""} />
+			</div>
 		</div>
 	);
 }

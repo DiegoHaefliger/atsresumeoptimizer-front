@@ -19,6 +19,7 @@ const KEY_LABELS: Record<string, string> = {
 	"cover-letter": "Apresentação para a vaga",
 	"interview-questions": "Perguntas técnicas da vaga",
 	"candidate-questions": "Perguntas para o recrutador (dúvidas)",
+	"chat-recruiter": "Chat com a IA (recrutador)",
 	rewrite: "Reescrita (legado)",
 };
 

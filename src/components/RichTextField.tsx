@@ -6,6 +6,7 @@ type RichTextFieldProps = {
 	value: string;
 	onChange: (markup: string) => void;
 	lists?: boolean;
+	inline?: boolean;
 	separator?: boolean;
 	placeholder?: string;
 	rows?: number;
@@ -13,10 +14,10 @@ type RichTextFieldProps = {
 
 type Command = "bold" | "italic" | "underline" | "insertUnorderedList" | "insertOrderedList" | "insertHorizontalRule";
 
-const BUTTONS: { command: Command; label: string; title: string; className: string; toggle: boolean; list?: boolean }[] = [
-	{ command: "bold", label: "B", title: "Negrito (Ctrl+B)", className: "rich-text-button-bold", toggle: true },
-	{ command: "italic", label: "I", title: "Itálico (Ctrl+I)", className: "rich-text-button-italic", toggle: true },
-	{ command: "underline", label: "U", title: "Sublinhado (Ctrl+U)", className: "rich-text-button-underline", toggle: true },
+const BUTTONS: { command: Command; label: string; title: string; className: string; toggle: boolean; list?: boolean; inline?: boolean }[] = [
+	{ command: "bold", label: "B", title: "Negrito (Ctrl+B)", className: "rich-text-button-bold", toggle: true, inline: true },
+	{ command: "italic", label: "I", title: "Itálico (Ctrl+I)", className: "rich-text-button-italic", toggle: true, inline: true },
+	{ command: "underline", label: "U", title: "Sublinhado (Ctrl+U)", className: "rich-text-button-underline", toggle: true, inline: true },
 	{ command: "insertUnorderedList", label: "•", title: "Lista com marcadores", className: "", toggle: true, list: true },
 	{ command: "insertOrderedList", label: "1.", title: "Lista numerada", className: "", toggle: true, list: true },
 	{ command: "insertHorizontalRule", label: "―", title: "Separador", className: "", toggle: false },
@@ -24,7 +25,7 @@ const BUTTONS: { command: Command; label: string; title: string; className: stri
 
 const LINE_HEIGHT_EM = 1.6;
 
-export function RichTextField({ label, value, onChange, lists = true, separator = false, placeholder, rows }: RichTextFieldProps) {
+export function RichTextField({ label, value, onChange, lists = true, inline = true, separator = false, placeholder, rows }: RichTextFieldProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const emitted = useRef(value);
 	const [active, setActive] = useState<Set<Command>>(new Set());
@@ -101,7 +102,7 @@ export function RichTextField({ label, value, onChange, lists = true, separator 
 	return (
 		<div className="rich-text-field">
 			<div className="rich-text-toolbar" role="toolbar" aria-label={`Formatação de ${label}`}>
-				{BUTTONS.filter((button) => (lists || !button.list) && (separator || button.command !== "insertHorizontalRule")).map((button) => (
+				{BUTTONS.filter((button) => (lists || !button.list) && (inline || !button.inline) && (separator || button.command !== "insertHorizontalRule")).map((button) => (
 					<button
 						key={button.command}
 						type="button"
