@@ -1,4 +1,5 @@
 import type { ContractType, WorkModel } from "../api/types";
+import { parseInline } from "./richText";
 
 export type JobDraft = {
 	title: string;
@@ -11,6 +12,7 @@ export type JobDraft = {
 	interviewUrl: string;
 	salary: string;
 	benefits: string;
+	companyInfo: string;
 };
 
 export const EMPTY_JOB: JobDraft = {
@@ -24,21 +26,30 @@ export const EMPTY_JOB: JobDraft = {
 	interviewUrl: "",
 	salary: "",
 	benefits: "",
+	companyInfo: "",
 };
 
 const BENEFIT_LINE_SEPARATOR = /\n+/;
 const BENEFIT_INLINE_SEPARATOR = /[,;]+/;
+const LIST_MARKER = /^(?:[-•]\s+|\d+[.)]\s+)/;
+
+function plainText(markup: string): string {
+	return parseInline(markup)
+		.map((span) => span.text ?? "")
+		.join("")
+		.trim();
+}
 
 export function benefitsFromText(text: string): string[] {
 	const separator = text.includes("\n") ? BENEFIT_LINE_SEPARATOR : BENEFIT_INLINE_SEPARATOR;
 	return text
 		.split(separator)
-		.map((benefit) => benefit.trim())
+		.map((benefit) => plainText(benefit.trim().replace(LIST_MARKER, "")))
 		.filter(Boolean);
 }
 
 export function benefitsToText(benefits: string[] | undefined): string {
-	return (benefits ?? []).join("\n");
+	return (benefits ?? []).map((benefit) => `- ${benefit}`).join("\n");
 }
 
 export function jobRequest(draft: JobDraft) {
@@ -54,5 +65,6 @@ export function jobRequest(draft: JobDraft) {
 		interviewUrl: draft.interviewUrl.trim() || undefined,
 		salary: Number.isFinite(salary) ? salary : undefined,
 		benefits: benefitsFromText(draft.benefits),
+		companyInfo: draft.companyInfo.trim() || undefined,
 	};
 }

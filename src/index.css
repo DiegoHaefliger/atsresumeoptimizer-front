@@ -5802,3 +5802,40 @@ kbd {
 	border-radius: var(--radius-md);
 	object-fit: cover;
 }
+
+/* Campos de texto formatado em formulários */
+.form-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.form-field-label {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-medium);
+}
+
+.rich-text-view ul,
+.rich-text-view ol {
+	margin: 0;
+	padding-left: var(--space-6);
+}
+
+.rich-text-view ul {
+	list-style: disc;
+}
+
+.rich-text-view ol {
+	list-style: decimal;
+}
+
+.rich-text-view hr {
+	margin: var(--space-3) 0;
+	border: 0;
+	border-top: 1px solid var(--border-strong);
+}
+
+.job-preview-text:has(.rich-text-view) {
+	white-space: normal;
+	overflow-wrap: anywhere;
+}

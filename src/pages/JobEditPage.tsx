@@ -52,6 +52,7 @@ export function JobEditPage() {
 						interviewUrl: job.interviewUrl ?? "",
 						salary: job.salary != null ? String(job.salary) : "",
 						benefits: benefitsToText(job.benefits),
+						companyInfo: job.companyInfo ?? "",
 					}}
 					submitLabel="Salvar alterações"
 					onSave={save}

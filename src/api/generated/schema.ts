@@ -1366,6 +1366,7 @@ export interface components {
             seniority?: string;
             /** @enum {string} */
             contractType?: "CLT" | "PJ" | "INTERNSHIP" | "TEMPORARY";
+            companyInfo?: string;
         };
         JobCreatedResponse: {
             /** Format: uuid */
@@ -1949,6 +1950,7 @@ export interface components {
             preferenceScore?: number;
             /** Format: int32 */
             atsScore?: number;
+            companyInfo?: string;
         };
         CostByModel: {
             model?: string;

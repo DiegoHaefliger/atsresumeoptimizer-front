@@ -3,7 +3,7 @@ import { errorMessage } from "../api/client";
 import type { ContractType, WorkModel } from "../api/types";
 import type { JobDraft } from "../lib/jobDraft";
 import { CONTRACT_TYPE_LABELS, SENIORITY_OPTIONS, WORK_MODEL_LABELS } from "../lib/jobLabels";
-import { AutoGrowTextarea } from "./AutoGrowTextarea";
+import { RichTextField } from "./RichTextField";
 import { ProgressSteps } from "./ProgressSteps";
 import { StateMessage } from "./StateMessage";
 
@@ -50,26 +50,42 @@ export function JobForm({ initial, submitLabel, onSave }: JobFormProps) {
 					disabled={saving}
 				/>
 			</label>
-			<label>
-				Descrição da vaga
-				<AutoGrowTextarea
+			<div className="form-field">
+				<span className="form-field-label">Descrição da vaga</span>
+				<RichTextField
+					label="Descrição da vaga"
 					value={draft.text}
-					onChange={(event) => update("text", event.target.value)}
+					onChange={(markup) => update("text", markup)}
 					rows={12}
+					separator
 					placeholder="Cole aqui o texto completo do anúncio"
-					disabled={saving}
 				/>
-			</label>
-			<label>
-				Benefícios
-				<AutoGrowTextarea
+			</div>
+			<div className="form-field">
+				<span className="form-field-label">Benefícios</span>
+				<RichTextField
+					label="Benefícios"
 					value={draft.benefits}
-					onChange={(event) => update("benefits", event.target.value)}
+					onChange={(markup) => update("benefits", markup)}
 					rows={3}
-					placeholder="Um por linha ou separados por vírgula. Ex.: Vale-refeição, Plano de saúde"
-					disabled={saving}
+					inline={false}
+					placeholder="Um por linha. Ex.: Vale-refeição, Plano de saúde"
 				/>
-			</label>
+			</div>
+			<div className="form-field">
+				<span className="form-field-label">Sobre a empresa (opcional)</span>
+				<RichTextField
+					label="Sobre a empresa"
+					value={draft.companyInfo}
+					onChange={(markup) => update("companyInfo", markup)}
+					rows={6}
+					separator
+					placeholder="Cultura, valores, rotina do time, pessoas que você conheceu, notícias... Tudo que ajude na entrevista."
+				/>
+				<span className="field-hint">
+					O chat usa este texto para responder sobre fit cultural e preparar a entrevista dessa vaga.
+				</span>
+			</div>
 			<fieldset className="job-details" disabled={saving}>
 				<legend>Dados da vaga (opcional, cruzados com suas preferências)</legend>
 				<label>
