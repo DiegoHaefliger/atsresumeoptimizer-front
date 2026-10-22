@@ -13,6 +13,11 @@ export type DimensionView = components["schemas"]["DimensionView"];
 export type FindingView = components["schemas"]["FindingView"];
 export type AnalysisAtsView = components["schemas"]["AnalysisAtsView"];
 
+export type ChatConversationSummary = components["schemas"]["ConversationSummaryResponse"];
+export type ChatConversationDetail = components["schemas"]["ConversationDetailResponse"];
+export type ChatMessageResponse = components["schemas"]["MessageResponse"];
+export type ChatAttachmentResponse = components["schemas"]["AttachmentResponse"];
+
 export type ResumeTemplate = "CLASSIC" | "MODERN_BLUE";
 
 export type RewriteResultView = components["schemas"]["RewriteResultView"];

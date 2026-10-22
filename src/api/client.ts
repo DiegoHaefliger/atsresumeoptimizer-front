@@ -26,7 +26,7 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
 	throw new ApiError(body?.detail ?? `Erro ${response.status}`, response.status);
 }
 
-async function sendJson<T>(method: "POST" | "PUT", path: string, body: unknown): Promise<T> {
+async function sendJson<T>(method: "POST" | "PUT" | "PATCH", path: string, body: unknown): Promise<T> {
 	const response = await request(path, {
 		method,
 		headers: { "Content-Type": "application/json" },
@@ -55,6 +55,19 @@ export async function apiGetOptional<T>(path: string): Promise<T | null> {
 
 export function apiPostJson<T>(path: string, body: unknown): Promise<T> {
 	return sendJson("POST", path, body);
+}
+
+export function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
+	return sendJson("PATCH", path, body);
+}
+
+export function apiPostStream(path: string, body: unknown, signal: AbortSignal): Promise<Response> {
+	return request(path, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+		body: body === undefined ? undefined : JSON.stringify(body),
+		signal,
+	});
 }
 
 export function apiPutJson<T>(path: string, body: unknown): Promise<T> {
