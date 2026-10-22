@@ -1,12 +1,14 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from "react";
+import { checkFiles, FILE_ACCEPT } from "../../lib/chatFiles";
 import { COUNTER_THRESHOLD, MAX_MESSAGE_LENGTH } from "../../lib/chatLabels";
 import { removeMention, mentionAt, mentionOptionId, searchJobs } from "../../lib/chatMention";
 import type { Job } from "../../lib/useJobs";
 import { AutoGrowTextarea } from "../AutoGrowTextarea";
-import { AtSignIcon, SendIcon, StopIcon } from "../icons";
+import { AtSignIcon, PaperclipIcon, SendIcon, StopIcon } from "../icons";
+import { ComposerFiles } from "./ComposerFiles";
 import { JobMentionMenu } from "./JobMentionMenu";
 
-export type Prefill = { text: string; nonce: number };
+export type Prefill = { text: string; files?: File[]; nonce: number };
 
 type ChatComposerProps = {
 	jobs: Job[] | null;
@@ -16,7 +18,7 @@ type ChatComposerProps = {
 	initialText: string;
 	prefill: Prefill | null;
 	onTextChange: (text: string) => void;
-	onSend: (text: string) => void;
+	onSend: (text: string, files: File[]) => void;
 	onStop: () => void;
 	onAttach: (job: Job) => void;
 };
@@ -40,13 +42,17 @@ export function ChatComposer({
 	const [dismissedStart, setDismissedStart] = useState<number | null>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const pendingCaret = useRef<number | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [files, setFiles] = useState<File[]>([]);
+	const [fileErrors, setFileErrors] = useState<string[]>([]);
+	const [dragging, setDragging] = useState(false);
 
 	const mention = mentionAt(text, caret);
 	const menuOpen = mention !== null && mention.start !== dismissedStart;
 	const matches = menuOpen && jobs ? searchJobs(jobs, mention.query, attachedIds) : [];
 	const active = Math.min(activeIndex, Math.max(matches.length - 1, 0));
 	const tooLong = text.length > MAX_MESSAGE_LENGTH;
-	const canSend = text.trim().length > 0 && !tooLong && !streaming && !blocked;
+	const canSend = (text.trim().length > 0 || files.length > 0) && !tooLong && !streaming && !blocked;
 
 	useEffect(() => {
 		if (pendingCaret.current !== null && textareaRef.current) {
@@ -64,6 +70,7 @@ export function ChatComposer({
 	useEffect(() => {
 		if (prefill) {
 			setText(prefill.text);
+			setFiles(prefill.files ?? []);
 			setCaret(prefill.text.length);
 			onTextChange(prefill.text);
 			pendingCaret.current = prefill.text.length;
@@ -103,11 +110,35 @@ export function ChatComposer({
 		element?.focus();
 	}
 
+	function addFiles(incoming: File[]) {
+		const check = checkFiles(files, incoming);
+		setFileErrors(check.errors);
+		if (check.accepted.length > 0) {
+			setFiles((current) => [...current, ...check.accepted]);
+		}
+	}
+
+	function handleDrop(event: DragEvent<HTMLFormElement>) {
+		event.preventDefault();
+		setDragging(false);
+		addFiles(Array.from(event.dataTransfer.files));
+	}
+
+	function handlePaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+		const pasted = Array.from(event.clipboardData.files);
+		if (pasted.length > 0) {
+			event.preventDefault();
+			addFiles(pasted);
+		}
+	}
+
 	function submit() {
 		if (!canSend) {
 			return;
 		}
-		onSend(text.trim());
+		onSend(text.trim(), files);
+		setFiles([]);
+		setFileErrors([]);
 		update("", 0);
 	}
 
@@ -138,7 +169,19 @@ export function ChatComposer({
 
 	return (
 		<form
-			className="chat-composer"
+			className={`chat-composer${dragging ? " is-dragging" : ""}`}
+			onDragOver={(event) => {
+				if (event.dataTransfer.types.includes("Files")) {
+					event.preventDefault();
+					setDragging(true);
+				}
+			}}
+			onDragLeave={(event) => {
+				if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+					setDragging(false);
+				}
+			}}
+			onDrop={handleDrop}
 			onSubmit={(event) => {
 				event.preventDefault();
 				submit();
@@ -154,6 +197,14 @@ export function ChatComposer({
 					onPick={pick}
 					onHover={setActiveIndex}
 				/>
+			)}
+			{files.length > 0 && <ComposerFiles files={files} onRemove={(index) => setFiles((current) => current.filter((_, position) => position !== index))} />}
+			{fileErrors.length > 0 && (
+				<ul className="chat-file-errors" role="alert">
+					{fileErrors.map((error) => (
+						<li key={error}>{error}</li>
+					))}
+				</ul>
 			)}
 			<AutoGrowTextarea
 				textareaRef={textareaRef}
@@ -174,12 +225,29 @@ export function ChatComposer({
 				}}
 				onSelect={(event) => setCaret(event.currentTarget.selectionStart)}
 				onKeyDown={handleKeyDown}
+				onPaste={handlePaste}
 			/>
 			<div className="chat-composer-actions">
+				<input
+					ref={fileInputRef}
+					type="file"
+					className="sr-only"
+					multiple
+					accept={FILE_ACCEPT}
+					tabIndex={-1}
+					aria-label="Escolher arquivos para anexar"
+					onChange={(event) => {
+						addFiles(Array.from(event.target.files ?? []));
+						event.target.value = "";
+					}}
+				/>
+				<button type="button" className="btn-secondary btn-small" onClick={() => fileInputRef.current?.click()} title="Anexar imagem ou documento (PDF, DOCX, TXT)">
+					<PaperclipIcon /> Anexar
+				</button>
 				<button type="button" className="btn-secondary btn-small" onClick={startMention} title="Buscar uma vaga para a IA enxergar">
 					<AtSignIcon /> Vaga
 				</button>
-				<span className="chat-hint">Enter envia · Shift+Enter quebra a linha</span>
+				<span className="chat-hint">Enter envia · Shift+Enter quebra a linha · arraste ou cole arquivos</span>
 				{text.length > COUNTER_THRESHOLD && (
 					<span className={`chat-counter${tooLong ? " is-over" : ""}`} role={tooLong ? "alert" : undefined}>
 						{text.length}/{MAX_MESSAGE_LENGTH}

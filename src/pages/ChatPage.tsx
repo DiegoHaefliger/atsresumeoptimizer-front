@@ -35,7 +35,7 @@ export function ChatPage() {
 	const reloadList = list.reload;
 	const handleCreated = useCallback((id: string) => navigate(`/chat/${id}`, { replace: true }), [navigate]);
 	const chat = useChat({ onConversationCreated: handleCreated, onConversationsChanged: reloadList });
-	const { select, conversationId: activeId, unsentText, clearUnsent } = chat;
+	const { select, conversationId: activeId, unsent, clearUnsent } = chat;
 
 	useEffect(() => {
 		if ((routeId ?? null) !== activeId) {
@@ -47,11 +47,11 @@ export function ChatPage() {
 	}, [routeId]);
 
 	useEffect(() => {
-		if (unsentText !== null) {
-			setPrefill({ text: unsentText, nonce: Date.now() });
+		if (unsent !== null) {
+			setPrefill({ text: unsent.text, files: unsent.files, nonce: Date.now() });
 			clearUnsent();
 		}
-	}, [unsentText, clearUnsent]);
+	}, [unsent, clearUnsent]);
 
 	const title = list.conversations?.find((conversation) => conversation.id === activeId)?.title ?? NEW_CONVERSATION_TITLE;
 	const attachedIds = chat.attachments.map((attachment) => attachment.jobId);
@@ -166,13 +166,13 @@ export function ChatPage() {
 						initialText={drafts.current.get(composerKey) ?? ""}
 						prefill={prefill}
 						onTextChange={(text) => drafts.current.set(composerKey, text)}
-						onSend={(text) => void chat.send(text)}
+						onSend={(text, files) => void chat.send(text, files)}
 						onStop={chat.stop}
 						onAttach={(job) => {
 							void chat.attach(job.id, null);
 						}}
 					/>
-					<p className="chat-privacy">A IA vê as vagas e o currículo que você anexar; o conteúdo é enviado ao provedor configurado. Notas pessoais nunca são enviadas.</p>
+					<p className="chat-privacy">A IA vê as vagas, o currículo e os arquivos que você anexar; o conteúdo é enviado ao provedor configurado. Notas pessoais nunca são enviadas.</p>
 				</div>
 			</section>
 

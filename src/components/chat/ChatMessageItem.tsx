@@ -3,6 +3,7 @@ import type { ChatMessage } from "../../lib/chatTypes";
 import { useCopyFeedback } from "../../lib/useCopyFeedback";
 import { CheckCircleIcon, CopyIcon, RefreshIcon } from "../icons";
 import { Markdown } from "./Markdown";
+import { MessageFiles } from "./MessageFiles";
 
 type ChatMessageItemProps = {
 	message: ChatMessage;
@@ -19,7 +20,8 @@ function ChatMessageItemView({ message, sources, canRegenerate, onRegenerate }: 
 	if (message.role === "USER") {
 		return (
 			<article className="chat-message chat-message-user" aria-label="Você disse">
-				<div className="chat-bubble">{message.content}</div>
+				<MessageFiles files={message.files} />
+				{message.content && <div className="chat-bubble">{message.content}</div>}
 			</article>
 		);
 	}

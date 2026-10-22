@@ -3,11 +3,24 @@ import { ApiError, apiDelete, apiGet, apiPostJson, apiPostStream, apiPutJson, er
 import type { ChatConversationDetail, ChatConversationSummary } from "../api/types";
 import { attachmentPath, CONVERSATIONS_PATH, conversationPath, messagesPath, regeneratePath } from "./chatPaths";
 import { readChatStream } from "./chatStream";
-import { toChatAttachment, toChatMessage, type ChatAttachment, type ChatDraft, type ChatMessage } from "./chatTypes";
+import { isImage } from "./chatFiles";
+import { toChatAttachment, toChatMessage, type ChatAttachment, type ChatDraft, type ChatFile, type ChatMessage } from "./chatTypes";
 
 const CONNECTION_ERROR = "Não deu para falar com o servidor. Confira se o app está rodando e tente de novo.";
 const RELOAD_AFTER_ABORT_MS = 1500;
 const EMPTY_DRAFT: ChatDraft = { text: "", tools: [], notice: null };
+
+export type UnsentMessage = { text: string; files: File[] };
+
+function releasePreviews(messages: ChatMessage[]) {
+	for (const message of messages) {
+		for (const file of message.files) {
+			if (file.imageUrl?.startsWith("blob:")) {
+				URL.revokeObjectURL(file.imageUrl);
+			}
+		}
+	}
+}
 
 export type ChatStatus = "idle" | "loading" | "failed";
 
@@ -23,7 +36,7 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 	const [status, setStatus] = useState<ChatStatus>("idle");
 	const [draft, setDraft] = useState<ChatDraft | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [unsentText, setUnsentText] = useState<string | null>(null);
+	const [unsent, setUnsent] = useState<UnsentMessage | null>(null);
 	const [sources, setSources] = useState<Record<string, string[]>>({});
 	const activeIdRef = useRef<string | null>(null);
 	const abortRef = useRef<AbortController | null>(null);
@@ -76,7 +89,7 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 			setConversationId(id);
 			setDraft(null);
 			setError(null);
-			setUnsentText(null);
+			setUnsent(null);
 			setMessages([]);
 			setAttachments([]);
 			if (id) {
@@ -115,7 +128,7 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 	}, [onConversationCreated]);
 
 	const runStream = useCallback(
-		async (id: string, path: string, body: unknown) => {
+		async (id: string, path: string, body: unknown, retryDraft?: UnsentMessage) => {
 			const controller = new AbortController();
 			abortRef.current = controller;
 			setError(null);
@@ -134,7 +147,10 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 					switch (event.type) {
 						case "user":
 							userSaved = true;
-							setMessages((current) => [...current.filter((message) => !message.id.startsWith("pending-")), toChatMessage(event.message)]);
+							setMessages((current) => {
+								releasePreviews(current.filter((message) => message.id.startsWith("pending-")));
+								return [...current.filter((message) => !message.id.startsWith("pending-")), toChatMessage(event.message)];
+							});
 							break;
 						case "token":
 							streamed += event.text;
@@ -181,7 +197,7 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 				if (streamed) {
 					setMessages((current) => [
 						...current,
-						{ id: `local-${Date.now()}`, role: "ASSISTANT", content: streamed, interrupted: true, aiModel: null, costUsd: 0 },
+						{ id: `local-${Date.now()}`, role: "ASSISTANT", content: streamed, interrupted: true, aiModel: null, costUsd: 0, files: [] },
 					]);
 				}
 				window.setTimeout(() => {
@@ -191,8 +207,8 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 				}, RELOAD_AFTER_ABORT_MS);
 			} else {
 				setError(streamError ?? CONNECTION_ERROR);
-				if (!userSaved && typeof body === "object" && body !== null && "content" in body) {
-					setUnsentText(String(body.content));
+				if (!userSaved && retryDraft) {
+					setUnsent(retryDraft);
 				}
 				await load(id);
 			}
@@ -202,7 +218,7 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 	);
 
 	const send = useCallback(
-		async (text: string) => {
+		async (text: string, files: File[] = []) => {
 			let id: string;
 			try {
 				id = await ensureConversation();
@@ -210,11 +226,21 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 				setError(errorMessage(failure, "Não deu para criar a conversa."));
 				return;
 			}
+			const previews: ChatFile[] = files.map((file, index) => ({
+				id: `local-${index}`,
+				kind: isImage(file) ? "IMAGE" : "DOCUMENT",
+				fileName: file.name,
+				sizeBytes: file.size,
+				imageUrl: isImage(file) ? URL.createObjectURL(file) : null,
+			}));
 			setMessages((current) => [
 				...current,
-				{ id: `pending-${Date.now()}`, role: "USER", content: text, interrupted: false, aiModel: null, costUsd: 0 },
+				{ id: `pending-${Date.now()}`, role: "USER", content: text, interrupted: false, aiModel: null, costUsd: 0, files: previews },
 			]);
-			await runStream(id, messagesPath(id), { content: text });
+			const form = new FormData();
+			form.append("content", text);
+			files.forEach((file) => form.append("files", file));
+			await runStream(id, messagesPath(id), form, { text, files });
 		},
 		[ensureConversation, runStream],
 	);
@@ -264,8 +290,8 @@ export function useChat({ onConversationCreated, onConversationsChanged }: UseCh
 		draft,
 		streaming: draft !== null,
 		error,
-		unsentText,
-		clearUnsent: () => setUnsentText(null),
+		unsent,
+		clearUnsent: () => setUnsent(null),
 		sources,
 		clearError: () => setError(null),
 		select,

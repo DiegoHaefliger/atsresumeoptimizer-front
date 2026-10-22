@@ -64,8 +64,8 @@ export function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
 export function apiPostStream(path: string, body: unknown, signal: AbortSignal): Promise<Response> {
 	return request(path, {
 		method: "POST",
-		headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-		body: body === undefined ? undefined : JSON.stringify(body),
+		headers: body instanceof FormData ? { Accept: "text/event-stream" } : { "Content-Type": "application/json", Accept: "text/event-stream" },
+		body: body === undefined || body instanceof FormData ? (body as FormData | undefined) : JSON.stringify(body),
 		signal,
 	});
 }

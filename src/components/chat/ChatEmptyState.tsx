@@ -24,7 +24,8 @@ export function ChatEmptyState({ onSuggest }: ChatEmptyStateProps) {
 			<p>Tire dúvidas sobre uma vaga, prepare entrevistas, fit cultural ou revise um assunto técnico.</p>
 			<p className="chat-empty-tip">
 				<AtSignIcon /> Digite <kbd>@</kbd> para buscar uma vaga. A IA passa a ver a vaga e o currículo gerado para ela.
-				Sem vaga anexada, ela ainda consulta suas vagas sozinha quando precisar.
+				Sem vaga anexada, ela ainda consulta suas vagas sozinha quando precisar. Também dá para anexar imagens e documentos
+				(PDF, DOCX, TXT) com o clipe, arrastando ou colando.
 			</p>
 			<ul className="chat-suggestions" aria-label="Sugestões de pergunta">
 				{SUGGESTIONS.map((suggestion) => (

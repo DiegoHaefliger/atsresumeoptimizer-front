@@ -577,7 +577,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["send"];
+        post: operations["sendWithFiles"];
         delete?: never;
         options?: never;
         head?: never;
@@ -896,6 +896,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["authorize"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/files/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["image"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1582,12 +1598,12 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
         };
-        SendMessageRequest: {
-            content: string;
-        };
         SseEmitter: {
             /** Format: int64 */
             timeout?: number;
+        };
+        SendMessageRequest: {
+            content: string;
         };
         RewriteRequest: {
             /** @enum {string} */
@@ -1770,6 +1786,16 @@ export interface components {
             attachments?: components["schemas"]["AttachmentResponse"][];
             messages?: components["schemas"]["MessageResponse"][];
         };
+        FileResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "IMAGE" | "DOCUMENT";
+            fileName?: string;
+            mimeType?: string;
+            /** Format: int64 */
+            sizeBytes?: number;
+        };
         MessageResponse: {
             /** Format: uuid */
             id?: string;
@@ -1785,6 +1811,7 @@ export interface components {
             interrupted?: boolean;
             /** Format: date-time */
             createdAt?: string;
+            files?: components["schemas"]["FileResponse"][];
         };
         CalendarEventResponse: {
             /** Format: uuid */
@@ -3251,9 +3278,11 @@ export interface operations {
             };
         };
     };
-    send: {
+    sendWithFiles: {
         parameters: {
-            query?: never;
+            query?: {
+                content?: string;
+            };
             header?: never;
             path: {
                 conversationId: string;
@@ -3262,6 +3291,9 @@ export interface operations {
         };
         requestBody: {
             content: {
+                "multipart/form-data": {
+                    files?: string[];
+                };
                 "application/json": components["schemas"]["SendMessageRequest"];
             };
         };
@@ -3801,6 +3833,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["GoogleAuthorizationResponse"];
+                };
+            };
+        };
+    };
+    image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
