@@ -1,5 +1,4 @@
 import type { Job } from "./useJobs";
-import { formatJobCode } from "./jobCode";
 
 export type MentionQuery = { start: number; query: string };
 
@@ -34,8 +33,9 @@ export function searchJobs(jobs: Job[], query: string, attachedIds: string[]): J
 		.slice(0, MAX_MATCHES);
 }
 
-export function insertMention(text: string, mention: MentionQuery, caret: number, job: Job): { text: string; caret: number } {
-	const reference = `${formatJobCode(job.code)} `;
-	const next = text.slice(0, mention.start) + reference + text.slice(caret);
-	return { text: next, caret: mention.start + reference.length };
+export function removeMention(text: string, mention: MentionQuery, caret: number): { text: string; caret: number } {
+	const before = text.slice(0, mention.start).replace(/ +$/, "");
+	const after = text.slice(caret).replace(/^ +/, "");
+	const separator = before && after ? " " : "";
+	return { text: before + separator + after, caret: before.length + separator.length };
 }

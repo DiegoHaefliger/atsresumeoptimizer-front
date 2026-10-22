@@ -31,7 +31,7 @@ export function ContextChip({ attachment, job, onDetach, onResume }: ContextChip
 	}, [options, attachment, onResume]);
 
 	return (
-		<li className="chat-chip">
+		<li className={`chat-chip${options.length === 0 ? " chat-chip-plain" : ""}`}>
 			<span className="chat-chip-label" title={label}>
 				{label}
 			</span>

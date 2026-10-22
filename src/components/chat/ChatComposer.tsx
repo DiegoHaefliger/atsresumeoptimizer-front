@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { COUNTER_THRESHOLD, MAX_MESSAGE_LENGTH } from "../../lib/chatLabels";
-import { insertMention, mentionAt, mentionOptionId, searchJobs } from "../../lib/chatMention";
+import { removeMention, mentionAt, mentionOptionId, searchJobs } from "../../lib/chatMention";
 import type { Job } from "../../lib/useJobs";
 import { AutoGrowTextarea } from "../AutoGrowTextarea";
 import { AtSignIcon, SendIcon, StopIcon } from "../icons";
@@ -84,7 +84,7 @@ export function ChatComposer({
 		if (!mention) {
 			return;
 		}
-		const inserted = insertMention(text, mention, caret, job);
+		const inserted = removeMention(text, mention, caret);
 		pendingCaret.current = inserted.caret;
 		update(inserted.text, inserted.caret);
 		onAttach(job);
