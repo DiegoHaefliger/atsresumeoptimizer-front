@@ -14,6 +14,19 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.5",
+		date: "2026-10-22",
+		summary: "Chat com a IA para conversar sobre suas vagas, anexos nas mensagens e campo Sobre a empresa.",
+		changes: [
+			{ kind: "feat", text: "Nova tela de chat com a IA, com a resposta aparecendo conforme é escrita, conversas salvas e opção de regenerar a última resposta." },
+			{ kind: "feat", text: "No chat, digite @ para anexar vagas e outras conversas. A IA consulta os dados da vaga anexada e cita o código como aparece no app (V0012)." },
+			{ kind: "feat", text: "No chat, anexe imagens e documentos pelo clipe, arrastando ou colando, com prévia e miniaturas." },
+			{ kind: "improvement", text: "Quando o provedor de IA falha, o chat mostra uma mensagem clara em português." },
+			{ kind: "feat", text: "Novo campo opcional Sobre a empresa na vaga, para registrar cultura e dados úteis para a entrevista. O chat também usa esse texto." },
+			{ kind: "improvement", text: "Descrição e Benefícios da vaga agora usam o editor de texto formatado, com a barra de formatação completa. Comparações e análises da IA usam o texto limpo." },
+		],
+	},
+	{
 		version: "1.1.3",
 		date: "2026-10-14",
 		summary: "Editor de texto formatado nas notas e no currículo, e tela de abertura nova.",
