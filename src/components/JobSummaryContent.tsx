@@ -3,10 +3,10 @@ import type { CandidateQuestionSet, CoverLetter, InterviewQuestionSet, ResumeSum
 import { candidateQuestionsPath, coverLettersPath, interviewQuestionsPath, jobResumesPath } from "../lib/jobAssistantPaths";
 import { buildSummary, summaryProgress } from "../lib/jobSummary";
 import { formatCost } from "../lib/costFormat";
+import { useFromHere } from "../lib/backTarget";
 import { useApiResource } from "../lib/useApiResource";
 import { useJobCost } from "../lib/useJobCost";
 import type { Job } from "../lib/useJobs";
-import { Dialog } from "./Dialog";
 import { ArrowRightIcon, ClipboardCheckIcon, CoinsIcon, EyeIcon, KanbanIcon } from "./icons";
 import { JobCode } from "./JobCode";
 import { JobSummaryStep } from "./JobSummaryStep";
@@ -14,27 +14,16 @@ import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
 import { StageBadge } from "./StageBadge";
 
-type JobSummaryDialogProps = {
-	job: Job | null;
+type JobSummaryProps = {
+	job: Job;
 	process?: SelectionProcess;
-	onClose: () => void;
 	onAnalyze: () => void;
 	onPreview: () => void;
 	onResumes: () => void;
-	onOpenCost: () => void;
 };
 
-type JobSummaryProps = Omit<JobSummaryDialogProps, "job"> & { job: Job };
-
-export function JobSummaryDialog({ job, ...handlers }: JobSummaryDialogProps) {
-	return (
-		<Dialog open={job !== null} title="Resumo da candidatura" onClose={handlers.onClose} size="medium">
-			<div className="dialog-content">{job && <JobSummary key={job.id} job={job} {...handlers} />}</div>
-		</Dialog>
-	);
-}
-
-function JobSummary({ job, process, onClose, onAnalyze, onPreview, onResumes, onOpenCost }: JobSummaryProps) {
+export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: JobSummaryProps) {
+	const from = useFromHere();
 	const resumes = useApiResource<ResumeSummary[]>(jobResumesPath(job.id));
 	const letters = useApiResource<CoverLetter[]>(coverLettersPath(job.id));
 	const questions = useApiResource<InterviewQuestionSet[]>(interviewQuestionsPath(job.id));
@@ -108,7 +97,6 @@ function JobSummary({ job, process, onClose, onAnalyze, onPreview, onResumes, on
 					<JobSummaryStep
 						key={step.key}
 						step={step}
-						onNavigate={onClose}
 						actions={
 							<>
 								{step.key === "analysis" && !step.done && (
@@ -135,7 +123,7 @@ function JobSummary({ job, process, onClose, onAnalyze, onPreview, onResumes, on
 					</span>
 					<ArrowRightIcon />
 				</button>
-				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" onClick={onClose}>
+				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
 					<KanbanIcon />
 					<span>
 						<strong>Processo seletivo</strong>
@@ -143,14 +131,14 @@ function JobSummary({ job, process, onClose, onAnalyze, onPreview, onResumes, on
 					</span>
 					<ArrowRightIcon />
 				</Link>
-				<button type="button" className="job-summary-shortcut" onClick={onOpenCost}>
+				<Link to={`/jobs/${job.id}/cost`} className="job-summary-shortcut" state={from}>
 					<CoinsIcon />
 					<span>
 						<strong>Custo de IA</strong>
 						<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
 					</span>
 					<ArrowRightIcon />
-				</button>
+				</Link>
 			</div>
 		</>
 	);

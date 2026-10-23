@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
+import { BackLink } from "../components/BackLink";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
 import { JobCostDialog } from "../components/JobCostDialog";
@@ -11,7 +12,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon, CoinsIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { CoinsIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -72,9 +73,7 @@ export function JobProcessPage() {
 							<CoinsIcon />
 						</button>
 					)}
-					<Link to="/jobs" className="page-back">
-						<ArrowLeftIcon /> Voltar
-					</Link>
+					<BackLink fallback="/jobs" />
 				</div>
 			</header>
 

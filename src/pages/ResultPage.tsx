@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiGet, errorMessage } from "../api/client";
 import type { AnalysisReportView } from "../api/types";
+import { BackLink } from "../components/BackLink";
 import { FindingsPanel } from "../components/FindingsPanel";
 import { KeywordsEditor } from "../components/KeywordsEditor";
 import { ProgressSteps, type ProgressStep } from "../components/ProgressSteps";
@@ -221,6 +222,7 @@ function ResultPageHeader() {
 				<span className="eyebrow">Análise</span>
 				<h1>Resultado da análise</h1>
 			</div>
+			<BackLink />
 		</header>
 	);
 }

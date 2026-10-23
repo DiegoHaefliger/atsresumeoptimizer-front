@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import type { ResumeSummary } from "../api/types";
+import { BackLink } from "../components/BackLink";
 import { CandidateQuestionsHistory } from "../components/CandidateQuestionsHistory";
 import { CoverLetterHistory } from "../components/CoverLetterHistory";
 import { InterviewQuestionsHistory } from "../components/InterviewQuestionsHistory";
@@ -9,7 +10,6 @@ import { ResumeVersionPicker } from "../components/ResumeVersionPicker";
 import { PageTabs } from "../components/PageTabs";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon } from "../components/icons";
 import { assistantTabFromParam, jobResumesPath, type AssistantTab } from "../lib/jobAssistantPaths";
 import { resumeVersionOptions } from "../lib/resumeVersionOptions";
 import { useApiResource } from "../lib/useApiResource";
@@ -40,9 +40,7 @@ export function JobAssistantPage() {
 					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Assistente da vaga"}</h1>
 					{job?.company && <p className="page-subtitle">{job.company}</p>}
 				</div>
-				<Link to="/jobs" className="page-back">
-					<ArrowLeftIcon /> Voltar
-				</Link>
+				<BackLink fallback="/jobs" />
 			</header>
 
 			{jobsFailed || resumesFailed || (jobs !== null && !job) ? (

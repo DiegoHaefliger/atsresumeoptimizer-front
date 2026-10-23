@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useFromHere } from "../lib/backTarget";
 import type { SummaryStep } from "../lib/jobSummary";
 import { ArrowRightIcon, CheckCircleIcon } from "./icons";
 
 type JobSummaryStepProps = {
 	step: SummaryStep;
-	onNavigate: () => void;
 	actions?: ReactNode;
 };
 
-export function JobSummaryStep({ step, onNavigate, actions }: JobSummaryStepProps) {
+export function JobSummaryStep({ step, actions }: JobSummaryStepProps) {
+	const from = useFromHere();
 	return (
 		<li className={`job-summary-step${step.done ? " job-summary-step-done" : ""}`}>
 			<span className="job-summary-mark" aria-hidden="true">
@@ -25,7 +26,7 @@ export function JobSummaryStep({ step, onNavigate, actions }: JobSummaryStepProp
 							key={link.to + link.label}
 							to={link.to}
 							className={`job-summary-chip${step.done ? "" : " job-summary-chip-primary"}`}
-							onClick={onNavigate}
+							state={from}
 						>
 							{link.label} <ArrowRightIcon />
 						</Link>
