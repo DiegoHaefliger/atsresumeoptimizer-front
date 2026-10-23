@@ -51,25 +51,21 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 		);
 	}
 
-	const header = (
-		<>
-			<strong>{STAGE_LABELS[node.stage]}</strong>
-			<span className="stage-node-meta">
-				{moment}
-				{stay && ` · ${stay}`}
-			</span>
-			{node.movement?.stageAt && <span className="stage-node-meta">Etapa em {formatDateTime(node.movement.stageAt)}</span>}
-		</>
-	);
-
 	return (
 		<li className={itemClass}>
 			{marker}
 			<div className="stage-node-card">
-				{node.movement ? (
-					<details className="stage-node-details">
-						<summary>{header}</summary>
-						<p className="process-history-note">{node.movement.note ?? "Sem anotação."}</p>
+				<button type="button" className="stage-node-collapsed stage-node-title" aria-expanded="true" onClick={onToggle}>
+					<strong>{STAGE_LABELS[node.stage]}</strong>
+					<span className="stage-node-meta">
+						{moment}
+						{stay && ` · ${stay}`}
+					</span>
+					{node.movement?.stageAt && <span className="stage-node-meta">Etapa em {formatDateTime(node.movement.stageAt)}</span>}
+				</button>
+				{node.movement && (
+					<>
+						{node.movement.note && <p className="process-history-note">{node.movement.note}</p>}
 						<div className="process-history-actions">
 							{onPick && node.stage !== currentStage && (
 								<button type="button" className="btn-secondary btn-small" onClick={() => onPick(node.stage)}>
@@ -86,9 +82,7 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 								</button>
 							)}
 						</div>
-					</details>
-				) : (
-					<div className="stage-node-header">{header}</div>
+					</>
 				)}
 				{node.schedules.length > 0 && <ul className="stage-node-schedules">{children}</ul>}
 			</div>
