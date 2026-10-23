@@ -3542,7 +3542,51 @@ button.page-back {
 	border-style: dashed;
 }
 
+.stage-timeline-toggle-all {
+	align-self: flex-end;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	font: inherit;
+	font-size: var(--font-size-sm);
+	color: var(--brand-600);
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.stage-node-collapsed {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	font: inherit;
+	color: var(--text);
+	text-align: left;
+	cursor: pointer;
+}
+
+.stage-node-collapsed .stage-node-meta {
+	flex: 1;
+}
+
+.stage-node-collapsed svg {
+	flex: none;
+	color: var(--text-muted);
+}
+
+.stage-node-toggle {
+	position: absolute;
+	top: -0.25rem;
+	right: 0;
+}
+
 .stage-node-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
@@ -3551,6 +3595,7 @@ button.page-back {
 
 .stage-node-details summary,
 .stage-node-header {
+	padding-right: var(--space-8);
 	display: flex;
 	flex-direction: column;
 	gap: 2px;

@@ -14,6 +14,8 @@ import { ScheduleHistoryItem } from "./ScheduleHistoryItem";
 import { StageTimelineNode } from "./StageTimelineNode";
 import { StateMessage } from "./StateMessage";
 
+const COLLAPSE_ABOVE = 3;
+
 type ProcessHistoryProps = {
 	processId: string;
 	currentStage: SelectionStage;
@@ -27,10 +29,14 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 	const [confirming, setConfirming] = useState<StageMovement | null>(null);
 	const [cancelling, setCancelling] = useState<SelectionSchedule | null>(null);
 	const [rescheduling, setRescheduling] = useState<SelectionSchedule | null>(null);
+	const [overrides, setOverrides] = useState<Record<string, boolean>>({});
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const timeline = buildTimeline(detail?.history ?? [], detail?.schedules ?? []);
 	const stageTimeline = buildStageTimeline(detail?.history ?? [], detail?.schedules ?? []);
+	const collapsedByDefault = stageTimeline.nodes.length > COLLAPSE_ABOVE;
+	const isExpanded = (key: string) => overrides[key] ?? !collapsedByDefault;
+	const allExpanded = stageTimeline.nodes.every((node) => isExpanded(node.key));
 	const history = detail?.history ?? [];
 	const currentMovementId = history.at(-1)?.id;
 	const previousStage = history.at(-2)?.stage;
@@ -75,6 +81,14 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 		});
 	}
 
+	function toggle(key: string) {
+		setOverrides((current) => ({ ...current, [key]: !isExpanded(key) }));
+	}
+
+	function setAll(expanded: boolean) {
+		setOverrides(Object.fromEntries(stageTimeline.nodes.map((node) => [node.key, expanded])));
+	}
+
 	function scheduleItem(schedule: SelectionSchedule) {
 		return (
 			<ScheduleHistoryItem
@@ -105,6 +119,11 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 							</ul>
 						</section>
 					)}
+					{stageTimeline.nodes.length > 1 && (
+						<button type="button" className="stage-timeline-toggle-all" onClick={() => setAll(!allExpanded)}>
+							{allExpanded ? "Recolher tudo" : "Expandir tudo"}
+						</button>
+					)}
 					<ol className="stage-timeline">
 						{stageTimeline.nodes.map((node) => (
 							<StageTimelineNode
@@ -112,6 +131,8 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 								node={node}
 								currentStage={currentStage}
 								canDelete={history.length > 1}
+								expanded={isExpanded(node.key)}
+								onToggle={() => toggle(node.key)}
 								onPick={onPick}
 								onDelete={setConfirming}
 							>
