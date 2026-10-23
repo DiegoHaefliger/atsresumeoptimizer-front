@@ -840,6 +840,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{jobId}/cost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["cost"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/google-calendar": {
         parameters: {
             query?: never;
@@ -1746,6 +1762,29 @@ export interface components {
         UnreadCountResponse: {
             /** Format: int64 */
             count?: number;
+        };
+        JobCostResponse: {
+            totalCostUsd: number;
+            totalCostBrl: number;
+            usdBrlRate: number;
+            models: string[];
+            estimated: boolean;
+            cached: boolean;
+            stages: components["schemas"]["StageCostResponse"][];
+        };
+        StageCostResponse: {
+            /** @enum {string} */
+            stage: "JOB_ANALYSIS" | "RESUME_ADAPTATION" | "INTERVIEW_PREPARATION";
+            executed: boolean;
+            /** Format: int64 */
+            tokensIn: number;
+            /** Format: int64 */
+            tokensOut: number;
+            costUsd: number;
+            costBrl: number;
+            models: string[];
+            estimated: boolean;
+            cached: boolean;
         };
         GoogleStatusResponse: {
             configured?: boolean;
@@ -3752,6 +3791,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ResumeSummary"][];
+                };
+            };
+        };
+    };
+    cost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["JobCostResponse"];
                 };
             };
         };

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
+import { JobCostSection } from "../components/JobCostSection";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -184,6 +185,8 @@ export function JobProcessPage() {
 					/>
 				</section>
 			)}
+
+			{job && <JobCostSection jobId={job.id} />}
 		</div>
 	);
 }

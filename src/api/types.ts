@@ -225,3 +225,6 @@ export type ExternalDatabaseRequest = components["schemas"]["ExternalDatabaseReq
 export type ConnectionCheck = components["schemas"]["ConnectionCheckResponse"];
 export type DatabaseSwitch = components["schemas"]["DatabaseSwitchResponse"];
 export type SslMode = NonNullable<ExternalDatabaseRequest["sslMode"]>;
+
+export type JobCostResponse = components["schemas"]["JobCostResponse"];
+export type StageCostResponse = components["schemas"]["StageCostResponse"];
