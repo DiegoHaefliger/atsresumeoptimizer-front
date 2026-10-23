@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
 import { BackLink } from "../components/BackLink";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { JobLinksBar } from "../components/JobLinksBar";
 import { JobCode } from "../components/JobCode";
 import { JobCostDialog } from "../components/JobCostDialog";
 import { MoveStageDialog } from "../components/MoveStageDialog";
@@ -12,7 +13,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { CoinsIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { CoinsIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -156,26 +157,13 @@ export function JobProcessPage() {
 							</button>
 						</div>
 					</section>
+					<JobLinksBar adUrl={job.sourceUrl} applicationUrl={process.processUrl} />
 					<div className="process-columns">
 						<section className="panel panel-body process-details" aria-labelledby="process-details-heading">
 							<h2 id="process-details-heading" className="process-section-title">
 								Detalhes
 							</h2>
 							<dl className="process-facts">
-								{job.sourceUrl && (
-									<Fact label="Link da vaga">
-										<a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="link">
-											Abrir <ExternalLinkIcon />
-										</a>
-									</Fact>
-								)}
-								{process.processUrl && (
-									<Fact label="Link do processo seletivo">
-										<a href={process.processUrl} target="_blank" rel="noopener noreferrer" className="link">
-											Abrir <ExternalLinkIcon />
-										</a>
-									</Fact>
-								)}
 								{process.appliedOn && <Fact label="Candidatura">{formatDate(process.appliedOn)}</Fact>}
 								{process.contactName && <Fact label="Contato">{process.contactName}</Fact>}
 								{process.contactEmail && <Fact label="E-mail do contato">{process.contactEmail}</Fact>}

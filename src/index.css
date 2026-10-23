@@ -6528,3 +6528,49 @@ kbd {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
+
+.job-links-bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+	margin-bottom: var(--space-4);
+}
+
+.job-link-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-height: 2.75rem;
+	padding: var(--space-2) var(--space-5);
+	border: 1px solid var(--brand-600);
+	border-radius: var(--radius-md);
+	background: var(--surface);
+	font-weight: var(--font-weight-semibold);
+	color: var(--brand-600);
+	text-decoration: none;
+}
+
+.job-link-button:hover {
+	background: var(--brand-soft);
+}
+
+.job-link-button-primary {
+	background: var(--brand-600);
+	color: #fff;
+}
+
+.job-link-button-primary:hover {
+	background: var(--brand-600);
+	filter: brightness(1.1);
+}
+
+@media (max-width: 560px) {
+	.job-link-button {
+		flex: 1 1 100%;
+	}
+}
+
+.process-layout .job-links-bar {
+	margin-bottom: 0;
+}
