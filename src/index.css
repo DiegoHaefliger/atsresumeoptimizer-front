@@ -5919,6 +5919,15 @@ kbd {
 	flex-wrap: wrap;
 }
 
+.job-summary-notes {
+	margin-top: var(--space-4);
+}
+
+.job-summary-notes h2 {
+	margin: 0 0 var(--space-3);
+	font-size: var(--font-size-lg);
+}
+
 .job-summary-header {
 	display: flex;
 	flex-direction: column;

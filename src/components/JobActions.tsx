@@ -1,14 +1,11 @@
 import type { Job } from "../lib/useJobs";
-import { EyeIcon, FileTextIcon, KanbanIcon, ListChecksIcon, NotebookIcon, PencilIcon, SparklesIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { EyeIcon, FileTextIcon, ListChecksIcon, PencilIcon, SpinnerIcon, TrashIcon } from "./icons";
 
 export type JobActionHandlers = {
 	onAnalyze?: (job: Job) => void;
 	onPreview?: (job: Job) => void;
 	onResumes?: (job: Job) => void;
-	onAssistant?: (job: Job) => void;
-	onNotes?: (job: Job) => void;
 	onSummary?: (job: Job) => void;
-	onProcess?: (job: Job) => void;
 	onEdit?: (job: Job) => void;
 	onRemove?: (job: Job) => void;
 };
@@ -18,7 +15,7 @@ type JobActionsProps = JobActionHandlers & {
 	removing: boolean;
 };
 
-export function JobActions({ job, removing, onPreview, onResumes, onAssistant, onNotes, onSummary, onProcess, onEdit, onRemove }: JobActionsProps) {
+export function JobActions({ job, removing, onPreview, onResumes, onSummary, onEdit, onRemove }: JobActionsProps) {
 	const name = job.title ?? "vaga";
 	return (
 		<div className="job-actions">
@@ -38,22 +35,6 @@ export function JobActions({ job, removing, onPreview, onResumes, onAssistant, o
 					<FileTextIcon />
 				</button>
 			)}
-			{onAssistant && (
-				<button
-					type="button"
-					className="btn-icon"
-					aria-label={`Assistente de IA para ${name}`}
-					title="Assistente de IA: perguntas técnicas e apresentação"
-					onClick={() => onAssistant(job)}
-				>
-					<SparklesIcon />
-				</button>
-			)}
-			{onNotes && (
-				<button type="button" className="btn-icon" aria-label={`Notas de ${name}`} title="Notas da vaga" onClick={() => onNotes(job)}>
-					<NotebookIcon />
-				</button>
-			)}
 			{onSummary && (
 				<button
 					type="button"
@@ -63,11 +44,6 @@ export function JobActions({ job, removing, onPreview, onResumes, onAssistant, o
 					onClick={() => onSummary(job)}
 				>
 					<ListChecksIcon />
-				</button>
-			)}
-			{onProcess && (
-				<button type="button" className="btn-icon" aria-label={`Processo seletivo de ${name}`} title="Processo seletivo" onClick={() => onProcess(job)}>
-					<KanbanIcon />
 				</button>
 			)}
 			{onEdit && (

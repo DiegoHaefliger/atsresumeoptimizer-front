@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { BackLink } from "../components/BackLink";
+import { JobNotes } from "../components/JobNotes";
 import { JobPreviewDialog } from "../components/JobPreviewDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobSummary } from "../components/JobSummaryContent";
@@ -52,6 +53,12 @@ export function JobSummaryPage() {
 						onPreview={() => setDialog("preview")}
 						onResumes={() => setDialog("resumes")}
 					/>
+				</section>
+			)}
+			{job && (
+				<section className="panel panel-body job-summary-notes" aria-labelledby="job-summary-notes-heading">
+					<h2 id="job-summary-notes-heading">Notas da vaga</h2>
+					<JobNotes jobId={job.id} />
 				</section>
 			)}
 			<AnalyzeJobDialog job={dialog === "analyze" ? job : null} onClose={() => setDialog(null)} />
