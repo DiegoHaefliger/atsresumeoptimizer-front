@@ -1,7 +1,7 @@
 import type { SelectionProcess } from "../api/types";
 import { jobDetails } from "../lib/jobMeta";
-import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
+import { JobScore } from "./JobScore";
 import { JobActions, type JobActionHandlers } from "./JobActions";
 import { JobCode } from "./JobCode";
 import { StageBadge } from "./StageBadge";
@@ -12,26 +12,6 @@ type JobCardProps = JobActionHandlers & {
 	process?: SelectionProcess;
 	removing: boolean;
 };
-
-function JobScore({ label, score }: { label: string; score: number | null | undefined }) {
-	return (
-		<div className="job-card-score">
-			<dt>{label}</dt>
-			<dd>
-				{score != null ? (
-					<>
-						<span className={`job-card-score-value job-card-score-${scoreTone(score)}`}>{score}</span>
-						<span className="job-card-score-track" aria-hidden="true">
-							<span className={`job-card-score-fill job-card-score-${scoreTone(score)}`} style={{ width: `${score}%` }} />
-						</span>
-					</>
-				) : (
-					<span className="job-card-score-empty">Sem nota</span>
-				)}
-			</dd>
-		</div>
-	);
-}
 
 export function JobCard({ job, process, removing, onAnalyze, ...actions }: JobCardProps) {
 	return (

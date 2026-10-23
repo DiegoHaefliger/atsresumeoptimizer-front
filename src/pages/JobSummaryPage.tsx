@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { BackLink } from "../components/BackLink";
 import { JobCode } from "../components/JobCode";
-import { JobPreviewDialog } from "../components/JobPreviewDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobSummary } from "../components/JobSummaryContent";
 import { Skeleton } from "../components/Skeleton";
@@ -12,7 +11,7 @@ import { StateMessage } from "../components/StateMessage";
 import { useJobs } from "../lib/useJobs";
 import { useProcesses } from "../lib/useProcesses";
 
-type OpenDialog = "analyze" | "preview" | "resumes" | null;
+type OpenDialog = "analyze" | "resumes" | null;
 
 export function JobSummaryPage() {
 	const { jobId } = useParams<{ jobId: string }>();
@@ -55,12 +54,10 @@ export function JobSummaryPage() {
 					job={job}
 					process={process}
 					onAnalyze={() => setDialog("analyze")}
-					onPreview={() => setDialog("preview")}
 					onResumes={() => setDialog("resumes")}
 				/>
 			)}
 			<AnalyzeJobDialog job={dialog === "analyze" ? job : null} onClose={() => setDialog(null)} />
-			<JobPreviewDialog job={dialog === "preview" ? job : null} onClose={() => setDialog(null)} />
 			<JobResumesDialog
 				job={dialog === "resumes" ? job : null}
 				onClose={() => setDialog(null)}

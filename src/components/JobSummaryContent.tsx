@@ -18,11 +18,10 @@ type JobSummaryProps = {
 	job: Job;
 	process?: SelectionProcess;
 	onAnalyze: () => void;
-	onPreview: () => void;
 	onResumes: () => void;
 };
 
-export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: JobSummaryProps) {
+export function JobSummary({ job, process, onAnalyze, onResumes }: JobSummaryProps) {
 	const from = useFromHere();
 	const resumes = useApiResource<ResumeSummary[]>(jobResumesPath(job.id));
 	const letters = useApiResource<CoverLetter[]>(coverLettersPath(job.id));
@@ -64,14 +63,14 @@ export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: Jo
 	return (
 		<div className="job-summary-page">
 			<section className="job-summary-shortcuts" aria-label="Atalhos">
-				<button type="button" className="job-summary-shortcut" onClick={onPreview}>
+				<Link to={`/jobs/${job.id}/preview`} className="job-summary-shortcut" state={from}>
 					<EyeIcon />
 					<span>
 						<strong>Vaga</strong>
 						<small>Ver prévia da descrição</small>
 					</span>
 					<ArrowRightIcon />
-				</button>
+				</Link>
 				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
 					<KanbanIcon />
 					<span>

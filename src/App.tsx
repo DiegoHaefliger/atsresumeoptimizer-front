@@ -9,6 +9,7 @@ import { JobEditPage } from "./pages/JobEditPage";
 import { JobFormPage } from "./pages/JobFormPage";
 import { JobsPage } from "./pages/JobsPage";
 import { JobAssistantPage } from "./pages/JobAssistantPage";
+import { JobPreviewPage } from "./pages/JobPreviewPage";
 import { JobCostPage } from "./pages/JobCostPage";
 import { JobSummaryPage } from "./pages/JobSummaryPage";
 import { JobProcessPage } from "./pages/JobProcessPage";
@@ -40,6 +41,7 @@ export default function App() {
 						<Route path="/jobs/new" element={<JobFormPage />} />
 						<Route path="/jobs/:jobId/process" element={<JobProcessPage />} />
 						<Route path="/jobs/:jobId/summary" element={<JobSummaryPage />} />
+						<Route path="/jobs/:jobId/preview" element={<JobPreviewPage />} />
 						<Route path="/jobs/:jobId/cost" element={<JobCostPage />} />
 						<Route path="/jobs/:jobId/assistant" element={<JobAssistantPage />} />
 						<Route path="/jobs/:jobId/edit" element={<JobEditPage />} />
