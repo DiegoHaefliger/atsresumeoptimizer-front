@@ -7,7 +7,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadFailed } from "../components/LoadFailed";
 import { PromptKeyList } from "../components/PromptKeyList";
 import { PromptMarkerChips } from "../components/PromptMarkerChips";
-import { PromptVersionHistory } from "../components/PromptVersionHistory";
+import { PromptVersionSelect } from "../components/PromptVersionSelect";
 import { CheckCircleIcon } from "../components/icons";
 import { StateMessage } from "../components/StateMessage";
 import { modelsInUse } from "../lib/promptModels";
@@ -169,33 +169,26 @@ export function PromptsPage() {
 							/>
 						</div>
 					</aside>
-					{history.length > 0 && (
-						<aside className="panel prompts-history">
-							<div className="panel-header">
-								<h2>Histórico</h2>
-							</div>
-							<div className="panel-body">
-								<PromptVersionHistory
-									versions={history}
-									latestVersion={latestVersion}
-									viewing={loaded?.version ?? null}
-									onSelect={(version) => guard(() => openVersion(version))}
-								/>
-							</div>
-						</aside>
-					)}
 				</div>
 
 				<form className="panel prompts-editor" onSubmit={handleSubmit}>
-					<div className="panel-header">
-						<h2>{selectedKey ? promptLabel(selectedKey) : "Selecione uma instrução"}</h2>
-						{selectedKey && promptDescription(selectedKey) && <p>{promptDescription(selectedKey)}</p>}
-						{loaded && (
-							<p className={viewingOlder ? "prompt-version-note prompt-version-note-old" : "prompt-version-note"}>
-								{viewingOlder
-									? `Vendo a v${loaded.version}, que não é a atual. Salvar cria a v${(latestVersion ?? 0) + 1} com este texto.`
-									: `Versão em uso: v${loaded.version}.`}
-							</p>
+					<div className="panel-header prompts-editor-header">
+						<div>
+							<h2>{selectedKey ? promptLabel(selectedKey) : "Selecione uma instrução"}</h2>
+							{selectedKey && promptDescription(selectedKey) && <p>{promptDescription(selectedKey)}</p>}
+							{viewingOlder && loaded && (
+								<p className="prompt-version-note prompt-version-note-old">
+									Vendo a v{loaded.version}, que não é a atual. Salvar cria a v{(latestVersion ?? 0) + 1} com este texto.
+								</p>
+							)}
+						</div>
+						{loaded && history.length > 0 && (
+							<PromptVersionSelect
+								versions={history}
+								latestVersion={latestVersion}
+								viewing={loaded.version ?? null}
+								onSelect={(version) => guard(() => openVersion(version))}
+							/>
 						)}
 					</div>
 					<div className="panel-body">
