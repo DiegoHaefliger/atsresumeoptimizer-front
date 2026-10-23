@@ -2865,6 +2865,18 @@ legend {
 	transition: background 0.15s ease;
 }
 
+.page-header-actions {
+	display: flex;
+	align-items: center;
+	flex: none;
+	gap: var(--space-2);
+}
+
+button.page-back {
+	font: inherit;
+	cursor: pointer;
+}
+
 .page-back:hover {
 	background: var(--surface-2);
 }
@@ -5897,7 +5909,6 @@ kbd {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-3);
-	margin-top: var(--space-6);
 }
 
 .job-cost-header {
@@ -5906,11 +5917,6 @@ kbd {
 	justify-content: space-between;
 	gap: var(--space-3);
 	flex-wrap: wrap;
-}
-
-.job-cost-header h2 {
-	margin: 0;
-	font-size: var(--font-size-lg);
 }
 
 .cost-card {

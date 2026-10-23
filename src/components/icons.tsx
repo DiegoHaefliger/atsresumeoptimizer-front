@@ -185,6 +185,16 @@ export function PencilIcon(props: SVGProps<SVGSVGElement>) {
 	);
 }
 
+export function CoinsIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<circle cx="12" cy="12" r="9" />
+			<path d="M14.8 9.2c-.5-.8-1.5-1.2-2.8-1.2-1.6 0-2.8.8-2.8 2s1.2 1.7 2.8 2 2.8.8 2.8 2-1.2 2-2.8 2c-1.3 0-2.3-.4-2.8-1.2" />
+			<path d="M12 6v2m0 8v2" />
+		</Icon>
+	);
+}
+
 export function EyeIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<Icon {...props}>

@@ -17,13 +17,12 @@ export function JobCostSection({ jobId }: { jobId: string }) {
 	const [currency, setCurrency] = useState<CostCurrency>("BRL");
 
 	return (
-		<section className="job-cost" aria-labelledby="job-cost-heading">
-			<div className="job-cost-header">
-				<h2 id="job-cost-heading">Custo de IA</h2>
-				{cost?.stages.some((stage) => stage.executed) && (
+		<section className="job-cost" aria-label="Custo de IA">
+			{cost?.stages.some((stage) => stage.executed) && (
+				<div className="job-cost-header">
 					<SegmentedTabs label="Moeda" options={CURRENCY_OPTIONS} value={currency} onChange={setCurrency} />
-				)}
-			</div>
+				</div>
+			)}
 			{failed ? (
 				<LoadFailed message="Não deu pra carregar o custo desta vaga." onRetry={reload} />
 			) : !cost ? (

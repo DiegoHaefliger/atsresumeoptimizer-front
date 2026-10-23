@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
-import { JobCostSection } from "../components/JobCostSection";
+import { JobCostDialog } from "../components/JobCostDialog";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -11,7 +11,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { ArrowLeftIcon, CoinsIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -27,6 +27,7 @@ export function JobProcessPage() {
 	const [editing, setEditing] = useState(false);
 	const [moving, setMoving] = useState(false);
 	const [scheduling, setScheduling] = useState(false);
+	const [costOpen, setCostOpen] = useState(false);
 	const [historyVersion, setHistoryVersion] = useState(0);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -65,9 +66,16 @@ export function JobProcessPage() {
 					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Processo seletivo"}</h1>
 					{job?.company && <p className="page-subtitle">{job.company}</p>}
 				</div>
-				<Link to="/jobs" className="page-back">
-					<ArrowLeftIcon /> Voltar
-				</Link>
+				<div className="page-header-actions">
+					{job && (
+						<button type="button" className="page-back" aria-label="Custo de IA" title="Custo de IA" onClick={() => setCostOpen(true)}>
+							<CoinsIcon />
+						</button>
+					)}
+					<Link to="/jobs" className="page-back">
+						<ArrowLeftIcon /> Voltar
+					</Link>
+				</div>
 			</header>
 
 			{jobsFailed || processesFailed || (jobs !== null && !job) ? (
@@ -186,7 +194,7 @@ export function JobProcessPage() {
 				</section>
 			)}
 
-			{job && <JobCostSection jobId={job.id} />}
+			{job && <JobCostDialog jobId={job.id} open={costOpen} onClose={() => setCostOpen(false)} />}
 		</div>
 	);
 }
