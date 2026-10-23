@@ -341,31 +341,46 @@ function SectionTextEditor({ section, onChange }: { section: ResumeSection; onCh
 					onChange={(text) => onChange({ ...section, richLines: textToRichLines(text) })}
 				/>
 			);
-		case "ENTRIES": {
-			const entries = section.entries ?? [];
-			return (
-				<>
-					{entries.map((entry, index) => (
-						<EntryEditor
-							key={index}
-							entry={entry}
-							labels={entryLabelsFor(section.semanticType)}
-							onChange={(updated) => onChange({ ...section, entries: replaceAt(entries, index, updated) })}
-							onRemove={() => onChange({ ...section, entries: removeAt(entries, index) })}
-						/>
-					))}
-					<AddButton
-						label={
-							entryLabelsFor(section.semanticType).add
-						}
-						onClick={() => onChange({ ...section, entries: [...entries, EMPTY_ENTRY] })}
-					/>
-				</>
-			);
-		}
+		case "ENTRIES":
+			return <EntriesEditor section={section} onChange={onChange} />;
 		default:
 			return null;
 	}
+}
+
+function EntriesEditor({ section, onChange }: { section: ResumeSection; onChange: (section: ResumeSection) => void }) {
+	const entries = section.entries ?? [];
+	const labels = entryLabelsFor(section.semanticType);
+	const [layoutRevision, setLayoutRevision] = useState(0);
+
+	function moveEntry(index: number, offset: number) {
+		const target = index + offset;
+		if (target < 0 || target >= entries.length) {
+			return;
+		}
+		const reordered = [...entries];
+		[reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+		setLayoutRevision((revision) => revision + 1);
+		onChange({ ...section, entries: reordered });
+	}
+
+	return (
+		<>
+			{entries.map((entry, index) => (
+				<EntryEditor
+					key={`${layoutRevision}-${index}`}
+					entry={entry}
+					labels={labels}
+					isFirst={index === 0}
+					isLast={index === entries.length - 1}
+					onMove={(offset) => moveEntry(index, offset)}
+					onChange={(updated) => onChange({ ...section, entries: replaceAt(entries, index, updated) })}
+					onRemove={() => onChange({ ...section, entries: removeAt(entries, index) })}
+				/>
+			))}
+			<AddButton label={labels.add} onClick={() => onChange({ ...section, entries: [...entries, EMPTY_ENTRY] })} />
+		</>
+	);
 }
 
 const EMPTY_ENTRY: ResumeEntry = { heading: "", period: "", subheading: "", context: "", bullets: [], technologies: "", results: [] };
@@ -373,11 +388,14 @@ const EMPTY_ENTRY: ResumeEntry = { heading: "", period: "", subheading: "", cont
 type EntryEditorProps = {
 	entry: ResumeEntry;
 	labels: EntryLabels;
+	isFirst: boolean;
+	isLast: boolean;
+	onMove: (offset: number) => void;
 	onChange: (entry: ResumeEntry) => void;
 	onRemove: () => void;
 };
 
-function EntryEditor({ entry, labels, onChange, onRemove }: EntryEditorProps) {
+function EntryEditor({ entry, labels, isFirst, isLast, onMove, onChange, onRemove }: EntryEditorProps) {
 	const headingField = (
 		<label>
 			{labels.heading}
@@ -454,7 +472,27 @@ function EntryEditor({ entry, labels, onChange, onRemove }: EntryEditorProps) {
 		<div className="resume-editor-entry">
 			<div className="resume-editor-entry-header">
 				<span className="resume-editor-sublabel">{entry.heading || labels.newItem}</span>
-				<RemoveButton label={`Remover ${entry.heading || labels.newItem.toLowerCase()}`} onClick={onRemove} />
+				<div className="resume-editor-section-actions">
+					<button
+						type="button"
+						className="btn-icon"
+						aria-label={`Mover ${entry.heading || labels.newItem.toLowerCase()} para cima`}
+						disabled={isFirst}
+						onClick={() => onMove(-1)}
+					>
+						<ChevronUpIcon />
+					</button>
+					<button
+						type="button"
+						className="btn-icon"
+						aria-label={`Mover ${entry.heading || labels.newItem.toLowerCase()} para baixo`}
+						disabled={isLast}
+						onClick={() => onMove(1)}
+					>
+						<ChevronDownIcon />
+					</button>
+					<RemoveButton label={`Remover ${entry.heading || labels.newItem.toLowerCase()}`} onClick={onRemove} />
+				</div>
 			</div>
 			{labels.institutionFirst ? (
 				<>

@@ -13,6 +13,7 @@ import type {
 import { Badge } from "../components/Badge";
 import { BulletsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
+import { DocumentEditor } from "../components/DocumentEditor";
 import { ResumeEditor } from "../components/ResumeEditor";
 import { ResumePreview } from "../components/ResumePreview";
 import { ProgressSteps, type ProgressStep } from "../components/ProgressSteps";
@@ -28,9 +29,12 @@ type DownloadKind = "docx" | "pdf";
 
 const DOWNLOAD_KINDS: DownloadKind[] = ["docx", "pdf"];
 
-const VIEW_OPTIONS: { value: "preview" | "edit"; label: string }[] = [
+type ResumeView = "preview" | "document" | "edit";
+
+const VIEW_OPTIONS: { value: ResumeView; label: string }[] = [
 	{ value: "preview", label: "Prévia" },
-	{ value: "edit", label: "Editar" },
+	{ value: "document", label: "Editar documento" },
+	{ value: "edit", label: "Editar campos" },
 ];
 
 const REWRITE_STEPS: ProgressStep[] = [
@@ -59,7 +63,7 @@ export function RewritePage() {
 	const [contact, setContact] = useState<ResumeContact>({});
 	const [documents, setDocuments] = useState<{ resumeId?: string; docxVersionId?: string }>({});
 	const [edited, setEdited] = useState(false);
-	const [view, setView] = useState<"preview" | "edit">("preview");
+	const [view, setView] = useState<ResumeView>("preview");
 	const [showChanges, setShowChanges] = useState(true);
 	const [phase, setPhase] = useState<string | null>(null);
 	const [pendingResponse, setPendingResponse] = useState<RewriteResultView | null>(null);
@@ -385,6 +389,19 @@ export function RewritePage() {
 								original={original}
 								template={template}
 								showChanges={showChanges && canShowChanges}
+							/>
+						</>
+					) : view === "document" ? (
+						<>
+							<p className="diff-legend">
+								Clique no texto da folha para editar. Para adicionar ou remover itens, use a aba Editar campos.
+							</p>
+							<DocumentEditor
+								content={content}
+								contact={contact}
+								template={template}
+								onContentChange={editContent}
+								onContactChange={editContact}
 							/>
 						</>
 					) : (
