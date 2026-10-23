@@ -1455,6 +1455,59 @@ ul {
 	font-size: 10pt;
 }
 
+.document-sheet {
+	max-width: 794px;
+	margin-inline: auto;
+	min-height: 600px;
+	background: #fff;
+	color: #1a1a1a;
+	--text: #1a1a1a;
+	cursor: text;
+}
+
+.document-line,
+.document-block {
+	outline: none;
+	min-height: 1.4em;
+	border-radius: 2px;
+}
+
+.document-line:hover,
+.document-block:hover {
+	background: color-mix(in srgb, var(--brand-600) 6%, transparent);
+}
+
+.document-line:focus,
+.document-block:focus {
+	background: color-mix(in srgb, var(--brand-600) 10%, transparent);
+}
+
+.document-line:empty::before,
+.document-block:empty::before {
+	content: attr(data-placeholder);
+	color: #8a8a8a;
+	font-weight: normal;
+	text-transform: none;
+}
+
+span.document-line {
+	display: inline-block;
+	min-width: 2ch;
+}
+
+.document-sheet .resume-preview-entry-heading,
+.document-sheet .resume-preview-technologies:empty {
+	font-weight: var(--font-weight-bold);
+}
+
+.document-block p {
+	margin: 0 0 3px;
+}
+
+ul.document-block:empty::before {
+	margin-left: -14px;
+}
+
 .resume-editor {
 	display: flex;
 	flex-direction: column;

@@ -14,6 +14,16 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.6",
+		date: "2026-10-23",
+		summary: "Reordene as experiências e edite o currículo adaptado direto na folha, como num documento.",
+		changes: [
+			{ kind: "feat", text: "No currículo adaptado, a aba Editar documento mostra a folha como sairá na impressão, com o texto editável direto, incluindo tópicos, negrito, itálico e sublinhado." },
+			{ kind: "feat", text: "Na edição por campos, cada experiência (e formação ou projeto) ganhou botões para subir e descer, para você escolher a ordem depois da análise da IA." },
+			{ kind: "improvement", text: "As abas do currículo adaptado agora se chamam Prévia, Editar documento e Editar campos." },
+		],
+	},
+	{
 		version: "1.1.5",
 		date: "2026-10-22",
 		summary: "Chat com a IA para conversar sobre suas vagas, anexos nas mensagens e campo Sobre a empresa.",
