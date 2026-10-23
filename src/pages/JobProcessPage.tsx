@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
+import { BackLink } from "../components/BackLink";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { JobLinksBar } from "../components/JobLinksBar";
 import { JobCode } from "../components/JobCode";
+import { JobCostDialog } from "../components/JobCostDialog";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -10,7 +13,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { CoinsIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -26,11 +29,18 @@ export function JobProcessPage() {
 	const [editing, setEditing] = useState(false);
 	const [moving, setMoving] = useState(false);
 	const [scheduling, setScheduling] = useState(false);
+	const [costOpen, setCostOpen] = useState(false);
 	const [historyVersion, setHistoryVersion] = useState(0);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [deleting, setDeleting] = useState(false);
 	const job = jobs?.find((candidate) => candidate.id === jobId) ?? null;
 	const process = processes?.find((candidate) => candidate.jobPostingId === jobId) ?? null;
+
+	const nextStep = process?.nextSchedule
+		? `${formatDateTime(process.nextSchedule.scheduledAt)} - ${STAGE_LABELS[process.nextSchedule.stage]}`
+		: process?.nextStepOn
+			? formatDate(process.nextStepOn)
+			: null;
 
 	async function create(draft: ProcessDraft) {
 		await apiPostJson(PROCESSES_PATH, processRequest(draft));
@@ -64,9 +74,14 @@ export function JobProcessPage() {
 					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Processo seletivo"}</h1>
 					{job?.company && <p className="page-subtitle">{job.company}</p>}
 				</div>
-				<Link to="/jobs" className="page-back">
-					<ArrowLeftIcon /> Voltar
-				</Link>
+				<div className="page-header-actions">
+					{job && (
+						<button type="button" className="page-back" aria-label="Custo de IA" title="Custo de IA" onClick={() => setCostOpen(true)}>
+							<CoinsIcon />
+						</button>
+					)}
+					<BackLink fallback="/jobs" />
+				</div>
 			</header>
 
 			{jobsFailed || processesFailed || (jobs !== null && !job) ? (
@@ -100,9 +115,21 @@ export function JobProcessPage() {
 					onCancel={() => setEditing(false)}
 				/>
 			) : (
-				<section className="panel panel-body process-detail">
-					<div className="process-detail-top">
-						<StageBadge stage={process.stage} />
+				<div className="process-layout">
+					<section className="panel panel-body process-toolbar" aria-label="Situação do processo">
+						<div className="process-toolbar-status">
+							<StageBadge stage={process.stage} />
+							<span className="process-toolbar-next">
+								{nextStep ? (
+									<>
+										<small>Próxima etapa</small>
+										<strong>{nextStep}</strong>
+									</>
+								) : (
+									<small>Nenhuma próxima etapa agendada</small>
+								)}
+							</span>
+						</div>
 						<div className="process-detail-actions">
 							<button type="button" className="process-action" onClick={() => setMoving(true)}>
 								Mover etapa
@@ -129,42 +156,32 @@ export function JobProcessPage() {
 								<TrashIcon />
 							</button>
 						</div>
+					</section>
+					<JobLinksBar adUrl={job.sourceUrl} applicationUrl={process.processUrl} />
+					<div className="process-columns">
+						<section className="panel panel-body process-details" aria-labelledby="process-details-heading">
+							<h2 id="process-details-heading" className="process-section-title">
+								Detalhes
+							</h2>
+							<dl className="process-facts">
+								{process.appliedOn && <Fact label="Candidatura">{formatDate(process.appliedOn)}</Fact>}
+								{process.contactName && <Fact label="Contato">{process.contactName}</Fact>}
+								{process.contactEmail && <Fact label="E-mail do contato">{process.contactEmail}</Fact>}
+								{process.contactPhone && <Fact label="Telefone do contato">{process.contactPhone}</Fact>}
+								{process.salary != null && <Fact label="Remuneração">R$ {process.salary.toLocaleString("pt-BR")}</Fact>}
+								{process.notes && <Fact label="Observações">{process.notes}</Fact>}
+							</dl>
+						</section>
+						<section className="panel panel-body process-timeline" aria-label="Histórico">
+							<ProcessHistory
+								key={`${process.updatedAt}:${historyVersion}`}
+								processId={process.id}
+								currentStage={process.stage}
+								onScheduleChange={reload}
+								variant="timeline"
+							/>
+						</section>
 					</div>
-					<dl className="process-facts">
-						{job.sourceUrl && (
-							<Fact label="Link da vaga">
-								<a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="link">
-									Abrir <ExternalLinkIcon />
-								</a>
-							</Fact>
-						)}
-						{process.processUrl && (
-							<Fact label="Link do processo seletivo">
-								<a href={process.processUrl} target="_blank" rel="noopener noreferrer" className="link">
-									Abrir <ExternalLinkIcon />
-								</a>
-							</Fact>
-						)}
-						{process.appliedOn && <Fact label="Candidatura">{formatDate(process.appliedOn)}</Fact>}
-						{process.nextSchedule ? (
-							<Fact label="Próxima etapa">
-								{formatDateTime(process.nextSchedule.scheduledAt)} - {STAGE_LABELS[process.nextSchedule.stage]}
-							</Fact>
-						) : (
-							process.nextStepOn && <Fact label="Próxima etapa">{formatDate(process.nextStepOn)}</Fact>
-						)}
-						{process.contactName && <Fact label="Contato">{process.contactName}</Fact>}
-						{process.contactEmail && <Fact label="E-mail do contato">{process.contactEmail}</Fact>}
-						{process.contactPhone && <Fact label="Telefone do contato">{process.contactPhone}</Fact>}
-						{process.salary != null && <Fact label="Remuneração">R$ {process.salary.toLocaleString("pt-BR")}</Fact>}
-						{process.notes && <Fact label="Observações">{process.notes}</Fact>}
-					</dl>
-					<ProcessHistory
-						key={`${process.updatedAt}:${historyVersion}`}
-						processId={process.id}
-						currentStage={process.stage}
-						onScheduleChange={reload}
-					/>
 					<ConfirmDialog
 						open={confirmingDelete}
 						title="Excluir processo seletivo?"
@@ -182,8 +199,10 @@ export function JobProcessPage() {
 						onClose={() => setScheduling(false)}
 						onSave={schedule}
 					/>
-				</section>
+				</div>
 			)}
+
+			{job && <JobCostDialog jobId={job.id} open={costOpen} onClose={() => setCostOpen(false)} />}
 		</div>
 	);
 }

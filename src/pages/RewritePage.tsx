@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { BackLink } from "../components/BackLink";
 import { downloadResume, type ResumeExportFormat } from "../api/resumeExport";
 import { apiGet, apiGetOptional, apiPostJson, errorMessage } from "../api/client";
 import type {
@@ -220,9 +221,12 @@ export function RewritePage() {
 						<span className="eyebrow">Reescrita</span>
 						<h1>Escolha o template</h1>
 					</div>
-					<Link to={`/analyses/${id}`} className="link">
-						Voltar pro resultado
-					</Link>
+					<div className="page-header-actions">
+						<Link to={`/analyses/${id}`} className="link">
+							Voltar pro resultado
+						</Link>
+						<BackLink />
+					</div>
 				</header>
 
 				<div className="form">
@@ -279,9 +283,12 @@ export function RewritePage() {
 						. Seu currículo base continua igual.
 					</p>
 				</div>
-				<Link to={`/analyses/${id}`} className="link">
-					Voltar pro resultado
-				</Link>
+				<div className="page-header-actions">
+					<Link to={`/analyses/${id}`} className="link">
+						Voltar pro resultado
+					</Link>
+					<BackLink />
+				</div>
 			</header>
 
 			<div className="downloads">

@@ -1,30 +1,20 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { apiGet, apiPutJson, errorMessage } from "../api/client";
 import { Link } from "react-router-dom";
 import type { AiSettingsView, PromptTemplateRequest, PromptTemplateSummary, PromptTemplateView } from "../api/types";
 import { BusyLabel } from "../components/BusyLabel";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadFailed } from "../components/LoadFailed";
-import { PromptVersionHistory } from "../components/PromptVersionHistory";
+import { PromptKeyList } from "../components/PromptKeyList";
+import { PromptMarkerChips } from "../components/PromptMarkerChips";
+import { PromptVersionSelect } from "../components/PromptVersionSelect";
 import { CheckCircleIcon } from "../components/icons";
 import { StateMessage } from "../components/StateMessage";
 import { modelsInUse } from "../lib/promptModels";
+import { promptDescription, promptLabel } from "../lib/promptInfo";
+import { markersOf, missingMarkers } from "../lib/promptMarkers";
 
 const BASE_PATH = "/api/v1/prompt-templates";
-const KEY_LABELS: Record<string, string> = {
-	"resume-structuring": "Adaptação do currículo",
-	"job-structuring": "Estruturação da vaga",
-	"requirement-evidence": "Evidência de exigências",
-	"bullet-review": "Revisão de bullets",
-	"cover-letter": "Apresentação para a vaga",
-	"interview-questions": "Perguntas técnicas da vaga",
-	"candidate-questions": "Perguntas para o recrutador (dúvidas)",
-	"chat-recruiter": "Chat com a IA (recrutador)",
-	rewrite: "Reescrita (legado)",
-};
-
-const labelOf = (key: string) => KEY_LABELS[key] ?? key;
-
 export function PromptsPage() {
 	const [templates, setTemplates] = useState<PromptTemplateSummary[] | null>(null);
 	const [loadFailed, setLoadFailed] = useState(false);
@@ -34,12 +24,16 @@ export function PromptsPage() {
 	const [content, setContent] = useState("");
 	const [aiSettings, setAiSettings] = useState<AiSettingsView | null>(null);
 	const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+	const [pendingSwitch, setPendingSwitch] = useState<(() => void) | null>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const latestVersion = history[0]?.version ?? null;
 	const dirty = loaded !== null && (content !== (loaded.content ?? ""));
+	const markers = markersOf(loaded?.content ?? "");
+	const missing = missingMarkers(loaded?.content ?? "", content);
 
 	const show = useCallback((view: PromptTemplateView) => {
 		setLoaded(view);
@@ -87,6 +81,28 @@ export function PromptsPage() {
 		});
 	}, [loadList, open]);
 
+	function guard(action: () => void) {
+		if (dirty) {
+			setPendingSwitch(() => action);
+		} else {
+			action();
+		}
+	}
+
+	function insertMarker(marker: string) {
+		const field = textareaRef.current;
+		if (!field) {
+			return;
+		}
+		const { selectionStart, selectionEnd } = field;
+		const next = content.slice(0, selectionStart) + marker + content.slice(selectionEnd);
+		setContent(next);
+		requestAnimationFrame(() => {
+			field.focus();
+			field.setSelectionRange(selectionStart + marker.length, selectionStart + marker.length);
+		});
+	}
+
 	async function openVersion(version: number) {
 		if (!selectedKey) {
 			return;
@@ -98,8 +114,8 @@ export function PromptsPage() {
 		}
 	}
 
-	async function handleSubmit(event: FormEvent) {
-		event.preventDefault();
+	async function handleSubmit(event?: FormEvent) {
+		event?.preventDefault();
 		const key = selectedKey;
 		if (!key) {
 			return;
@@ -140,37 +156,39 @@ export function PromptsPage() {
 			{loadFailed && <LoadFailed message="Não deu pra carregar as instruções." onRetry={loadList} />}
 
 			<div className="prompts-layout">
-				<aside className="panel prompts-list">
-					<div className="panel-header">
-						<h2>Instruções</h2>
-					</div>
-					<div className="panel-body">
-						<ul className="prompt-keys">
-							{(templates ?? []).map((item) => (
-								<li key={item.key}>
-									<button
-										type="button"
-										className={`prompt-key${item.key === selectedKey ? " is-selected" : ""}`}
-										onClick={() => open(item.key ?? "")}
-									>
-										<span>{labelOf(item.key ?? "")}</span>
-										<span className="prompt-key-version">v{item.version}</span>
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-				</aside>
+				<div className="prompts-side">
+					<aside className="panel prompts-list">
+						<div className="panel-header">
+							<h2>Instruções</h2>
+						</div>
+						<div className="panel-body">
+							<PromptKeyList
+								templates={templates ?? []}
+								selectedKey={selectedKey}
+								onSelect={(key) => key !== selectedKey && guard(() => open(key))}
+							/>
+						</div>
+					</aside>
+				</div>
 
 				<form className="panel prompts-editor" onSubmit={handleSubmit}>
-					<div className="panel-header">
-						<h2>{selectedKey ? labelOf(selectedKey) : "Selecione uma instrução"}</h2>
-						{loaded && (
-							<p>
-								{viewingOlder
-									? `Vendo a v${loaded.version}, que não é a atual. Salvar cria a v${(latestVersion ?? 0) + 1} com este texto.`
-									: `Versão em uso: v${loaded.version}.`}
-							</p>
+					<div className="panel-header prompts-editor-header">
+						<div>
+							<h2>{selectedKey ? promptLabel(selectedKey) : "Selecione uma instrução"}</h2>
+							{selectedKey && promptDescription(selectedKey) && <p>{promptDescription(selectedKey)}</p>}
+							{viewingOlder && loaded && (
+								<p className="prompt-version-note prompt-version-note-old">
+									Vendo a v{loaded.version}, que não é a atual. Salvar cria a v{(latestVersion ?? 0) + 1} com este texto.
+								</p>
+							)}
+						</div>
+						{loaded && history.length > 0 && (
+							<PromptVersionSelect
+								versions={history}
+								latestVersion={latestVersion}
+								viewing={loaded.version ?? null}
+								onSelect={(version) => guard(() => openVersion(version))}
+							/>
 						)}
 					</div>
 					<div className="panel-body">
@@ -182,12 +200,22 @@ export function PromptsPage() {
 										: "Nenhum provedor configurado. "}
 									Definido em <Link to="/settings" className="link">Configurações</Link>.
 								</p>
+								<PromptMarkerChips markers={markers} missing={missing} onInsert={insertMarker} />
 								<label>
 									Texto da instrução
 									<textarea
+										ref={textareaRef}
 										className="prompt-textarea"
 										value={content}
 										onChange={(event) => setContent(event.target.value)}
+										onKeyDown={(event) => {
+											if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+												event.preventDefault();
+												if (dirty && content.trim() && !saving) {
+													void handleSubmit();
+												}
+											}
+										}}
 										spellCheck={false}
 										rows={28}
 									/>
@@ -201,21 +229,27 @@ export function PromptsPage() {
 								<span>Nova versão salva e já em uso.</span>
 							</p>
 						)}
-						{loaded && (
+					</div>
+					{loaded && (
+						<div className="prompts-actions">
+							<span className="field-hint" aria-live="polite">
+								{dirty ? "Alterações não salvas · " : ""}
+								{content.length.toLocaleString("pt-BR")} caracteres
+							</span>
 							<div className="form-actions">
+								{dirty && (
+									<button type="button" className="btn-secondary" onClick={() => setConfirmingDiscard(true)}>
+										Descartar alterações
+									</button>
+								)}
 								<button type="submit" disabled={saving || !content.trim() || !dirty}>
 									<BusyLabel busy={saving} busyText="Salvando...">
 										Salvar nova versão
 									</BusyLabel>
 								</button>
-								{dirty && loaded && (
-									<button type="button" className="btn-secondary" onClick={() => setConfirmingDiscard(true)}>
-										Descartar alterações
-									</button>
-								)}
 							</div>
-						)}
-					</div>
+						</div>
+					)}
 				</form>
 				<ConfirmDialog
 					open={confirmingDiscard}
@@ -231,22 +265,18 @@ export function PromptsPage() {
 				>
 					<p>As mudanças na instrução que você ainda não salvou serão perdidas.</p>
 				</ConfirmDialog>
-
-				{history.length > 0 && (
-					<aside className="panel prompts-history">
-						<div className="panel-header">
-							<h2>Histórico</h2>
-						</div>
-						<div className="panel-body">
-							<PromptVersionHistory
-								versions={history}
-								latestVersion={latestVersion}
-								viewing={loaded?.version ?? null}
-								onSelect={openVersion}
-							/>
-						</div>
-					</aside>
-				)}
+				<ConfirmDialog
+					open={pendingSwitch !== null}
+					title="Trocar sem salvar?"
+					confirmLabel="Descartar e trocar"
+					onConfirm={() => {
+						pendingSwitch?.();
+						setPendingSwitch(null);
+					}}
+					onCancel={() => setPendingSwitch(null)}
+				>
+					<p>Você editou esta instrução e não salvou. Se trocar agora, as mudanças serão perdidas.</p>
+				</ConfirmDialog>
 			</div>
 		</div>
 	);

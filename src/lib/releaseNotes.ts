@@ -16,11 +16,20 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 	{
 		version: "1.1.6",
 		date: "2026-10-23",
-		summary: "Reordene as experiências e edite o currículo adaptado direto na folha, como num documento.",
+		summary: "Reordene as experiências, edite o currículo adaptado como num documento e acompanhe cada candidatura em telas novas, com resumo, custo de IA e linha do tempo.",
 		changes: [
 			{ kind: "feat", text: "No currículo adaptado, a aba Editar documento mostra a folha como sairá na impressão, com o texto editável direto, incluindo tópicos, negrito, itálico e sublinhado." },
 			{ kind: "feat", text: "Na edição por campos, cada experiência (e formação ou projeto) ganhou botões para subir e descer, para você escolher a ordem depois da análise da IA." },
 			{ kind: "improvement", text: "As abas do currículo adaptado agora se chamam Prévia, Editar documento e Editar campos." },
+			{ kind: "feat", text: "Nova tela de resumo da candidatura, aberta pelo ícone de lista no card da vaga: mostra o progresso das etapas (análise, currículo adaptado, apresentação, perguntas técnicas e dúvidas), com atalhos para cada uma, o processo seletivo, o custo de IA e as notas da vaga." },
+			{ kind: "feat", text: "Nova tela de custo de IA por candidatura, em reais ou dólar, separada em análise da vaga, adaptação do currículo e preparação para a entrevista. Mostra tokens, modelos usados e avisa quando o valor é estimado. Respostas em cache não custam nada." },
+			{ kind: "improvement", text: "O card da vaga ficou só com resumo, editar e remover. Prévia, currículos gerados, assistente de IA, processo seletivo e notas agora são acessados pelo resumo." },
+			{ kind: "improvement", text: "A prévia da vaga virou uma página, com notas de aderência e ATS, modelo de trabalho, senioridade, contrato, remuneração, benefícios e sobre a empresa. Os links do anúncio e da candidatura ganharam botões de destaque no topo." },
+			{ kind: "improvement", text: "O processo seletivo foi reorganizado: a situação e a próxima etapa ficam em uma barra no topo, com os detalhes e o histórico lado a lado." },
+			{ kind: "feat", text: "O histórico do processo virou uma linha do tempo por etapa, com o tempo em cada uma, os agendamentos dentro da etapa e os próximos em destaque. Etapas concluídas ficam marcadas, e as antigas podem ser recolhidas." },
+			{ kind: "improvement", text: "Nas telas abertas a partir do resumo, o botão Voltar retorna ao resumo." },
+			{ kind: "improvement", text: "Tela de Instruções da IA reorganizada: instruções agrupadas por assunto com uma descrição de cada uma, histórico de versões na lateral, botão de salvar sempre visível e contador de caracteres. Os marcadores entre chaves viram botões que inserem no cursor, e o app avisa se algum sumiu do texto." },
+			{ kind: "improvement", text: "Nas Instruções da IA, trocar de instrução ou de versão com alterações não salvas agora pede confirmação, e Ctrl+S salva a nova versão." },
 		],
 	},
 	{
