@@ -1,5 +1,5 @@
 import type { Job } from "../lib/useJobs";
-import { EyeIcon, FileTextIcon, KanbanIcon, NotebookIcon, PencilIcon, SparklesIcon, SpinnerIcon, TrashIcon } from "./icons";
+import { EyeIcon, FileTextIcon, KanbanIcon, ListChecksIcon, NotebookIcon, PencilIcon, SparklesIcon, SpinnerIcon, TrashIcon } from "./icons";
 
 export type JobActionHandlers = {
 	onAnalyze?: (job: Job) => void;
@@ -7,6 +7,7 @@ export type JobActionHandlers = {
 	onResumes?: (job: Job) => void;
 	onAssistant?: (job: Job) => void;
 	onNotes?: (job: Job) => void;
+	onSummary?: (job: Job) => void;
 	onProcess?: (job: Job) => void;
 	onEdit?: (job: Job) => void;
 	onRemove?: (job: Job) => void;
@@ -17,7 +18,7 @@ type JobActionsProps = JobActionHandlers & {
 	removing: boolean;
 };
 
-export function JobActions({ job, removing, onPreview, onResumes, onAssistant, onNotes, onProcess, onEdit, onRemove }: JobActionsProps) {
+export function JobActions({ job, removing, onPreview, onResumes, onAssistant, onNotes, onSummary, onProcess, onEdit, onRemove }: JobActionsProps) {
 	const name = job.title ?? "vaga";
 	return (
 		<div className="job-actions">
@@ -51,6 +52,17 @@ export function JobActions({ job, removing, onPreview, onResumes, onAssistant, o
 			{onNotes && (
 				<button type="button" className="btn-icon" aria-label={`Notas de ${name}`} title="Notas da vaga" onClick={() => onNotes(job)}>
 					<NotebookIcon />
+				</button>
+			)}
+			{onSummary && (
+				<button
+					type="button"
+					className="btn-icon"
+					aria-label={`Resumo da candidatura de ${name}`}
+					title="Resumo da candidatura"
+					onClick={() => onSummary(job)}
+				>
+					<ListChecksIcon />
 				</button>
 			)}
 			{onProcess && (

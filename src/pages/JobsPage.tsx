@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
+import { JobCostDialog } from "../components/JobCostDialog";
 import { JobNotesDialog } from "../components/JobNotesDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
+import { JobSummaryDialog } from "../components/JobSummaryDialog";
 import { JobPreviewDialog } from "../components/JobPreviewDialog";
 import { JobList } from "../components/JobList";
 import { StateMessage } from "../components/StateMessage";
@@ -22,6 +24,8 @@ export function JobsPage() {
 	const [previewing, setPreviewing] = useState<Job | null>(null);
 	const [viewingResumes, setViewingResumes] = useState<Job | null>(null);
 	const [noting, setNoting] = useState<Job | null>(null);
+	const [summarizing, setSummarizing] = useState<Job | null>(null);
+	const [costing, setCosting] = useState<Job | null>(null);
 	const [analyzingId, setAnalyzingId] = useState<string | null>(
 		() => (location.state as JobsPageState | null)?.analyzeJobId ?? null,
 	);
@@ -67,6 +71,7 @@ export function JobsPage() {
 					onPreview={setPreviewing}
 					onResumes={setViewingResumes}
 					onNotes={setNoting}
+					onSummary={setSummarizing}
 					processes={processByJob}
 					pageSize={JOBS_PER_PAGE}
 					pageSizeOptions={PAGE_SIZE_OPTIONS}
@@ -83,6 +88,16 @@ export function JobsPage() {
 					setAnalyzingId(job.id);
 				}}
 			/>
+			<JobSummaryDialog
+				jobId={summarizing?.id ?? ""}
+				open={summarizing !== null}
+				onClose={() => setSummarizing(null)}
+				onOpenCost={() => {
+					setCosting(summarizing);
+					setSummarizing(null);
+				}}
+			/>
+			<JobCostDialog jobId={costing?.id ?? ""} open={costing !== null} onClose={() => setCosting(null)} />
 			<JobNotesDialog job={noting} onClose={() => setNoting(null)} />
 			<AnalyzeJobDialog job={analyzing} onClose={closeAnalyze} />
 			<JobPreviewDialog job={previewing} onClose={() => setPreviewing(null)} />
