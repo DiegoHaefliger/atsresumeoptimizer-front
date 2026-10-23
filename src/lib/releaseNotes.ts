@@ -28,6 +28,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 			{ kind: "improvement", text: "O processo seletivo foi reorganizado: a situação e a próxima etapa ficam em uma barra no topo, com os detalhes e o histórico lado a lado." },
 			{ kind: "feat", text: "O histórico do processo virou uma linha do tempo por etapa, com o tempo em cada uma, os agendamentos dentro da etapa e os próximos em destaque. Etapas concluídas ficam marcadas, e as antigas podem ser recolhidas." },
 			{ kind: "improvement", text: "Nas telas abertas a partir do resumo, o botão Voltar retorna ao resumo." },
+			{ kind: "improvement", text: "Tela de Instruções da IA reorganizada: instruções agrupadas por assunto com uma descrição de cada uma, histórico de versões na lateral, botão de salvar sempre visível e contador de caracteres. Os marcadores entre chaves viram botões que inserem no cursor, e o app avisa se algum sumiu do texto." },
+			{ kind: "improvement", text: "Nas Instruções da IA, trocar de instrução ou de versão com alterações não salvas agora pede confirmação, e Ctrl+S salva a nova versão." },
 		],
 	},
 	{

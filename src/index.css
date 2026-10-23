@@ -3126,9 +3126,90 @@ button.page-back {
 
 .prompts-layout {
 	display: grid;
-	grid-template-columns: 240px minmax(0, 1fr) 220px;
+	grid-template-columns: 280px minmax(0, 1fr);
 	gap: var(--space-6);
 	align-items: start;
+}
+
+.prompts-side {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+	min-width: 0;
+}
+
+.prompt-groups {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.prompt-group-title {
+	margin: 0 0 var(--space-2);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--text-muted);
+}
+
+.prompt-groups .prompt-keys {
+	margin: 0;
+}
+
+.prompt-version-note-old {
+	color: var(--warning-600, #b45309);
+}
+
+.prompts-actions {
+	position: sticky;
+	bottom: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	padding: var(--space-3) var(--space-6);
+	border-top: 1px solid var(--border);
+	border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+	background: var(--surface);
+}
+
+.prompt-markers {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.prompt-markers ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.prompt-marker {
+	padding: 2px var(--space-2-5);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius-full);
+	background: var(--surface);
+	box-shadow: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-medium);
+	color: var(--text);
+	cursor: pointer;
+}
+
+.prompt-marker:hover {
+	background: var(--surface-2);
+}
+
+.prompt-marker-missing {
+	border-color: var(--danger-600, #dc2626);
+	color: var(--danger-600, #dc2626);
 }
 
 .prompt-keys,
@@ -3202,7 +3283,7 @@ button.page-back {
 
 .prompt-textarea {
 	width: 100%;
-	min-height: 480px;
+	min-height: max(480px, 60vh);
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 0.85rem;
 	line-height: 1.5;
