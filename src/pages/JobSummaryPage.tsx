@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { BackLink } from "../components/BackLink";
-import { JobNotes } from "../components/JobNotes";
+import { JobCode } from "../components/JobCode";
 import { JobPreviewDialog } from "../components/JobPreviewDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobSummary } from "../components/JobSummaryContent";
 import { Skeleton } from "../components/Skeleton";
+import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
 import { useJobs } from "../lib/useJobs";
 import { useProcesses } from "../lib/useProcesses";
@@ -25,9 +26,14 @@ export function JobSummaryPage() {
 		<div className="page">
 			<header className="page-header">
 				<div>
-					<span className="eyebrow">Candidatura</span>
-					<h1>Resumo da candidatura</h1>
-					<p className="page-subtitle">O que já foi feito nesta vaga e atalhos para cada etapa.</p>
+					<span className="eyebrow">Resumo da candidatura</span>
+					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Resumo da candidatura"}</h1>
+					{job && (job.company || process) && (
+						<p className="page-subtitle job-summary-subtitle">
+							{job.company}
+							{process && <StageBadge stage={process.stage} />}
+						</p>
+					)}
 				</div>
 				<BackLink fallback="/jobs" />
 			</header>
@@ -45,21 +51,13 @@ export function JobSummaryPage() {
 					<Skeleton width="100%" height={320} radius="var(--radius-lg)" />
 				</div>
 			) : (
-				<section className="panel panel-body job-summary-page">
-					<JobSummary
-						job={job}
-						process={process}
-						onAnalyze={() => setDialog("analyze")}
-						onPreview={() => setDialog("preview")}
-						onResumes={() => setDialog("resumes")}
-					/>
-				</section>
-			)}
-			{job && (
-				<section className="panel panel-body job-summary-notes" aria-labelledby="job-summary-notes-heading">
-					<h2 id="job-summary-notes-heading">Notas da vaga</h2>
-					<JobNotes jobId={job.id} />
-				</section>
+				<JobSummary
+					job={job}
+					process={process}
+					onAnalyze={() => setDialog("analyze")}
+					onPreview={() => setDialog("preview")}
+					onResumes={() => setDialog("resumes")}
+				/>
 			)}
 			<AnalyzeJobDialog job={dialog === "analyze" ? job : null} onClose={() => setDialog(null)} />
 			<JobPreviewDialog job={dialog === "preview" ? job : null} onClose={() => setDialog(null)} />

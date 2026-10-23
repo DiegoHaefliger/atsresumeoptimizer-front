@@ -3,16 +3,16 @@ import type { CandidateQuestionSet, CoverLetter, InterviewQuestionSet, ResumeSum
 import { candidateQuestionsPath, coverLettersPath, interviewQuestionsPath, jobResumesPath } from "../lib/jobAssistantPaths";
 import { buildSummary, summaryProgress } from "../lib/jobSummary";
 import { formatCost } from "../lib/costFormat";
+import { STAGE_LABELS } from "../lib/processLabels";
 import { useFromHere } from "../lib/backTarget";
 import { useApiResource } from "../lib/useApiResource";
 import { useJobCost } from "../lib/useJobCost";
 import type { Job } from "../lib/useJobs";
 import { ArrowRightIcon, ClipboardCheckIcon, CoinsIcon, EyeIcon, KanbanIcon } from "./icons";
-import { JobCode } from "./JobCode";
+import { JobNotes } from "./JobNotes";
 import { JobSummaryStep } from "./JobSummaryStep";
 import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
-import { StageBadge } from "./StageBadge";
 
 type JobSummaryProps = {
 	job: Job;
@@ -37,34 +37,17 @@ export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: Jo
 		doubts.reload();
 	}
 
-	const header = (
-		<header className="job-summary-header">
-			<div className="job-summary-title">
-				<JobCode code={job.code} />
-				<strong>{job.title ?? "Vaga sem título"}</strong>
-				{process && <StageBadge stage={process.stage} />}
-			</div>
-			{job.company && <span className="job-summary-company">{job.company}</span>}
-		</header>
-	);
-
 	if (resumes.failed || letters.failed || questions.failed || doubts.failed) {
 		return (
-			<>
-				{header}
-				<LoadFailed message="Não deu pra carregar o resumo desta vaga." onRetry={reload} />
-			</>
+			<LoadFailed message="Não deu pra carregar o resumo desta vaga." onRetry={reload} />
 		);
 	}
 	if (!resumes.data || !letters.data || !questions.data || !doubts.data) {
 		return (
-			<>
-				{header}
-				<div role="status" aria-busy="true">
-					<span className="sr-only">Carregando resumo...</span>
-					<Skeleton width="100%" height={280} radius="var(--radius-lg)" />
-				</div>
-			</>
+			<div role="status" aria-busy="true">
+				<span className="sr-only">Carregando resumo...</span>
+				<Skeleton width="100%" height={320} radius="var(--radius-lg)" />
+			</div>
 		);
 	}
 
@@ -79,67 +62,74 @@ export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: Jo
 	const spent = cost?.stages.some((stage) => stage.executed) ? formatCost(cost.totalCostBrl, "BRL") : null;
 
 	return (
-		<>
-			{header}
-			<div className="job-summary-progress" role="group" aria-label={`${done} de ${total} etapas concluídas`}>
-				<div className="job-summary-progress-text">
-					<strong>
-						{done} de {total}
-					</strong>{" "}
-					etapas concluídas
+		<div className="job-summary-layout">
+			<section className="panel panel-body job-summary-main" aria-label="Etapas da candidatura">
+				<div className="job-summary-progress" role="group" aria-label={`${done} de ${total} etapas concluídas`}>
+					<div className="job-summary-progress-text">
+						<strong>
+							{done} de {total}
+						</strong>{" "}
+						etapas concluídas
+					</div>
+					<div className="job-summary-progress-track" aria-hidden="true">
+						<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
+					</div>
 				</div>
-				<div className="job-summary-progress-track" aria-hidden="true">
-					<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
-				</div>
+				<ol className="job-summary">
+					{steps.map((step) => (
+						<JobSummaryStep
+							key={step.key}
+							step={step}
+							actions={
+								<>
+									{step.key === "analysis" && !step.done && (
+										<button type="button" className="job-summary-chip job-summary-chip-primary" onClick={onAnalyze}>
+											<ClipboardCheckIcon /> Analisar esta vaga
+										</button>
+									)}
+									{step.key === "resume" && step.done && (
+										<button type="button" className="job-summary-chip" onClick={onResumes}>
+											Ver currículos gerados
+										</button>
+									)}
+								</>
+							}
+						/>
+					))}
+				</ol>
+			</section>
+			<div className="job-summary-side">
+				<section className="panel job-summary-shortcuts" aria-label="Atalhos">
+					<button type="button" className="job-summary-shortcut" onClick={onPreview}>
+						<EyeIcon />
+						<span>
+							<strong>Vaga</strong>
+							<small>Ver prévia da descrição</small>
+						</span>
+						<ArrowRightIcon />
+					</button>
+					<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
+						<KanbanIcon />
+						<span>
+							<strong>Processo seletivo</strong>
+							<small>{process ? `${STAGE_LABELS[process.stage]} · acompanhar etapas e agenda` : "Cadastrar processo"}</small>
+						</span>
+						<ArrowRightIcon />
+					</Link>
+					<Link to={`/jobs/${job.id}/cost`} className="job-summary-shortcut" state={from}>
+						<CoinsIcon />
+						<span>
+							<strong>Custo de IA</strong>
+							<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
+						</span>
+						<ArrowRightIcon />
+					</Link>
+				</section>
+				<section className="panel panel-body job-summary-notes" aria-labelledby="job-summary-notes-heading">
+					<h2 id="job-summary-notes-heading">Notas da vaga</h2>
+					<JobNotes jobId={job.id} />
+				</section>
 			</div>
-			<ol className="job-summary">
-				{steps.map((step) => (
-					<JobSummaryStep
-						key={step.key}
-						step={step}
-						actions={
-							<>
-								{step.key === "analysis" && !step.done && (
-									<button type="button" className="job-summary-chip job-summary-chip-primary" onClick={onAnalyze}>
-										<ClipboardCheckIcon /> Analisar esta vaga
-									</button>
-								)}
-								{step.key === "resume" && step.done && (
-									<button type="button" className="job-summary-chip" onClick={onResumes}>
-										Ver currículos gerados
-									</button>
-								)}
-							</>
-						}
-					/>
-				))}
-			</ol>
-			<div className="job-summary-shortcuts">
-				<button type="button" className="job-summary-shortcut" onClick={onPreview}>
-					<EyeIcon />
-					<span>
-						<strong>Vaga</strong>
-						<small>Ver prévia da descrição</small>
-					</span>
-					<ArrowRightIcon />
-				</button>
-				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
-					<KanbanIcon />
-					<span>
-						<strong>Processo seletivo</strong>
-						<small>{process ? "Acompanhar etapas e agenda" : "Cadastrar processo"}</small>
-					</span>
-					<ArrowRightIcon />
-				</Link>
-				<Link to={`/jobs/${job.id}/cost`} className="job-summary-shortcut" state={from}>
-					<CoinsIcon />
-					<span>
-						<strong>Custo de IA</strong>
-						<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
-					</span>
-					<ArrowRightIcon />
-				</Link>
-			</div>
-		</>
+		</div>
 	);
 }
