@@ -4,7 +4,7 @@ import { candidateQuestionsPath, coverLettersPath, interviewQuestionsPath, jobRe
 import { buildSummary } from "../lib/jobSummary";
 import { useApiResource } from "../lib/useApiResource";
 import { Dialog } from "./Dialog";
-import { CheckCircleIcon, CoinsIcon } from "./icons";
+import { CheckCircleIcon, CoinsIcon, EyeIcon } from "./icons";
 import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
 
@@ -12,14 +12,16 @@ type JobSummaryDialogProps = {
 	jobId: string;
 	open: boolean;
 	onClose: () => void;
+	onPreview: () => void;
+	onResumes: () => void;
 	onOpenCost: () => void;
 };
 
-export function JobSummaryDialog({ jobId, open, onClose, onOpenCost }: JobSummaryDialogProps) {
+export function JobSummaryDialog({ jobId, open, onClose, onPreview, onResumes, onOpenCost }: JobSummaryDialogProps) {
 	return (
 		<Dialog open={open} title="Resumo da candidatura" onClose={onClose} size="medium">
 			<div className="dialog-content">
-				<JobSummary jobId={jobId} onNavigate={onClose} onOpenCost={onOpenCost} />
+				<JobSummary jobId={jobId} onNavigate={onClose} onPreview={onPreview} onResumes={onResumes} onOpenCost={onOpenCost} />
 			</div>
 		</Dialog>
 	);
@@ -28,10 +30,12 @@ export function JobSummaryDialog({ jobId, open, onClose, onOpenCost }: JobSummar
 type JobSummaryProps = {
 	jobId: string;
 	onNavigate: () => void;
+	onPreview: () => void;
+	onResumes: () => void;
 	onOpenCost: () => void;
 };
 
-function JobSummary({ jobId, onNavigate, onOpenCost }: JobSummaryProps) {
+function JobSummary({ jobId, onNavigate, onPreview, onResumes, onOpenCost }: JobSummaryProps) {
 	const resumes = useApiResource<ResumeSummary[]>(jobResumesPath(jobId));
 	const letters = useApiResource<CoverLetter[]>(coverLettersPath(jobId));
 	const questions = useApiResource<InterviewQuestionSet[]>(interviewQuestionsPath(jobId));
@@ -66,6 +70,20 @@ function JobSummary({ jobId, onNavigate, onOpenCost }: JobSummaryProps) {
 
 	return (
 		<ol className="job-summary">
+			<li className="job-summary-step job-summary-step-done">
+				<span className="job-summary-mark" aria-hidden="true">
+					<EyeIcon />
+				</span>
+				<div className="job-summary-body">
+					<strong>Vaga</strong>
+					<span className="job-summary-detail">Descrição cadastrada</span>
+					<div className="job-summary-links">
+						<button type="button" className="job-summary-link" onClick={onPreview}>
+							Ver prévia
+						</button>
+					</div>
+				</div>
+			</li>
 			{steps.map((step) => (
 				<li key={step.key} className={`job-summary-step${step.done ? " job-summary-step-done" : ""}`}>
 					<span className="job-summary-mark" aria-hidden="true">
@@ -75,6 +93,11 @@ function JobSummary({ jobId, onNavigate, onOpenCost }: JobSummaryProps) {
 						<strong>{step.title}</strong>
 						<span className="job-summary-detail">{step.detail}</span>
 						<div className="job-summary-links">
+							{step.key === "resume" && step.done && (
+								<button type="button" className="job-summary-link" onClick={onResumes}>
+									Ver currículos gerados
+								</button>
+							)}
 							{step.links.map((link) => (
 								<Link key={link.to + link.label} to={link.to} className="job-summary-link" onClick={onNavigate}>
 									{link.label}

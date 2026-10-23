@@ -68,8 +68,6 @@ export function JobsPage() {
 					onRetry={reload}
 					onRemove={remove}
 					onAnalyze={(job) => setAnalyzingId(job.id)}
-					onPreview={setPreviewing}
-					onResumes={setViewingResumes}
 					onNotes={setNoting}
 					onSummary={setSummarizing}
 					processes={processByJob}
@@ -92,6 +90,14 @@ export function JobsPage() {
 				jobId={summarizing?.id ?? ""}
 				open={summarizing !== null}
 				onClose={() => setSummarizing(null)}
+				onPreview={() => {
+					setPreviewing(summarizing);
+					setSummarizing(null);
+				}}
+				onResumes={() => {
+					setViewingResumes(summarizing);
+					setSummarizing(null);
+				}}
 				onOpenCost={() => {
 					setCosting(summarizing);
 					setSummarizing(null);
