@@ -4,12 +4,14 @@ import type { SelectionProcess, SelectionSchedule, SelectionStage, StageMovement
 import { PROCESSES_PATH } from "../lib/processPath";
 import { formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { buildTimeline } from "../lib/processTimeline";
+import { buildStageTimeline } from "../lib/stageTimeline";
 import { cancelSchedule, completeSchedule, rescheduleSchedule } from "../lib/scheduleApi";
 import { draftFromSchedule, type ScheduleDraft } from "../lib/scheduleDraft";
 import { useApiResource } from "../lib/useApiResource";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ScheduleDialog } from "./ScheduleDialog";
 import { ScheduleHistoryItem } from "./ScheduleHistoryItem";
+import { StageTimelineNode } from "./StageTimelineNode";
 import { StateMessage } from "./StateMessage";
 
 type ProcessHistoryProps = {
@@ -17,9 +19,10 @@ type ProcessHistoryProps = {
 	currentStage: SelectionStage;
 	onPick?: (stage: SelectionStage) => void;
 	onScheduleChange?: () => void;
+	variant?: "list" | "timeline";
 };
 
-export function ProcessHistory({ processId, currentStage, onPick, onScheduleChange }: ProcessHistoryProps) {
+export function ProcessHistory({ processId, currentStage, onPick, onScheduleChange, variant = "list" }: ProcessHistoryProps) {
 	const { data: detail, reload } = useApiResource<SelectionProcess>(`${PROCESSES_PATH}/${processId}`);
 	const [confirming, setConfirming] = useState<StageMovement | null>(null);
 	const [cancelling, setCancelling] = useState<SelectionSchedule | null>(null);
@@ -27,6 +30,7 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const timeline = buildTimeline(detail?.history ?? [], detail?.schedules ?? []);
+	const stageTimeline = buildStageTimeline(detail?.history ?? [], detail?.schedules ?? []);
 	const history = detail?.history ?? [];
 	const currentMovementId = history.at(-1)?.id;
 	const previousStage = history.at(-2)?.stage;
@@ -71,54 +75,91 @@ export function ProcessHistory({ processId, currentStage, onPick, onScheduleChan
 		});
 	}
 
+	function scheduleItem(schedule: SelectionSchedule) {
+		return (
+			<ScheduleHistoryItem
+				schedule={schedule}
+				busy={busy}
+				onReschedule={setRescheduling}
+				onComplete={(completed) =>
+					run(() => completeSchedule(processId, completed.id), "Não deu pra concluir o agendamento. Tenta de novo.")
+				}
+				onCancel={setCancelling}
+			/>
+		);
+	}
+
 	return (
 		<>
 			<h3 className="process-history-title">Histórico</h3>
 			{error && <StateMessage variant="error" layout="inline" message={error} />}
-			<ol className="process-history">
-				{timeline.map((item) => (
-					<li key={item.id}>
-						{item.kind === "schedule" ? (
-							<ScheduleHistoryItem
-								schedule={item.schedule}
-								busy={busy}
-								onReschedule={setRescheduling}
-								onComplete={(schedule) =>
-									run(() => completeSchedule(processId, schedule.id), "Não deu pra concluir o agendamento. Tenta de novo.")
-								}
-								onCancel={setCancelling}
-							/>
-						) : (
-							<details className="process-history-item">
-								<summary>
-									<strong>{STAGE_LABELS[item.movement.stage]}</strong>
-									<span className="process-history-date">{formatDateTime(item.movement.movedAt)}</span>
-									{item.movement.stageAt && (
-										<span className="process-history-stage-at">Etapa em {formatDateTime(item.movement.stageAt)}</span>
-									)}
-								</summary>
-								<p className="process-history-note">{item.movement.note ?? "Sem anotação."}</p>
-								<div className="process-history-actions">
-									{onPick && item.movement.stage !== currentStage && (
-										<button
-											type="button"
-											className="btn-secondary btn-small"
-											onClick={() => onPick(item.movement.stage)}
-										>
-											Voltar para esta etapa
-										</button>
-									)}
-									{history.length > 1 && (
-										<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(item.movement)}>
-											Excluir etapa
-										</button>
-									)}
-								</div>
-							</details>
-						)}
-					</li>
-				))}
-			</ol>
+			{variant === "timeline" ? (
+				<>
+					{stageTimeline.upcoming.length > 0 && (
+						<section className="stage-upcoming" aria-label="Próximos agendamentos">
+							<h4>Próximos</h4>
+							<ul>
+								{stageTimeline.upcoming.map((schedule) => (
+									<li key={schedule.id}>{scheduleItem(schedule)}</li>
+								))}
+							</ul>
+						</section>
+					)}
+					<ol className="stage-timeline">
+						{stageTimeline.nodes.map((node) => (
+							<StageTimelineNode
+								key={node.key}
+								node={node}
+								currentStage={currentStage}
+								canDelete={history.length > 1}
+								onPick={onPick}
+								onDelete={setConfirming}
+							>
+								{node.schedules.map((schedule) => (
+									<li key={schedule.id}>{scheduleItem(schedule)}</li>
+								))}
+							</StageTimelineNode>
+						))}
+					</ol>
+				</>
+			) : (
+				<ol className="process-history">
+					{timeline.map((item) => (
+						<li key={item.id}>
+							{item.kind === "schedule" ? (
+								scheduleItem(item.schedule)
+							) : (
+								<details className="process-history-item">
+									<summary>
+										<strong>{STAGE_LABELS[item.movement.stage]}</strong>
+										<span className="process-history-date">{formatDateTime(item.movement.movedAt)}</span>
+										{item.movement.stageAt && (
+											<span className="process-history-stage-at">Etapa em {formatDateTime(item.movement.stageAt)}</span>
+										)}
+									</summary>
+									<p className="process-history-note">{item.movement.note ?? "Sem anotação."}</p>
+									<div className="process-history-actions">
+										{onPick && item.movement.stage !== currentStage && (
+											<button
+												type="button"
+												className="btn-secondary btn-small"
+												onClick={() => onPick(item.movement.stage)}
+											>
+												Voltar para esta etapa
+											</button>
+										)}
+										{history.length > 1 && (
+											<button type="button" className="btn-secondary btn-small" onClick={() => setConfirming(item.movement)}>
+												Excluir etapa
+											</button>
+										)}
+									</div>
+								</details>
+							)}
+						</li>
+					))}
+				</ol>
+			)}
 			<ConfirmDialog
 				open={confirming !== null}
 				title="Excluir etapa do histórico?"

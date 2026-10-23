@@ -190,6 +190,7 @@ export function JobProcessPage() {
 								processId={process.id}
 								currentStage={process.stage}
 								onScheduleChange={reload}
+								variant="timeline"
 							/>
 						</section>
 					</div>
