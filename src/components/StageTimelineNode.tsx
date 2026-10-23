@@ -28,8 +28,8 @@ function stayLabel(node: StageNode): string | null {
 export function StageTimelineNode({ node, currentStage, canDelete, expanded, onToggle, onPick, onDelete, children }: StageTimelineNodeProps) {
 	const stay = stayLabel(node);
 	const moment = formatDateTime(node.movement ? node.movement.movedAt : node.at);
-	const done = node.movement !== null && !node.current;
-	const status = done ? "Etapa concluída" : node.current ? "Etapa atual" : "Etapa sem registro de entrada";
+	const done = !node.current;
+	const status = done ? "Etapa concluída" : "Etapa atual";
 	const marker = (
 		<span className={`stage-node-marker${done ? " stage-node-marker-done" : ""}`} title={status}>
 			<span className="sr-only">{status}</span>
@@ -40,7 +40,7 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 		scheduleCount > 0 ? `${scheduleCount} ${scheduleCount === 1 ? "agendamento" : "agendamentos"}` : null,
 		node.movement?.note ? "anotação" : null,
 	].filter((hint): hint is string => hint !== null);
-	const itemClass = `stage-node${node.current ? " stage-node-current" : ""}${node.movement ? "" : " stage-node-implicit"}`;
+	const itemClass = `stage-node${node.current ? " stage-node-current" : ""}`;
 
 	if (!expanded) {
 		return (

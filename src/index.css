@@ -3563,10 +3563,6 @@ button.page-back {
 	background: var(--brand-600);
 }
 
-.stage-node-implicit .stage-node-marker {
-	border-style: dashed;
-}
-
 .stage-node-collapsed {
 	display: flex;
 	align-items: center;
