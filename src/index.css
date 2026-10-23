@@ -3523,36 +3523,45 @@ button.page-back {
 .stage-node-marker {
 	position: absolute;
 	left: 0;
-	top: 0.3rem;
-	width: 0.9375rem;
-	height: 0.9375rem;
+	top: 0.25rem;
+	width: 1rem;
+	height: 1rem;
+	padding: 0;
 	box-sizing: border-box;
 	border: 2px solid var(--border-strong);
 	border-radius: var(--radius-full);
 	background: var(--surface);
+	box-shadow: none;
+	cursor: pointer;
+}
+
+.stage-node-marker:hover {
+	border-color: var(--brand-600);
+}
+
+.stage-node-marker[aria-pressed="true"] {
+	border-color: var(--brand-600);
+	background: var(--brand-600);
+}
+
+.stage-node-marker[aria-pressed="true"]::after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 0;
+	width: 4px;
+	height: 8px;
+	border: solid var(--surface);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
 }
 
 .stage-node-current .stage-node-marker {
-	border-color: var(--brand-600);
-	background: var(--brand-600);
 	box-shadow: 0 0 0 4px var(--brand-soft);
 }
 
 .stage-node-implicit .stage-node-marker {
 	border-style: dashed;
-}
-
-.stage-timeline-toggle-all {
-	align-self: flex-end;
-	padding: 0;
-	border: 0;
-	background: none;
-	box-shadow: none;
-	font: inherit;
-	font-size: var(--font-size-sm);
-	color: var(--brand-600);
-	text-decoration: underline;
-	cursor: pointer;
 }
 
 .stage-node-collapsed {
@@ -3574,17 +3583,6 @@ button.page-back {
 	flex: 1;
 }
 
-.stage-node-collapsed svg {
-	flex: none;
-	color: var(--text-muted);
-}
-
-.stage-node-toggle {
-	position: absolute;
-	top: -0.25rem;
-	right: 0;
-}
-
 .stage-node-card {
 	position: relative;
 	display: flex;
@@ -3595,7 +3593,6 @@ button.page-back {
 
 .stage-node-details summary,
 .stage-node-header {
-	padding-right: var(--space-8);
 	display: flex;
 	flex-direction: column;
 	gap: 2px;

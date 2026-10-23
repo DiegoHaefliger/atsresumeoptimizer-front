@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import type { SelectionStage, StageMovement } from "../api/types";
 import { formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import type { StageNode } from "../lib/stageTimeline";
-import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 
 type StageTimelineNodeProps = {
 	node: StageNode;
@@ -28,7 +27,16 @@ function stayLabel(node: StageNode): string | null {
 export function StageTimelineNode({ node, currentStage, canDelete, expanded, onToggle, onPick, onDelete, children }: StageTimelineNodeProps) {
 	const stay = stayLabel(node);
 	const moment = formatDateTime(node.movement ? node.movement.movedAt : node.at);
-	const marker = <span className="stage-node-marker" aria-hidden="true" />;
+	const marker = (
+		<button
+			type="button"
+			className="stage-node-marker"
+			aria-pressed={expanded}
+			aria-label={`${expanded ? "Recolher" : "Expandir"} ${STAGE_LABELS[node.stage]}`}
+			title={expanded ? "Recolher" : "Expandir"}
+			onClick={onToggle}
+		/>
+	);
 	const itemClass = `stage-node${node.current ? " stage-node-current" : ""}${node.movement ? "" : " stage-node-implicit"}`;
 
 	if (!expanded) {
@@ -38,7 +46,6 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 				<button type="button" className="stage-node-collapsed" aria-expanded="false" onClick={onToggle}>
 					<strong>{STAGE_LABELS[node.stage]}</strong>
 					<span className="stage-node-meta">{moment}</span>
-					<ChevronDownIcon />
 				</button>
 			</li>
 		);
@@ -59,16 +66,6 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 		<li className={itemClass}>
 			{marker}
 			<div className="stage-node-card">
-				<button
-					type="button"
-					className="stage-node-toggle btn-icon"
-					aria-expanded="true"
-					aria-label={`Recolher ${STAGE_LABELS[node.stage]}`}
-					title="Recolher"
-					onClick={onToggle}
-				>
-					<ChevronUpIcon />
-				</button>
 				{node.movement ? (
 					<details className="stage-node-details">
 						<summary>{header}</summary>
