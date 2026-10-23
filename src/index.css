@@ -5919,6 +5919,74 @@ kbd {
 	flex-wrap: wrap;
 }
 
+.job-summary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.job-summary-step {
+	display: flex;
+	gap: var(--space-3);
+	color: var(--text-muted);
+}
+
+.job-summary-step-done {
+	color: var(--text);
+}
+
+.job-summary-mark {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	font-size: 1.25rem;
+	color: var(--brand-600);
+}
+
+.job-summary-dot {
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: var(--radius-full);
+	background: var(--border-strong);
+}
+
+.job-summary-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	min-width: 0;
+}
+
+.job-summary-detail {
+	font-size: var(--font-size-sm);
+	color: var(--text-muted);
+}
+
+.job-summary-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.job-summary-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	font: inherit;
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+	color: var(--brand-600);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .cost-card {
 	width: min(100%, 520px);
 	box-sizing: border-box;

@@ -195,6 +195,18 @@ export function CoinsIcon(props: SVGProps<SVGSVGElement>) {
 	);
 }
 
+export function ListChecksIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<path d="m3 6 1.5 1.5L7.5 4.5" />
+			<path d="m3 13 1.5 1.5L7.5 11.5" />
+			<path d="M11 6h10" />
+			<path d="M11 13h10" />
+			<path d="M3 20h.01M7 20h14" />
+		</Icon>
+	);
+}
+
 export function EyeIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<Icon {...props}>

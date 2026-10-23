@@ -4,6 +4,7 @@ import { apiPostJson, apiPutJson } from "../api/client";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobCode } from "../components/JobCode";
 import { JobCostDialog } from "../components/JobCostDialog";
+import { JobSummaryDialog } from "../components/JobSummaryDialog";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -11,7 +12,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { ArrowLeftIcon, CoinsIcon, ExternalLinkIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { ArrowLeftIcon, CoinsIcon, ExternalLinkIcon, ListChecksIcon, PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -28,6 +29,7 @@ export function JobProcessPage() {
 	const [moving, setMoving] = useState(false);
 	const [scheduling, setScheduling] = useState(false);
 	const [costOpen, setCostOpen] = useState(false);
+	const [summaryOpen, setSummaryOpen] = useState(false);
 	const [historyVersion, setHistoryVersion] = useState(0);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -67,6 +69,11 @@ export function JobProcessPage() {
 					{job?.company && <p className="page-subtitle">{job.company}</p>}
 				</div>
 				<div className="page-header-actions">
+					{job && (
+						<button type="button" className="page-back" aria-label="Resumo da candidatura" title="Resumo da candidatura" onClick={() => setSummaryOpen(true)}>
+							<ListChecksIcon />
+						</button>
+					)}
 					{job && (
 						<button type="button" className="page-back" aria-label="Custo de IA" title="Custo de IA" onClick={() => setCostOpen(true)}>
 							<CoinsIcon />
@@ -194,6 +201,17 @@ export function JobProcessPage() {
 				</section>
 			)}
 
+			{job && (
+				<JobSummaryDialog
+					jobId={job.id}
+					open={summaryOpen}
+					onClose={() => setSummaryOpen(false)}
+					onOpenCost={() => {
+						setSummaryOpen(false);
+						setCostOpen(true);
+					}}
+				/>
+			)}
 			{job && <JobCostDialog jobId={job.id} open={costOpen} onClose={() => setCostOpen(false)} />}
 		</div>
 	);
