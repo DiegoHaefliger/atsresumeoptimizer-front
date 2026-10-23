@@ -5921,16 +5921,15 @@ kbd {
 
 .job-summary-layout {
 	display: grid;
-	grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+	grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
 	gap: var(--space-4);
-	align-items: start;
+	align-items: stretch;
 }
 
-.job-summary-side {
+.job-summary-page {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-4);
-	min-width: 0;
 }
 
 .job-summary-subtitle {
@@ -5940,9 +5939,21 @@ kbd {
 	gap: var(--space-2);
 }
 
+.job-summary-notes {
+	gap: var(--space-2);
+}
+
 .job-summary-notes h2 {
 	margin: 0;
 	font-size: var(--font-size-lg);
+}
+
+.job-summary-notes .job-notes {
+	flex: 1;
+}
+
+.job-summary-notes .note-editor {
+	flex: 1;
 }
 
 .job-summary-progress {
@@ -5979,7 +5990,7 @@ kbd {
 	position: relative;
 	display: flex;
 	gap: var(--space-3);
-	padding-bottom: var(--space-4);
+	padding-bottom: var(--space-5);
 	color: var(--text-muted);
 }
 
@@ -6024,8 +6035,18 @@ kbd {
 
 .job-summary-body {
 	display: flex;
+	flex: 1;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2) var(--space-3);
+	min-width: 0;
+}
+
+.job-summary-text {
+	display: flex;
 	flex-direction: column;
-	gap: var(--space-1);
+	gap: 2px;
 	min-width: 0;
 }
 
@@ -6037,8 +6058,8 @@ kbd {
 .job-summary-links {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: flex-end;
 	gap: var(--space-2);
-	margin-top: var(--space-1);
 }
 
 .job-summary-chip {
@@ -6069,14 +6090,14 @@ kbd {
 }
 
 .job-summary-shortcuts {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	padding: var(--space-3);
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--space-3);
 }
 
 @media (max-width: 860px) {
-	.job-summary-layout {
+	.job-summary-layout,
+	.job-summary-shortcuts {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }

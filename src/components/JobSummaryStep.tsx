@@ -17,8 +17,10 @@ export function JobSummaryStep({ step, actions }: JobSummaryStepProps) {
 				{step.done ? <CheckCircleIcon /> : <span className="job-summary-dot" />}
 			</span>
 			<div className="job-summary-body">
-				<strong>{step.title}</strong>
-				<span className="job-summary-detail">{step.detail}</span>
+				<div className="job-summary-text">
+					<strong>{step.title}</strong>
+					<span className="job-summary-detail">{step.detail}</span>
+				</div>
 				<div className="job-summary-links">
 					{actions}
 					{step.links.map((link) => (

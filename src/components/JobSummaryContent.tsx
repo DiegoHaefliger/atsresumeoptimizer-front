@@ -62,68 +62,68 @@ export function JobSummary({ job, process, onAnalyze, onPreview, onResumes }: Jo
 	const spent = cost?.stages.some((stage) => stage.executed) ? formatCost(cost.totalCostBrl, "BRL") : null;
 
 	return (
-		<div className="job-summary-layout">
-			<section className="panel panel-body job-summary-main" aria-label="Etapas da candidatura">
-				<div className="job-summary-progress" role="group" aria-label={`${done} de ${total} etapas concluídas`}>
-					<div className="job-summary-progress-text">
-						<strong>
-							{done} de {total}
-						</strong>{" "}
-						etapas concluídas
-					</div>
-					<div className="job-summary-progress-track" aria-hidden="true">
-						<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
-					</div>
-				</div>
-				<ol className="job-summary">
-					{steps.map((step) => (
-						<JobSummaryStep
-							key={step.key}
-							step={step}
-							actions={
-								<>
-									{step.key === "analysis" && !step.done && (
-										<button type="button" className="job-summary-chip job-summary-chip-primary" onClick={onAnalyze}>
-											<ClipboardCheckIcon /> Analisar esta vaga
-										</button>
-									)}
-									{step.key === "resume" && step.done && (
-										<button type="button" className="job-summary-chip" onClick={onResumes}>
-											Ver currículos gerados
-										</button>
-									)}
-								</>
-							}
-						/>
-					))}
-				</ol>
+		<div className="job-summary-page">
+			<section className="job-summary-shortcuts" aria-label="Atalhos">
+				<button type="button" className="job-summary-shortcut" onClick={onPreview}>
+					<EyeIcon />
+					<span>
+						<strong>Vaga</strong>
+						<small>Ver prévia da descrição</small>
+					</span>
+					<ArrowRightIcon />
+				</button>
+				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
+					<KanbanIcon />
+					<span>
+						<strong>Processo seletivo</strong>
+						<small>{process ? `${STAGE_LABELS[process.stage]} · etapas e agenda` : "Cadastrar processo"}</small>
+					</span>
+					<ArrowRightIcon />
+				</Link>
+				<Link to={`/jobs/${job.id}/cost`} className="job-summary-shortcut" state={from}>
+					<CoinsIcon />
+					<span>
+						<strong>Custo de IA</strong>
+						<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
+					</span>
+					<ArrowRightIcon />
+				</Link>
 			</section>
-			<div className="job-summary-side">
-				<section className="panel job-summary-shortcuts" aria-label="Atalhos">
-					<button type="button" className="job-summary-shortcut" onClick={onPreview}>
-						<EyeIcon />
-						<span>
-							<strong>Vaga</strong>
-							<small>Ver prévia da descrição</small>
-						</span>
-						<ArrowRightIcon />
-					</button>
-					<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" state={from}>
-						<KanbanIcon />
-						<span>
-							<strong>Processo seletivo</strong>
-							<small>{process ? `${STAGE_LABELS[process.stage]} · acompanhar etapas e agenda` : "Cadastrar processo"}</small>
-						</span>
-						<ArrowRightIcon />
-					</Link>
-					<Link to={`/jobs/${job.id}/cost`} className="job-summary-shortcut" state={from}>
-						<CoinsIcon />
-						<span>
-							<strong>Custo de IA</strong>
-							<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
-						</span>
-						<ArrowRightIcon />
-					</Link>
+			<div className="job-summary-layout">
+				<section className="panel panel-body job-summary-main" aria-label="Etapas da candidatura">
+					<div className="job-summary-progress" role="group" aria-label={`${done} de ${total} etapas concluídas`}>
+						<div className="job-summary-progress-text">
+							<strong>
+								{done} de {total}
+							</strong>{" "}
+							etapas concluídas
+						</div>
+						<div className="job-summary-progress-track" aria-hidden="true">
+							<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
+						</div>
+					</div>
+					<ol className="job-summary">
+						{steps.map((step) => (
+							<JobSummaryStep
+								key={step.key}
+								step={step}
+								actions={
+									<>
+										{step.key === "analysis" && !step.done && (
+											<button type="button" className="job-summary-chip job-summary-chip-primary" onClick={onAnalyze}>
+												<ClipboardCheckIcon /> Analisar esta vaga
+											</button>
+										)}
+										{step.key === "resume" && step.done && (
+											<button type="button" className="job-summary-chip" onClick={onResumes}>
+												Ver currículos gerados
+											</button>
+										)}
+									</>
+								}
+							/>
+						))}
+					</ol>
 				</section>
 				<section className="panel panel-body job-summary-notes" aria-labelledby="job-summary-notes-heading">
 					<h2 id="job-summary-notes-heading">Notas da vaga</h2>
