@@ -87,9 +87,13 @@ export function JobsPage() {
 				}}
 			/>
 			<JobSummaryDialog
-				jobId={summarizing?.id ?? ""}
-				open={summarizing !== null}
+				job={summarizing}
+				process={summarizing ? processByJob.get(summarizing.id) : undefined}
 				onClose={() => setSummarizing(null)}
+				onAnalyze={() => {
+					setAnalyzingId(summarizing?.id ?? null);
+					setSummarizing(null);
+				}}
 				onPreview={() => {
 					setPreviewing(summarizing);
 					setSummarizing(null);

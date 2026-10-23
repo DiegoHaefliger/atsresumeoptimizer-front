@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSummary } from "./jobSummary";
+import { buildSummary, summaryProgress } from "./jobSummary";
 
 const base = { jobId: "job-1", resumes: [], coverLetters: 0, interviewSets: 0, candidateSets: 0 };
 
@@ -32,5 +32,10 @@ describe("buildSummary", () => {
 		expect(steps.find((step) => step.key === "cover-letter")?.links[0]?.to).toBe("/jobs/job-1/assistant?tab=cover-letter");
 		expect(steps.find((step) => step.key === "questions")?.detail).toBe("2 conjuntos gerados");
 		expect(steps.find((step) => step.key === "doubts")?.links[0]?.to).toBe("/jobs/job-1/assistant?tab=doubts");
+	});
+
+	it("counts finished steps", () => {
+		const steps = buildSummary({ ...base, coverLetters: 1, candidateSets: 1 });
+		expect(summaryProgress(steps)).toEqual({ done: 2, total: 5 });
 	});
 });

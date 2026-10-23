@@ -71,3 +71,7 @@ export function buildSummary({ jobId, resumes, coverLetters, interviewSets, cand
 		},
 	];
 }
+
+export function summaryProgress(steps: SummaryStep[]): { done: number; total: number } {
+	return { done: steps.filter((step) => step.done).length, total: steps.length };
+}

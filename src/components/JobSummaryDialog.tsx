@@ -1,45 +1,45 @@
 import { Link } from "react-router-dom";
-import type { CoverLetter, InterviewQuestionSet, CandidateQuestionSet, ResumeSummary } from "../api/types";
+import type { CandidateQuestionSet, CoverLetter, InterviewQuestionSet, ResumeSummary, SelectionProcess } from "../api/types";
 import { candidateQuestionsPath, coverLettersPath, interviewQuestionsPath, jobResumesPath } from "../lib/jobAssistantPaths";
-import { buildSummary } from "../lib/jobSummary";
+import { buildSummary, summaryProgress } from "../lib/jobSummary";
+import { formatCost } from "../lib/costFormat";
 import { useApiResource } from "../lib/useApiResource";
+import { useJobCost } from "../lib/useJobCost";
+import type { Job } from "../lib/useJobs";
 import { Dialog } from "./Dialog";
-import { CheckCircleIcon, CoinsIcon, EyeIcon } from "./icons";
+import { ArrowRightIcon, ClipboardCheckIcon, CoinsIcon, EyeIcon, KanbanIcon } from "./icons";
+import { JobCode } from "./JobCode";
+import { JobSummaryStep } from "./JobSummaryStep";
 import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
+import { StageBadge } from "./StageBadge";
 
 type JobSummaryDialogProps = {
-	jobId: string;
-	open: boolean;
+	job: Job | null;
+	process?: SelectionProcess;
 	onClose: () => void;
+	onAnalyze: () => void;
 	onPreview: () => void;
 	onResumes: () => void;
 	onOpenCost: () => void;
 };
 
-export function JobSummaryDialog({ jobId, open, onClose, onPreview, onResumes, onOpenCost }: JobSummaryDialogProps) {
+type JobSummaryProps = Omit<JobSummaryDialogProps, "job"> & { job: Job };
+
+export function JobSummaryDialog({ job, ...handlers }: JobSummaryDialogProps) {
 	return (
-		<Dialog open={open} title="Resumo da candidatura" onClose={onClose} size="medium">
-			<div className="dialog-content">
-				<JobSummary jobId={jobId} onNavigate={onClose} onPreview={onPreview} onResumes={onResumes} onOpenCost={onOpenCost} />
-			</div>
+		<Dialog open={job !== null} title="Resumo da candidatura" onClose={handlers.onClose} size="medium">
+			<div className="dialog-content">{job && <JobSummary key={job.id} job={job} {...handlers} />}</div>
 		</Dialog>
 	);
 }
 
-type JobSummaryProps = {
-	jobId: string;
-	onNavigate: () => void;
-	onPreview: () => void;
-	onResumes: () => void;
-	onOpenCost: () => void;
-};
-
-function JobSummary({ jobId, onNavigate, onPreview, onResumes, onOpenCost }: JobSummaryProps) {
-	const resumes = useApiResource<ResumeSummary[]>(jobResumesPath(jobId));
-	const letters = useApiResource<CoverLetter[]>(coverLettersPath(jobId));
-	const questions = useApiResource<InterviewQuestionSet[]>(interviewQuestionsPath(jobId));
-	const doubts = useApiResource<CandidateQuestionSet[]>(candidateQuestionsPath(jobId));
+function JobSummary({ job, process, onClose, onAnalyze, onPreview, onResumes, onOpenCost }: JobSummaryProps) {
+	const resumes = useApiResource<ResumeSummary[]>(jobResumesPath(job.id));
+	const letters = useApiResource<CoverLetter[]>(coverLettersPath(job.id));
+	const questions = useApiResource<InterviewQuestionSet[]>(interviewQuestionsPath(job.id));
+	const doubts = useApiResource<CandidateQuestionSet[]>(candidateQuestionsPath(job.id));
+	const { cost } = useJobCost(job.id);
 
 	function reload() {
 		resumes.reload();
@@ -48,79 +48,110 @@ function JobSummary({ jobId, onNavigate, onPreview, onResumes, onOpenCost }: Job
 		doubts.reload();
 	}
 
+	const header = (
+		<header className="job-summary-header">
+			<div className="job-summary-title">
+				<JobCode code={job.code} />
+				<strong>{job.title ?? "Vaga sem título"}</strong>
+				{process && <StageBadge stage={process.stage} />}
+			</div>
+			{job.company && <span className="job-summary-company">{job.company}</span>}
+		</header>
+	);
+
 	if (resumes.failed || letters.failed || questions.failed || doubts.failed) {
-		return <LoadFailed message="Não deu pra carregar o resumo desta vaga." onRetry={reload} />;
+		return (
+			<>
+				{header}
+				<LoadFailed message="Não deu pra carregar o resumo desta vaga." onRetry={reload} />
+			</>
+		);
 	}
 	if (!resumes.data || !letters.data || !questions.data || !doubts.data) {
 		return (
-			<div role="status" aria-busy="true">
-				<span className="sr-only">Carregando resumo...</span>
-				<Skeleton width="100%" height={280} radius="var(--radius-lg)" />
-			</div>
+			<>
+				{header}
+				<div role="status" aria-busy="true">
+					<span className="sr-only">Carregando resumo...</span>
+					<Skeleton width="100%" height={280} radius="var(--radius-lg)" />
+				</div>
+			</>
 		);
 	}
 
 	const steps = buildSummary({
-		jobId,
+		jobId: job.id,
 		resumes: resumes.data,
 		coverLetters: letters.data.length,
 		interviewSets: questions.data.length,
 		candidateSets: doubts.data.length,
 	});
+	const { done, total } = summaryProgress(steps);
+	const spent = cost?.stages.some((stage) => stage.executed) ? formatCost(cost.totalCostBrl, "BRL") : null;
 
 	return (
-		<ol className="job-summary">
-			<li className="job-summary-step job-summary-step-done">
-				<span className="job-summary-mark" aria-hidden="true">
+		<>
+			{header}
+			<div className="job-summary-progress" role="group" aria-label={`${done} de ${total} etapas concluídas`}>
+				<div className="job-summary-progress-text">
+					<strong>
+						{done} de {total}
+					</strong>{" "}
+					etapas concluídas
+				</div>
+				<div className="job-summary-progress-track" aria-hidden="true">
+					<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
+				</div>
+			</div>
+			<ol className="job-summary">
+				{steps.map((step) => (
+					<JobSummaryStep
+						key={step.key}
+						step={step}
+						onNavigate={onClose}
+						actions={
+							<>
+								{step.key === "analysis" && !step.done && (
+									<button type="button" className="job-summary-chip job-summary-chip-primary" onClick={onAnalyze}>
+										<ClipboardCheckIcon /> Analisar esta vaga
+									</button>
+								)}
+								{step.key === "resume" && step.done && (
+									<button type="button" className="job-summary-chip" onClick={onResumes}>
+										Ver currículos gerados
+									</button>
+								)}
+							</>
+						}
+					/>
+				))}
+			</ol>
+			<div className="job-summary-shortcuts">
+				<button type="button" className="job-summary-shortcut" onClick={onPreview}>
 					<EyeIcon />
-				</span>
-				<div className="job-summary-body">
-					<strong>Vaga</strong>
-					<span className="job-summary-detail">Descrição cadastrada</span>
-					<div className="job-summary-links">
-						<button type="button" className="job-summary-link" onClick={onPreview}>
-							Ver prévia
-						</button>
-					</div>
-				</div>
-			</li>
-			{steps.map((step) => (
-				<li key={step.key} className={`job-summary-step${step.done ? " job-summary-step-done" : ""}`}>
-					<span className="job-summary-mark" aria-hidden="true">
-						{step.done ? <CheckCircleIcon /> : <span className="job-summary-dot" />}
+					<span>
+						<strong>Vaga</strong>
+						<small>Ver prévia da descrição</small>
 					</span>
-					<div className="job-summary-body">
-						<strong>{step.title}</strong>
-						<span className="job-summary-detail">{step.detail}</span>
-						<div className="job-summary-links">
-							{step.key === "resume" && step.done && (
-								<button type="button" className="job-summary-link" onClick={onResumes}>
-									Ver currículos gerados
-								</button>
-							)}
-							{step.links.map((link) => (
-								<Link key={link.to + link.label} to={link.to} className="job-summary-link" onClick={onNavigate}>
-									{link.label}
-								</Link>
-							))}
-						</div>
-					</div>
-				</li>
-			))}
-			<li className="job-summary-step job-summary-step-done">
-				<span className="job-summary-mark" aria-hidden="true">
+					<ArrowRightIcon />
+				</button>
+				<Link to={`/jobs/${job.id}/process`} className="job-summary-shortcut" onClick={onClose}>
+					<KanbanIcon />
+					<span>
+						<strong>Processo seletivo</strong>
+						<small>{process ? "Acompanhar etapas e agenda" : "Cadastrar processo"}</small>
+					</span>
+					<ArrowRightIcon />
+				</Link>
+				<button type="button" className="job-summary-shortcut" onClick={onOpenCost}>
 					<CoinsIcon />
-				</span>
-				<div className="job-summary-body">
-					<strong>Custo de IA</strong>
-					<span className="job-summary-detail">Quanto cada etapa consumiu</span>
-					<div className="job-summary-links">
-						<button type="button" className="job-summary-link" onClick={onOpenCost}>
-							Ver custo
-						</button>
-					</div>
-				</div>
-			</li>
-		</ol>
+					<span>
+						<strong>Custo de IA</strong>
+						<small>{spent ? `${spent} gastos até agora` : "Quanto cada etapa consumiu"}</small>
+					</span>
+					<ArrowRightIcon />
+				</button>
+			</div>
+		</>
 	);
 }
