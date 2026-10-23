@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { SelectionStage, StageMovement } from "../api/types";
 import { formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import type { StageNode } from "../lib/stageTimeline";
+import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 
 type StageTimelineNodeProps = {
 	node: StageNode;
@@ -27,16 +28,18 @@ function stayLabel(node: StageNode): string | null {
 export function StageTimelineNode({ node, currentStage, canDelete, expanded, onToggle, onPick, onDelete, children }: StageTimelineNodeProps) {
 	const stay = stayLabel(node);
 	const moment = formatDateTime(node.movement ? node.movement.movedAt : node.at);
+	const done = node.movement !== null && !node.current;
+	const status = done ? "Etapa concluída" : node.current ? "Etapa atual" : "Etapa sem registro de entrada";
 	const marker = (
-		<button
-			type="button"
-			className="stage-node-marker"
-			aria-pressed={expanded}
-			aria-label={`${expanded ? "Recolher" : "Expandir"} ${STAGE_LABELS[node.stage]}`}
-			title={expanded ? "Recolher" : "Expandir"}
-			onClick={onToggle}
-		/>
+		<span className={`stage-node-marker${done ? " stage-node-marker-done" : ""}`} title={status}>
+			<span className="sr-only">{status}</span>
+		</span>
 	);
+	const scheduleCount = node.schedules.length;
+	const hints = [
+		scheduleCount > 0 ? `${scheduleCount} ${scheduleCount === 1 ? "agendamento" : "agendamentos"}` : null,
+		node.movement?.note ? "anotação" : null,
+	].filter((hint): hint is string => hint !== null);
 	const itemClass = `stage-node${node.current ? " stage-node-current" : ""}${node.movement ? "" : " stage-node-implicit"}`;
 
 	if (!expanded) {
@@ -46,6 +49,8 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 				<button type="button" className="stage-node-collapsed" aria-expanded="false" onClick={onToggle}>
 					<strong>{STAGE_LABELS[node.stage]}</strong>
 					<span className="stage-node-meta">{moment}</span>
+					{hints.length > 0 && <span className="stage-node-hint">{hints.join(" · ")}</span>}
+					<ChevronDownIcon />
 				</button>
 			</li>
 		);
@@ -56,7 +61,10 @@ export function StageTimelineNode({ node, currentStage, canDelete, expanded, onT
 			{marker}
 			<div className="stage-node-card">
 				<button type="button" className="stage-node-collapsed stage-node-title" aria-expanded="true" onClick={onToggle}>
-					<strong>{STAGE_LABELS[node.stage]}</strong>
+					<span className="stage-node-title-row">
+						<strong>{STAGE_LABELS[node.stage]}</strong>
+						<ChevronUpIcon />
+					</span>
 					<span className="stage-node-meta">
 						{moment}
 						{stay && ` · ${stay}`}
