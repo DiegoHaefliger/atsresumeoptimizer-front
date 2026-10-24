@@ -1,103 +1,65 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { apiGet, apiPutJson, errorMessage } from "../api/client";
-import type { ContractType, JobPreferenceRequest, JobPreferenceResponse, WorkModel } from "../api/types";
-import { AddOptionField } from "../components/AddOptionField";
-import { ChoiceGroup } from "../components/ChoiceGroup";
+import type { JobPreferenceResponse } from "../api/types";
+import { PageTabs } from "../components/PageTabs";
+import { SearchSection } from "../components/preferences/SearchSection";
+import { SaveBar } from "../components/SaveBar";
+import { BenefitsSection } from "../components/preferences/BenefitsSection";
+import { CriteriaSummary } from "../components/preferences/CriteriaSummary";
+import { FormatSection } from "../components/preferences/FormatSection";
+import { PaySection } from "../components/preferences/PaySection";
+import { PlacesSection } from "../components/preferences/PlacesSection";
 import { SettingsLayoutSkeleton } from "../components/Skeleton";
-import { BusyLabel } from "../components/BusyLabel";
 import { StateMessage } from "../components/StateMessage";
-import { TagInput } from "../components/TagInput";
-import { BENEFIT_OPTIONS, CONTRACT_TYPE_LABELS, matchingOption, SENIORITY_OPTIONS, WORK_MODEL_LABELS } from "../lib/jobLabels";
+import {
+	addBenefit,
+	isSameForm,
+	searchMaxResultsValue,
+	SECTION_TITLES,
+	toForm,
+	toRequest,
+	type PreferenceForm,
+	type PreferenceSection,
+} from "../lib/preferenceForm";
+import { useUnsavedWarning } from "../lib/useUnsavedWarning";
 
-type TagFieldName = "locations" | "preferredCompanies" | "avoidedCompanies";
-
-type FormState = {
-	workModels: WorkModel[];
-	contractTypes: ContractType[];
-	minSalary: string;
-	desiredSalary: string;
-	seniorities: string[];
-	benefits: string[];
-	customBenefits: string[];
-} & Record<TagFieldName, string[]>;
-
-const SENIORITY_CHOICES = toChoices(SENIORITY_OPTIONS);
-const BENEFIT_CHOICES = toChoices(BENEFIT_OPTIONS);
-
-function toChoices(options: readonly string[]): Record<string, string> {
-	return Object.fromEntries(options.map((option) => [option, option]));
-}
-
-type TagFieldConfig = { name: TagFieldName; label: string; placeholder: string };
-
-const PLACE_FIELDS: TagFieldConfig[] = [
-	{ name: "locations", label: "Cidades aceitas (vagas híbridas ou presenciais)", placeholder: "Ex.: Curitiba, São Paulo" },
-	{ name: "preferredCompanies", label: "Empresas preferidas", placeholder: "Ex.: Nubank, Itaú" },
-	{ name: "avoidedCompanies", label: "Empresas que você quer evitar", placeholder: "Ex.: Acme" },
-];
-
-function toForm(preference: JobPreferenceResponse): FormState {
-	const benefits = (preference.benefits ?? []).map((value) => matchingOption(BENEFIT_OPTIONS, value) ?? value);
-	return {
-		workModels: preference.workModels ?? [],
-		contractTypes: preference.contractTypes ?? [],
-		minSalary: preference.minSalary?.toString() ?? "",
-		desiredSalary: preference.desiredSalary?.toString() ?? "",
-		seniorities: (preference.seniorities ?? []).map((value) => matchingOption(SENIORITY_OPTIONS, value) ?? value),
-		benefits,
-		customBenefits: benefits.filter((value) => !matchingOption(BENEFIT_OPTIONS, value)),
-		locations: preference.locations ?? [],
-		preferredCompanies: preference.preferredCompanies ?? [],
-		avoidedCompanies: preference.avoidedCompanies ?? [],
-	};
-}
-
-function toRequest(form: FormState): JobPreferenceRequest {
-	return {
-		workModels: form.workModels,
-		contractTypes: form.contractTypes,
-		minSalary: form.minSalary ? Number(form.minSalary) : undefined,
-		desiredSalary: form.desiredSalary ? Number(form.desiredSalary) : undefined,
-		benefits: form.benefits,
-		seniorities: form.seniorities,
-		locations: form.locations,
-		preferredCompanies: form.preferredCompanies,
-		avoidedCompanies: form.avoidedCompanies,
-	};
-}
+const SECTIONS = Object.keys(SECTION_TITLES) as PreferenceSection[];
 
 export function PreferencesPage() {
-	const [form, setForm] = useState<FormState | null>(null);
+	const [form, setForm] = useState<PreferenceForm | null>(null);
+	const [stored, setStored] = useState<PreferenceForm | null>(null);
+	const [section, setSection] = useState<PreferenceSection>("format");
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [saved, setSaved] = useState(false);
 	const [saving, setSaving] = useState(false);
+	const dirty = form !== null && stored !== null && !isSameForm(form, stored);
+
+	useUnsavedWarning(dirty);
 
 	useEffect(() => {
 		apiGet<JobPreferenceResponse>("/api/v1/job-preference")
-			.then((preference) => setForm(toForm(preference)))
+			.then((preference) => {
+				const loaded = toForm(preference);
+				setForm(loaded);
+				setStored(loaded);
+			})
 			.catch((err) => setLoadError(errorMessage(err, "Não deu pra carregar suas preferências.")));
 	}, []);
 
-	function update<K extends keyof FormState>(field: K, value: FormState[K]) {
+	function update<K extends keyof PreferenceForm>(field: K, value: PreferenceForm[K]) {
 		setForm((current) => (current ? { ...current, [field]: value } : current));
 		setSaved(false);
 	}
 
-	function addBenefit(value: string) {
-		setForm((current) => {
-			if (!current) {
-				return current;
-			}
-			const existing = matchingOption([...BENEFIT_OPTIONS, ...current.customBenefits], value);
-			const benefit = existing ?? value;
-			return {
-				...current,
-				customBenefits: existing ? current.customBenefits : [...current.customBenefits, value],
-				benefits: current.benefits.includes(benefit) ? current.benefits : [...current.benefits, benefit],
-			};
-		});
+	function handleAddBenefit(value: string) {
+		setForm((current) => (current ? addBenefit(current, value) : current));
 		setSaved(false);
+	}
+
+	function handleDiscard() {
+		setForm(stored);
+		setError(null);
 	}
 
 	async function handleSubmit(event: FormEvent) {
@@ -105,11 +67,17 @@ export function PreferencesPage() {
 		if (!form) {
 			return;
 		}
+		if (searchMaxResultsValue(form) === null) {
+			setError("Informe um máximo de vagas por busca entre 1 e 100.");
+			return;
+		}
 		setError(null);
 		setSaving(true);
 		try {
-			const stored = await apiPutJson<JobPreferenceResponse>("/api/v1/job-preference", toRequest(form));
-			setForm(toForm(stored));
+			const response = await apiPutJson<JobPreferenceResponse>("/api/v1/job-preference", toRequest(form));
+			const next = toForm(response);
+			setForm(next);
+			setStored(next);
 			setSaved(true);
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra salvar. Tenta de novo."));
@@ -144,157 +112,34 @@ export function PreferencesPage() {
 			) : (
 				<form onSubmit={handleSubmit} className="settings-layout">
 					<div className="settings-main">
-						<section className="panel">
-							<div className="panel-header">
-								<h2>Formato da vaga</h2>
-								<p>Como e em que nível você quer trabalhar. Pode marcar mais de uma opção.</p>
-							</div>
-							<div className="panel-body">
-								<ChoiceGroup
-									legend="Modelos de trabalho aceitos"
-									options={WORK_MODEL_LABELS}
-									selected={form.workModels}
-									onChange={(value) => update("workModels", value)}
-								/>
-								<ChoiceGroup
-									legend="Tipos de contrato aceitos"
-									options={CONTRACT_TYPE_LABELS}
-									selected={form.contractTypes}
-									onChange={(value) => update("contractTypes", value)}
-								/>
-								<ChoiceGroup
-									legend="Senioridade"
-									options={SENIORITY_CHOICES}
-									selected={form.seniorities}
-									onChange={(value) => update("seniorities", value)}
-								/>
-							</div>
-						</section>
-
-						<section className="panel">
-							<div className="panel-header">
-								<h2>Remuneração</h2>
-								<p>Valor mensal bruto. A vaga que paga o desejado atende; entre o mínimo e o desejado, atende em parte.</p>
-							</div>
-							<div className="panel-body">
-								<div className="form-row">
-									<label>
-										Salário mínimo mensal (R$)
-										<input
-											type="number"
-											inputMode="numeric"
-											min={0}
-											step={100}
-											value={form.minSalary}
-											onChange={(event) => update("minSalary", event.target.value)}
-											placeholder="Ex.: 8000"
-										/>
-									</label>
-									<label>
-										Salário desejado mensal (R$)
-										<input
-											type="number"
-											inputMode="numeric"
-											min={0}
-											step={100}
-											value={form.desiredSalary}
-											onChange={(event) => update("desiredSalary", event.target.value)}
-											placeholder="Ex.: 10000"
-										/>
-									</label>
-								</div>
-							</div>
-						</section>
-
-						<section className="panel">
-							<div className="panel-header">
-								<h2>Benefícios</h2>
-								<p>Procuramos cada benefício na lista extraída da vaga e no texto dela.</p>
-							</div>
-							<div className="panel-body">
-								<ChoiceGroup
-									legend="Benefícios que você quer"
-									options={{ ...BENEFIT_CHOICES, ...toChoices(form.customBenefits) }}
-									selected={form.benefits}
-									onChange={(value) => update("benefits", value)}
-								/>
-								<AddOptionField
-									label="Adicionar outro benefício"
-									placeholder="Ex.: auxílio academia"
-									onAdd={addBenefit}
-								/>
-							</div>
-						</section>
-
-						<section className="panel">
-							<div className="panel-header">
-								<h2>Local e empresas</h2>
-								<p>A cidade só conta pra vagas híbridas ou presenciais.</p>
-							</div>
-							<div className="panel-body">
-								{PLACE_FIELDS.map((field) => (
-									<TagInput
-										key={field.name}
-										label={field.label}
-										placeholder={field.placeholder}
-										values={form[field.name]}
-										onChange={(values) => update(field.name, values)}
-									/>
-								))}
-							</div>
-						</section>
+						<PageTabs
+							label="Seções de preferências"
+							options={SECTIONS.map((value) => ({ value, label: SECTION_TITLES[value] }))}
+							value={section}
+							onChange={setSection}
+						/>
+						{section === "format" && <FormatSection form={form} onChange={update} />}
+						{section === "pay" && <PaySection form={form} onChange={update} />}
+						{section === "benefits" && (
+							<BenefitsSection form={form} onChange={update} onAddBenefit={handleAddBenefit} />
+						)}
+						{section === "places" && <PlacesSection form={form} onChange={update} />}
+						{section === "search" && <SearchSection form={form} onChange={update} />}
+						<SaveBar
+							label="Salvar preferências"
+							saveText="Salvar preferências"
+							savedText="Preferências salvas."
+							dirty={dirty} saving={saving} saved={saved}
+							error={error}
+							onDiscard={handleDiscard}
+						/>
 					</div>
 
 					<aside className="settings-aside">
-						<div className="panel">
-							<div className="panel-header">
-								<h2>Critérios da nota</h2>
-								<p>Só os critérios preenchidos entram no cálculo.</p>
-							</div>
-							<div className="panel-body">
-								<ul className="criteria-summary">
-									{criteriaSummary(form).map((criterion) => (
-										<li key={criterion.label}>
-											<span>{criterion.label}</span>
-											<span
-												className={`criteria-summary-state${criterion.active ? " criteria-summary-state-active" : ""}`}
-											>
-												{criterion.active ? "Na nota" : "Fora da nota"}
-											</span>
-										</li>
-									))}
-								</ul>
-								<div className="settings-actions">
-									{error && <StateMessage variant="error" layout="inline" message={error} />}
-									{saved && (
-										<p className="form-success" role="status">
-											Preferências salvas.
-										</p>
-									)}
-									<button type="submit" disabled={saving} className="btn-block" aria-busy={saving}>
-										<BusyLabel busy={saving} busyText="Salvando...">Salvar preferências</BusyLabel>
-									</button>
-								</div>
-							</div>
-						</div>
+						<CriteriaSummary form={form} onSelect={setSection} />
 					</aside>
 				</form>
 			)}
 		</div>
 	);
-}
-
-function criteriaSummary(form: FormState): { label: string; active: boolean }[] {
-	return [
-		{ label: "Modelo de trabalho", active: form.workModels.length > 0 },
-		{ label: "Remuneração", active: Boolean(form.minSalary || form.desiredSalary) },
-		{ label: "Tipo de contrato", active: form.contractTypes.length > 0 },
-		{ label: "Benefícios", active: form.benefits.length > 0 },
-		{
-			label: "Empresa",
-			active: form.preferredCompanies.length > 0 || form.avoidedCompanies.length > 0,
-		},
-		{ label: "Senioridade", active: form.seniorities.length > 0 },
-		{ label: "Localização", active: form.locations.length > 0 },
-	];
 }

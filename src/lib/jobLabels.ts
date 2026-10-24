@@ -1,5 +1,5 @@
 import type { BadgeTone } from "../components/Badge";
-import type { ContractType, MatchStatus, PreferenceCriterion, WorkModel } from "../api/types";
+import type { ContractType, MatchStatus, PostedWithin, PreferenceCriterion, WorkModel } from "../api/types";
 
 export const WORK_MODEL_LABELS: Record<WorkModel, string> = {
 	REMOTE: "Remoto",
@@ -98,3 +98,10 @@ export const BENEFIT_OPTIONS = [
 export function matchingOption(options: readonly string[], value: string): string | undefined {
 	return options.find((option) => option.localeCompare(value, "pt-BR", { sensitivity: "base" }) === 0);
 }
+
+export const POSTED_WITHIN_LABELS: Record<PostedWithin, string> = {
+	ANY: "Qualquer data",
+	PAST_24_HOURS: "Últimas 24 horas",
+	PAST_WEEK: "Últimos 7 dias",
+	PAST_MONTH: "Últimos 30 dias",
+};

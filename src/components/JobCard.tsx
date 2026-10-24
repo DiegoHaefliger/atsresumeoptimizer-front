@@ -4,6 +4,7 @@ import type { Job } from "../lib/useJobs";
 import { JobScore } from "./JobScore";
 import { JobActions, type JobActionHandlers } from "./JobActions";
 import { JobCode } from "./JobCode";
+import { Badge } from "./Badge";
 import { StageBadge } from "./StageBadge";
 import { ClipboardCheckIcon } from "./icons";
 
@@ -18,6 +19,7 @@ export function JobCard({ job, process, removing, onAnalyze, ...actions }: JobCa
 		<article className="job-card">
 			<header className="job-card-top">
 				<JobCode code={job.code} />
+				{job.origin === "AUTOMATIC_SEARCH" && <Badge tone="info">Busca automática</Badge>}
 				{process && <StageBadge stage={process.stage} />}
 			</header>
 			<div className="job-card-heading">

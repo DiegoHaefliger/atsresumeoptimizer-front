@@ -37,6 +37,14 @@ export type EditedDocumentsView = components["schemas"]["EditedDocumentsView"];
 
 export type JobPreferenceRequest = components["schemas"]["JobPreferenceRequest"];
 export type JobPreferenceResponse = components["schemas"]["JobPreferenceResponse"];
+export type PostedWithin = NonNullable<JobPreferenceRequest["searchPostedWithin"]>;
+export type JobSuggestion = components["schemas"]["JobSuggestionResponse"];
+export type ImportPostRequest = components["schemas"]["ImportPostRequest"];
+export type SearchRun = components["schemas"]["SearchRunResponse"];
+export type SearchStatus = components["schemas"]["SearchStatusResponse"];
+export type PromotedJob = components["schemas"]["PromotedJobResponse"];
+export type SuggestionCount = components["schemas"]["SuggestionCountResponse"];
+export type JobOrigin = NonNullable<RecentJobView["origin"]>;
 export type PreferenceMatch = components["schemas"]["PreferenceMatch"];
 export type CriterionMatch = components["schemas"]["CriterionMatch"];
 export type AnalysisJobView = components["schemas"]["AnalysisJobView"];

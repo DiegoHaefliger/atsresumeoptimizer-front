@@ -1,16 +1,28 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
+import { JobSuggestionsPanel } from "../components/JobSuggestionsPanel";
+import { PageTabs } from "../components/PageTabs";
 import { JobList } from "../components/JobList";
 import { StateMessage } from "../components/StateMessage";
 import { useJobs, type Job } from "../lib/useJobs";
+import { useNewSuggestionCount } from "../lib/useJobSuggestions";
 import { useProcesses } from "../lib/useProcesses";
 
 export type JobsPageState = { analyzeJobId?: string };
 
 const JOBS_PER_PAGE = 30;
 const PAGE_SIZE_OPTIONS = [30, 60, 100] as const;
+
+type JobsTab = "registered" | "suggestions";
+
+const SUBTITLES: Record<JobsTab, string> = {
+	registered:
+		"Cadastre as vagas que te interessam. Elas ficam disponíveis pra analisar qualquer currículo e são cruzadas com suas preferências.",
+	suggestions:
+		"Vagas achadas pela busca automática ou importadas de postagens. Só viram vagas cadastradas quando você promove.",
+};
 
 export function JobsPage() {
 	const location = useLocation();
@@ -23,6 +35,18 @@ export function JobsPage() {
 	);
 	const analyzing = jobs?.find((job) => job.id === analyzingId) ?? null;
 	const navigate = useNavigate();
+	const [params, setParams] = useSearchParams();
+	const { count: newSuggestions, reload: reloadSuggestionCount } = useNewSuggestionCount();
+	const tab: JobsTab = params.get("tab") === "suggestions" ? "suggestions" : "registered";
+
+	function selectTab(next: JobsTab) {
+		setParams(next === "suggestions" ? { tab: next } : {}, { replace: true });
+	}
+
+	function handlePromoted() {
+		reload();
+		selectTab("registered");
+	}
 
 	function closeAnalyze() {
 		setAnalyzingId(null);
@@ -34,18 +58,27 @@ export function JobsPage() {
 			<header className="page-header">
 				<div>
 					<span className="eyebrow">Vagas</span>
-					<h1>Vagas cadastradas</h1>
-					<p className="page-subtitle">
-						Cadastre as vagas que te interessam. Elas ficam disponíveis pra analisar qualquer currículo e são
-						cruzadas com suas preferências.
-					</p>
+					<h1>{tab === "suggestions" ? "Sugestões de vagas" : "Vagas cadastradas"}</h1>
+					<p className="page-subtitle">{SUBTITLES[tab]}</p>
 				</div>
 				<Link to="/jobs/new" className="button-link">
 					Cadastrar vaga
 				</Link>
 			</header>
 
-			{jobs !== null && jobs.length === 0 && !failed ? (
+			<PageTabs
+				label="Vagas"
+				options={[
+					{ value: "registered", label: "Cadastradas" },
+					{ value: "suggestions", label: newSuggestions > 0 ? `Sugestões (${newSuggestions})` : "Sugestões" },
+				]}
+				value={tab}
+				onChange={selectTab}
+			/>
+
+			{tab === "suggestions" ? (
+				<JobSuggestionsPanel onChanged={reloadSuggestionCount} onPromoted={handlePromoted} />
+			) : jobs !== null && jobs.length === 0 && !failed ? (
 				<StateMessage
 					variant="empty"
 					layout="page"

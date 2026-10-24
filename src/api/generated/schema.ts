@@ -1401,6 +1401,17 @@ export interface components {
             locations?: string[];
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
+            searchKeywords?: string[];
+            searchExcludedKeywords?: string[];
+            /** @enum {string} */
+            searchPostedWithin?: "ANY" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            /** Format: int32 */
+            searchMaxResults?: number;
+            /** Format: int32 */
+            searchMinAdherence?: number;
+            searchEnabled?: boolean;
+            /** Format: int32 */
+            searchIntervalHours?: number;
         };
         JobPreferenceResponse: {
             workModels?: ("REMOTE" | "HYBRID" | "ON_SITE")[];
@@ -1412,6 +1423,75 @@ export interface components {
             locations?: string[];
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
+            searchKeywords?: string[];
+            searchExcludedKeywords?: string[];
+            /** @enum {string} */
+            searchPostedWithin?: "ANY" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            /** Format: int32 */
+            searchMaxResults?: number;
+            /** Format: int32 */
+            searchMinAdherence?: number;
+            searchEnabled?: boolean;
+            /** Format: int32 */
+            searchIntervalHours?: number;
+        };
+        ImportPostRequest: {
+            url: string;
+            text?: string;
+        };
+        JobSuggestionResponse: {
+            /** Format: uuid */
+            id?: string;
+            source?: string;
+            externalId?: string;
+            url?: string;
+            title?: string;
+            company?: string;
+            location?: string;
+            /** Format: date */
+            postedOn?: string;
+            description?: string;
+            /** Format: int32 */
+            score?: number;
+            /** @enum {string} */
+            status?: "NEW" | "PROMOTED" | "DISCARDED" | "FILTERED";
+            /** Format: date-time */
+            foundAt?: string;
+            /** Format: date-time */
+            decidedAt?: string;
+            /** Format: uuid */
+            jobPostingId?: string;
+        };
+        SearchRunResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            trigger?: "SCHEDULED" | "MANUAL";
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            finishedAt?: string;
+            /** Format: int32 */
+            read?: number;
+            /** Format: int32 */
+            added?: number;
+            /** Format: int32 */
+            duplicates?: number;
+            /** Format: int32 */
+            belowAdherence?: number;
+            error?: string;
+        };
+        SearchStatusResponse: {
+            running?: boolean;
+            lastRun?: components["schemas"]["SearchRunResponse"];
+        };
+        PromotedJobResponse: {
+            /** Format: uuid */
+            jobId?: string;
+        };
+        SuggestionCountResponse: {
+            /** Format: int64 */
+            count?: number;
         };
         GoogleCredentialsRequest: {
             clientId: string;
@@ -1991,6 +2071,8 @@ export interface components {
             atsScore?: number;
             companyInfo?: string;
             benefitsMarkup?: string[];
+            /** @enum {string} */
+            origin?: "MANUAL" | "AUTOMATIC_SEARCH";
         };
         CostByModel: {
             model?: string;
