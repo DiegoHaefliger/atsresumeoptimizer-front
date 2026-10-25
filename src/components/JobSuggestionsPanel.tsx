@@ -1,26 +1,32 @@
 import { useState } from "react";
-import { errorMessage } from "../api/client";
+import { Link } from "react-router-dom";
+import { ApiError, errorMessage } from "../api/client";
 import type { JobSuggestion } from "../api/types";
-import { useJobSuggestions, type SuggestionView } from "../lib/useJobSuggestions";
+import { useJobSuggestions, type SuggestionCounts, type SuggestionView } from "../lib/useJobSuggestions";
+import { useDismissedRun } from "../lib/useDismissedRun";
 import { useSearchStatus } from "../lib/useSearchStatus";
-import { describeLastRun } from "../lib/searchRunLabels";
 import { BusyLabel } from "./BusyLabel";
+import { DismissibleError } from "./DismissibleError";
 import { ImportPostForm } from "./ImportPostForm";
 import { JobSuggestionCard } from "./JobSuggestionCard";
 import { SegmentedTabs } from "./SegmentedTabs";
 import { LoadFailed } from "./LoadFailed";
+import { SearchProgress } from "./SearchProgress";
 import { Skeleton } from "./Skeleton";
 import { StateMessage } from "./StateMessage";
 
 type JobSuggestionsPanelProps = {
+	counts: SuggestionCounts;
 	onChanged: () => void;
 	onPromoted: (jobId: string) => void;
 };
 
 type IdentifiedSuggestion = JobSuggestion & { id: string };
 
+const UNPROCESSABLE = 422;
+
 const EMPTY_MESSAGES: Record<SuggestionView, string> = {
-	new: "Nenhuma sugestão nova. Defina a busca em Preferências e clique em Buscar novas vagas, ou importe uma postagem.",
+	new: "Nenhuma vaga sugerida. Defina a busca em Preferências e clique em Buscar novas vagas, ou importe uma postagem.",
 	below: "Nenhuma vaga ficou abaixo da aderência mínima.",
 	discarded: "Nenhuma vaga descartada.",
 };
@@ -31,16 +37,22 @@ const VIEW_HINTS: Record<SuggestionView, string> = {
 	discarded: "Não voltam a aparecer nas buscas. Restaure se mudar de ideia.",
 };
 
-export function JobSuggestionsPanel({ onChanged, onPromoted }: JobSuggestionsPanelProps) {
+function withCount(label: string, count: number) {
+	return count > 0 ? `${label} (${count})` : label;
+}
+
+export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSuggestionsPanelProps) {
 	const [view, setView] = useState<SuggestionView>("new");
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [importing, setImporting] = useState(false);
+	const [needsPreferences, setNeedsPreferences] = useState(false);
 	const { suggestions, failed, reload, promote, decide } = useJobSuggestions(view);
 	const { status, start, busy: searching } = useSearchStatus(() => {
 		reload();
 		onChanged();
 	});
+	const lastRunError = useDismissedRun(status?.lastRun?.id);
 	const items = suggestions?.filter((item): item is IdentifiedSuggestion => Boolean(item.id)) ?? null;
 
 	async function run(id: string, action: () => Promise<unknown>, fallback: string) {
@@ -68,10 +80,14 @@ export function JobSuggestionsPanel({ onChanged, onPromoted }: JobSuggestionsPan
 		}
 	}
 
-	function handleImported() {
+	function handleImported(imported: JobSuggestion) {
+		const target: SuggestionView = imported.status === "FILTERED" ? "below" : "new";
 		setImporting(false);
-		setView("new");
-		reload();
+		if (target === view) {
+			reload();
+		} else {
+			setView(target);
+		}
 		onChanged();
 	}
 
@@ -80,9 +96,11 @@ export function JobSuggestionsPanel({ onChanged, onPromoted }: JobSuggestionsPan
 			return;
 		}
 		setError(null);
+		setNeedsPreferences(false);
 		try {
 			await start();
 		} catch (err) {
+			setNeedsPreferences(err instanceof ApiError && err.status === UNPROCESSABLE);
 			setError(errorMessage(err, "Não deu pra iniciar a busca."));
 		}
 	}
@@ -93,9 +111,9 @@ export function JobSuggestionsPanel({ onChanged, onPromoted }: JobSuggestionsPan
 				<SegmentedTabs
 					label="Tipo de sugestão"
 					options={[
-						{ value: "new", label: "Novas" },
-						{ value: "below", label: "Abaixo da aderência" },
-						{ value: "discarded", label: "Descartadas" },
+						{ value: "new", label: withCount("Sugeridas", counts.newSuggestions) },
+						{ value: "below", label: withCount("Abaixo da aderência", counts.belowAdherence) },
+						{ value: "discarded", label: withCount("Descartadas", counts.discarded) },
 					]}
 					value={view}
 					onChange={(next) => {
@@ -114,11 +132,21 @@ export function JobSuggestionsPanel({ onChanged, onPromoted }: JobSuggestionsPan
 			</div>
 			<div className="suggestions-info">
 				<p className="suggestions-hint">{VIEW_HINTS[view]}</p>
-				<p className="suggestions-last-run">{searching ? "Busca em andamento..." : describeLastRun(status?.lastRun)}</p>
-				{status?.lastRun?.error && <StateMessage variant="error" layout="inline" message={status.lastRun.error} />}
+				<Link to="/preferences?section=search" className="link">
+					Configurar busca de vagas
+				</Link>
+				{status?.lastRun?.error && !lastRunError.isDismissed && (
+					<DismissibleError message={status.lastRun.error} onDismiss={lastRunError.dismiss} />
+				)}
 			</div>
+			{searching && <SearchProgress progress={status?.progress} />}
 			{importing && <ImportPostForm onImported={handleImported} onCancel={() => setImporting(false)} />}
-			{error && <StateMessage variant="error" layout="inline" message={error} />}
+			{error && <DismissibleError message={error} onDismiss={() => setError(null)} />}
+			{error && needsPreferences && (
+				<Link to="/preferences" className="link">
+					Abrir Preferências
+				</Link>
+			)}
 			{failed ? (
 				<LoadFailed message="Não deu pra carregar as sugestões." onRetry={reload} />
 			) : items === null ? (

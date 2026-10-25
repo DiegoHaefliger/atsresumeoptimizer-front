@@ -5,7 +5,6 @@ import { BackLink } from "../components/BackLink";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobLinksBar } from "../components/JobLinksBar";
 import { JobCode } from "../components/JobCode";
-import { JobCostDialog } from "../components/JobCostDialog";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
@@ -13,7 +12,7 @@ import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
-import { CoinsIcon, PencilIcon, TrashIcon } from "../components/icons";
+import { PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
 import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
@@ -29,7 +28,6 @@ export function JobProcessPage() {
 	const [editing, setEditing] = useState(false);
 	const [moving, setMoving] = useState(false);
 	const [scheduling, setScheduling] = useState(false);
-	const [costOpen, setCostOpen] = useState(false);
 	const [historyVersion, setHistoryVersion] = useState(0);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -75,11 +73,6 @@ export function JobProcessPage() {
 					{job?.company && <p className="page-subtitle">{job.company}</p>}
 				</div>
 				<div className="page-header-actions">
-					{job && (
-						<button type="button" className="page-back" aria-label="Custo de IA" title="Custo de IA" onClick={() => setCostOpen(true)}>
-							<CoinsIcon />
-						</button>
-					)}
 					<BackLink fallback="/jobs" />
 				</div>
 			</header>
@@ -131,10 +124,10 @@ export function JobProcessPage() {
 							</span>
 						</div>
 						<div className="process-detail-actions">
-							<button type="button" className="process-action" onClick={() => setMoving(true)}>
+							<button type="button" className="process-action process-action-primary" onClick={() => setMoving(true)}>
 								Mover etapa
 							</button>
-							<button type="button" className="process-action" onClick={() => setScheduling(true)}>
+							<button type="button" className="process-action process-action-accent" onClick={() => setScheduling(true)}>
 								Agendar
 							</button>
 							<button
@@ -202,7 +195,6 @@ export function JobProcessPage() {
 				</div>
 			)}
 
-			{job && <JobCostDialog jobId={job.id} open={costOpen} onClose={() => setCostOpen(false)} />}
 		</div>
 	);
 }

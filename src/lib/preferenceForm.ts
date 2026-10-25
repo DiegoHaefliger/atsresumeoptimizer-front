@@ -1,11 +1,11 @@
-import type { ContractType, JobPreferenceRequest, JobPreferenceResponse, PostedWithin, WorkModel } from "../api/types";
-import { BENEFIT_OPTIONS, CONTRACT_TYPE_LABELS, matchingOption, POSTED_WITHIN_LABELS, SENIORITY_OPTIONS, WORK_MODEL_LABELS } from "./jobLabels";
+import type { ContractType, JobPreferenceRequest, JobPreferenceResponse, PostedWithin, SearchSite, WorkModel } from "../api/types";
+import { DEFAULT_SEARCH_CRON } from "./searchSchedule";
+import { BENEFIT_OPTIONS, CONTRACT_TYPE_LABELS, matchingOption, POSTED_WITHIN_LABELS, SEARCH_SITE_LABELS, SENIORITY_OPTIONS, WORK_MODEL_LABELS } from "./jobLabels";
 
 export const DEFAULT_MAX_RESULTS = 50;
 export const DEFAULT_MIN_ADHERENCE = 70;
 export const MAX_RESULTS_LIMIT = 100;
-export const DEFAULT_INTERVAL_HOURS = 12;
-export const INTERVAL_HOURS_OPTIONS = [6, 12, 24] as const;
+export const ALL_SEARCH_SITES = Object.keys(SEARCH_SITE_LABELS) as SearchSite[];
 
 export type PreferenceSection = "format" | "pay" | "benefits" | "places" | "search";
 
@@ -26,7 +26,8 @@ export type PreferenceForm = {
 	searchMaxResults: string;
 	searchMinAdherence: number;
 	searchEnabled: boolean;
-	searchIntervalHours: number;
+	searchCron: string;
+	searchSites: SearchSite[];
 };
 
 export type PreferenceCriterion = { label: string; section: PreferenceSection; active: boolean };
@@ -58,7 +59,8 @@ export function toForm(preference: JobPreferenceResponse): PreferenceForm {
 		searchMaxResults: String(preference.searchMaxResults ?? DEFAULT_MAX_RESULTS),
 		searchMinAdherence: preference.searchMinAdherence ?? DEFAULT_MIN_ADHERENCE,
 		searchEnabled: preference.searchEnabled ?? false,
-		searchIntervalHours: preference.searchIntervalHours ?? DEFAULT_INTERVAL_HOURS,
+		searchCron: preference.searchCron ?? DEFAULT_SEARCH_CRON,
+		searchSites: preference.searchSites ?? ALL_SEARCH_SITES,
 	};
 }
 
@@ -79,8 +81,17 @@ export function toRequest(form: PreferenceForm): JobPreferenceRequest {
 		searchMaxResults: searchMaxResultsValue(form) ?? DEFAULT_MAX_RESULTS,
 		searchMinAdherence: form.searchMinAdherence,
 		searchEnabled: form.searchEnabled && form.searchKeywords.length > 0,
-		searchIntervalHours: form.searchIntervalHours,
+		searchCron: form.searchCron.trim(),
+		searchSites: form.searchSites,
 	};
+}
+
+export function clampMaxResults(raw: string): string {
+	const digits = raw.replace(/\D/g, "");
+	if (digits === "") {
+		return "";
+	}
+	return String(Math.min(Number(digits), MAX_RESULTS_LIMIT));
 }
 
 export function searchMaxResultsValue(form: PreferenceForm): number | null {
@@ -115,6 +126,11 @@ export function criteriaSummary(form: PreferenceForm): PreferenceCriterion[] {
 			active: form.preferredCompanies.length > 0 || form.avoidedCompanies.length > 0,
 		},
 		{ label: "Localização", section: "places", active: form.locations.length > 0 },
+		{
+			label: "Cargos e palavras-chave",
+			section: "search",
+			active: form.searchKeywords.length > 0 || form.searchExcludedKeywords.length > 0,
+		},
 	];
 }
 
@@ -126,6 +142,7 @@ export function describeSearch(form: PreferenceForm): string[] {
 		form.contractTypes.map((value) => CONTRACT_TYPE_LABELS[value]).join("/"),
 		form.locations.join(", "),
 		POSTED_WITHIN_LABELS[form.searchPostedWithin].toLowerCase(),
+		form.searchSites.map((site) => SEARCH_SITE_LABELS[site]).join(", "),
 	];
 	return parts.filter((part) => part.length > 0);
 }

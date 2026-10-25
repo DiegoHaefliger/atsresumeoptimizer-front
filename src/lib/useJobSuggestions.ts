@@ -4,18 +4,28 @@ import type { JobSuggestion, PromotedJob, SuggestionCount } from "../api/types";
 
 const SUGGESTIONS_PATH = "/api/v1/job-suggestions";
 
-export function useNewSuggestionCount() {
-	const [count, setCount] = useState(0);
+export type SuggestionCounts = { newSuggestions: number; belowAdherence: number; discarded: number };
+
+const NO_SUGGESTIONS: SuggestionCounts = { newSuggestions: 0, belowAdherence: 0, discarded: 0 };
+
+export function useSuggestionCounts() {
+	const [counts, setCounts] = useState<SuggestionCounts>(NO_SUGGESTIONS);
 
 	const reload = useCallback(() => {
 		apiGet<SuggestionCount>(`${SUGGESTIONS_PATH}/count`)
-			.then((loaded) => setCount(loaded.count ?? 0))
-			.catch(() => setCount(0));
+			.then((loaded) =>
+				setCounts({
+					newSuggestions: loaded.newSuggestions ?? 0,
+					belowAdherence: loaded.belowAdherence ?? 0,
+					discarded: loaded.discarded ?? 0,
+				}),
+			)
+			.catch(() => setCounts(NO_SUGGESTIONS));
 	}, []);
 
 	useEffect(reload, [reload]);
 
-	return { count, reload };
+	return { counts, reload };
 }
 
 type Loaded = { path: string; items: JobSuggestion[] };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addBenefit, criteriaSummary, describeSearch, isSameForm, searchMaxResultsValue, toForm, toRequest } from "./preferenceForm";
+import { addBenefit, clampMaxResults, criteriaSummary, describeSearch, isSameForm, searchMaxResultsValue, toForm, toRequest } from "./preferenceForm";
 
 const empty = toForm({});
 
@@ -31,8 +31,14 @@ describe("preferenceForm", () => {
 			searchMaxResults: "50",
 			searchMinAdherence: 70,
 			searchEnabled: false,
-			searchIntervalHours: 12,
+			searchCron: "0 0 8,20 * * *",
+			searchSites: ["LINKEDIN", "GUPY", "PROGRAMATHOR", "INFOJOBS", "VAGAS", "REMOTAR"],
 		});
+	});
+
+	it("keeps the sites chosen for the search", () => {
+		expect(toRequest({ ...empty, searchSites: ["GUPY"] }).searchSites).toEqual(["GUPY"]);
+		expect(toRequest({ ...empty, searchSites: [] }).searchSites).toEqual([]);
 	});
 
 	it("never sends an enabled search without keywords", () => {
@@ -55,6 +61,13 @@ describe("preferenceForm", () => {
 			workModels: ["REMOTE" as const],
 			locations: ["Curitiba"],
 		};
-		expect(describeSearch(form)).toEqual(["Java, Spring", "Pleno/Sênior", "Remoto", "Curitiba", "últimos 7 dias"]);
+		expect(describeSearch(form)).toEqual(["Java, Spring", "Pleno/Sênior", "Remoto", "Curitiba", "últimos 7 dias", "LinkedIn, Gupy, Programathor, InfoJobs, Vagas.com, Remotar"]);
+	});
+
+	it("caps the max results at 100 while typing", () => {
+		expect(clampMaxResults("250")).toBe("100");
+		expect(clampMaxResults("100")).toBe("100");
+		expect(clampMaxResults("42")).toBe("42");
+		expect(clampMaxResults("")).toBe("");
 	});
 });

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { startAnalysis } from "../lib/analysisApi";
 import { jobLabel } from "../lib/jobCode";
+import { splitByOrigin } from "../lib/resumeLabels";
 import { initialSelection } from "../lib/resumeSelection";
 import type { Job } from "../lib/useJobs";
 import { useResumes } from "../lib/useResumes";
@@ -33,7 +34,8 @@ export function AnalyzeJobDialog({ job, onClose }: AnalyzeJobDialogProps) {
 function AnalyzeJob({ jobId }: { jobId: string }) {
 	const { resumes, failed: resumesFailed, reload: reloadResumes } = useResumes();
 	const [chosen, setChosen] = useState<SavedResumeSelection | null>(null);
-	const selection = chosen ?? (resumes ? initialSelection(resumes) : null);
+	const baseResumes = useMemo(() => (resumes ? splitByOrigin(resumes).base : null), [resumes]);
+	const selection = chosen ?? (baseResumes ? initialSelection(baseResumes) : null);
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
@@ -61,15 +63,15 @@ function AnalyzeJob({ jobId }: { jobId: string }) {
 				</h3>
 				{resumesFailed ? (
 					<LoadFailed message="Não deu pra carregar os currículos." onRetry={reloadResumes} />
-				) : resumes !== null && resumes.length === 0 ? (
+				) : baseResumes !== null && baseResumes.length === 0 ? (
 					<div className="empty-resumes">
-						<p>Nenhum currículo cadastrado ainda.</p>
+						<p>Nenhum currículo base cadastrado ainda.</p>
 						<Link to="/resumes" className="button-link">
 							Cadastrar currículo
 						</Link>
 					</div>
 				) : (
-					<SavedResumePicker resumes={resumes} selected={selection} onSelect={setChosen} />
+					<SavedResumePicker resumes={baseResumes} selected={selection} onSelect={setChosen} />
 				)}
 				{error && <StateMessage variant="error" layout="inline" message={error} />}
 				<div className="form-actions">

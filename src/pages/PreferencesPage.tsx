@@ -1,7 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiGet, apiPutJson, errorMessage } from "../api/client";
 import type { JobPreferenceResponse } from "../api/types";
 import { PageTabs } from "../components/PageTabs";
+import { UsageLegend } from "../components/preferences/UsageLegend";
 import { SearchSection } from "../components/preferences/SearchSection";
 import { SaveBar } from "../components/SaveBar";
 import { BenefitsSection } from "../components/preferences/BenefitsSection";
@@ -21,6 +23,7 @@ import {
 	type PreferenceForm,
 	type PreferenceSection,
 } from "../lib/preferenceForm";
+import { isCronShaped } from "../lib/searchSchedule";
 import { useUnsavedWarning } from "../lib/useUnsavedWarning";
 
 const SECTIONS = Object.keys(SECTION_TITLES) as PreferenceSection[];
@@ -28,7 +31,11 @@ const SECTIONS = Object.keys(SECTION_TITLES) as PreferenceSection[];
 export function PreferencesPage() {
 	const [form, setForm] = useState<PreferenceForm | null>(null);
 	const [stored, setStored] = useState<PreferenceForm | null>(null);
-	const [section, setSection] = useState<PreferenceSection>("format");
+	const [params] = useSearchParams();
+	const [section, setSection] = useState<PreferenceSection>(() => {
+		const requested = params.get("section");
+		return SECTIONS.find((value) => value === requested) ?? "format";
+	});
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [saved, setSaved] = useState(false);
@@ -69,6 +76,10 @@ export function PreferencesPage() {
 		}
 		if (searchMaxResultsValue(form) === null) {
 			setError("Informe um máximo de vagas por busca entre 1 e 100.");
+			return;
+		}
+		if (!isCronShaped(form.searchCron)) {
+			setError("O agendamento precisa ter 6 campos: segundo minuto hora dia mês dia-da-semana.");
 			return;
 		}
 		setError(null);
@@ -118,6 +129,7 @@ export function PreferencesPage() {
 							value={section}
 							onChange={setSection}
 						/>
+						<UsageLegend />
 						{section === "format" && <FormatSection form={form} onChange={update} />}
 						{section === "pay" && <PaySection form={form} onChange={update} />}
 						{section === "benefits" && (

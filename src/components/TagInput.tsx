@@ -1,9 +1,10 @@
-import { useId, useState, type KeyboardEvent } from "react";
+import { useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { parseList } from "../lib/listText";
 import { XIcon } from "./icons";
 
 type TagInputProps = {
 	label: string;
+	tags?: ReactNode;
 	placeholder: string;
 	values: string[];
 	onChange: (values: string[]) => void;
@@ -24,7 +25,7 @@ function merge(current: string[], incoming: string[]): string[] {
 	return added.length > 0 ? [...current, ...added] : current;
 }
 
-export function TagInput({ label, placeholder, values, onChange }: TagInputProps) {
+export function TagInput({ label, tags, placeholder, values, onChange }: TagInputProps) {
 	const id = useId();
 	const [draft, setDraft] = useState("");
 
@@ -49,6 +50,7 @@ export function TagInput({ label, placeholder, values, onChange }: TagInputProps
 		<div className="tag-field">
 			<label htmlFor={id} className="tag-field-label">
 				{label}
+				{tags}
 			</label>
 			<div className="tag-field-row">
 				<div className="tag-input">

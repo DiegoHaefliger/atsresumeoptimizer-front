@@ -1,4 +1,5 @@
 import type { PreferenceForm } from "../../lib/preferenceForm";
+import { UsageTags } from "./UsageTags";
 import type { SectionProps } from "./sectionProps";
 
 export function PaySection({ form, onChange }: SectionProps<PreferenceForm>) {
@@ -11,7 +12,7 @@ export function PaySection({ form, onChange }: SectionProps<PreferenceForm>) {
 			<div className="panel-body">
 				<div className="form-row">
 					<label>
-						Salário mínimo mensal (R$)
+						Salário mínimo mensal (R$) <UsageTags uses={["score"]} />
 						<input
 							type="number"
 							inputMode="numeric"
@@ -23,7 +24,7 @@ export function PaySection({ form, onChange }: SectionProps<PreferenceForm>) {
 						/>
 					</label>
 					<label>
-						Salário desejado mensal (R$)
+						Salário desejado mensal (R$) <UsageTags uses={["score"]} />
 						<input
 							type="number"
 							inputMode="numeric"

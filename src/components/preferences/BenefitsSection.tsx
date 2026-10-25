@@ -2,6 +2,7 @@ import { BENEFIT_OPTIONS } from "../../lib/jobLabels";
 import type { PreferenceForm } from "../../lib/preferenceForm";
 import { AddOptionField } from "../AddOptionField";
 import { ChoiceGroup } from "../ChoiceGroup";
+import { UsageTags } from "./UsageTags";
 import type { SectionProps } from "./sectionProps";
 
 const BENEFIT_CHOICES = toChoices(BENEFIT_OPTIONS);
@@ -22,6 +23,7 @@ export function BenefitsSection({ form, onChange, onAddBenefit }: BenefitsSectio
 			<div className="panel-body">
 				<ChoiceGroup
 					legend="Benefícios que você quer"
+					tags={<UsageTags uses={["score"]} />}
 					options={{ ...BENEFIT_CHOICES, ...toChoices(form.customBenefits) }}
 					selected={form.benefits}
 					onChange={(value) => onChange("benefits", value)}

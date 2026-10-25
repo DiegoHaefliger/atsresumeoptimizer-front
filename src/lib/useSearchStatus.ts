@@ -3,23 +3,23 @@ import { ApiError, apiGet, apiPostJson } from "../api/client";
 import type { SearchStatus } from "../api/types";
 
 const STATUS_PATH = "/api/v1/job-search";
-const POLL_MS = 3000;
+const POLL_MS = 2000;
 const CONFLICT = 409;
 
-export function useSearchStatus(onFinished: () => void) {
+export function useSearchStatus(onProgress: () => void) {
 	const [status, setStatus] = useState<SearchStatus | null>(null);
 	const wasRunning = useRef(false);
-	const finished = useRef(onFinished);
+	const progress = useRef(onProgress);
 
 	useEffect(() => {
-		finished.current = onFinished;
+		progress.current = onProgress;
 	});
 
 	const load = useCallback(() => {
 		apiGet<SearchStatus>(`${STATUS_PATH}/status`)
 			.then((loaded) => {
-				if (wasRunning.current && !loaded.running) {
-					finished.current();
+				if (wasRunning.current) {
+					progress.current();
 				}
 				wasRunning.current = Boolean(loaded.running);
 				setStatus(loaded);

@@ -5,7 +5,7 @@ import { BusyLabel } from "./BusyLabel";
 import { StateMessage } from "./StateMessage";
 
 type ImportPostFormProps = {
-	onImported: () => void;
+	onImported: (suggestion: JobSuggestion) => void;
 	onCancel: () => void;
 };
 
@@ -24,8 +24,7 @@ export function ImportPostForm({ onImported, onCancel }: ImportPostFormProps) {
 		setError(null);
 		const body: ImportPostRequest = { url: url.trim(), text: text.trim() || undefined };
 		try {
-			await apiPostJson<JobSuggestion>("/api/v1/job-suggestions/import", body);
-			onImported();
+			onImported(await apiPostJson<JobSuggestion>("/api/v1/job-suggestions/import", body));
 		} catch (err) {
 			setNeedsText(needsText || (err instanceof ApiError && err.status === UNPROCESSABLE));
 			setError(errorMessage(err, "Não deu pra importar a postagem. Tenta de novo."));

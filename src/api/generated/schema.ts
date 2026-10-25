@@ -1404,14 +1404,15 @@ export interface components {
             searchKeywords?: string[];
             searchExcludedKeywords?: string[];
             /** @enum {string} */
-            searchPostedWithin?: "ANY" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            searchPostedWithin?: "ANY" | "PAST_HOUR" | "PAST_2_HOURS" | "PAST_6_HOURS" | "PAST_12_HOURS" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
             /** Format: int32 */
             searchMaxResults?: number;
             /** Format: int32 */
             searchMinAdherence?: number;
             searchEnabled?: boolean;
             /** Format: int32 */
-            searchIntervalHours?: number;
+            searchCron?: string;
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
         };
         JobPreferenceResponse: {
             workModels?: ("REMOTE" | "HYBRID" | "ON_SITE")[];
@@ -1426,14 +1427,15 @@ export interface components {
             searchKeywords?: string[];
             searchExcludedKeywords?: string[];
             /** @enum {string} */
-            searchPostedWithin?: "ANY" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            searchPostedWithin?: "ANY" | "PAST_HOUR" | "PAST_2_HOURS" | "PAST_6_HOURS" | "PAST_12_HOURS" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
             /** Format: int32 */
             searchMaxResults?: number;
             /** Format: int32 */
             searchMinAdherence?: number;
             searchEnabled?: boolean;
             /** Format: int32 */
-            searchIntervalHours?: number;
+            searchCron?: string;
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
         };
         ImportPostRequest: {
             url: string;
@@ -1484,6 +1486,17 @@ export interface components {
         SearchStatusResponse: {
             running?: boolean;
             lastRun?: components["schemas"]["SearchRunResponse"];
+            /** Format: date-time */
+            nextRun?: string;
+            progress?: components["schemas"]["SearchProgressResponse"];
+        };
+        SearchProgressResponse: {
+            /** Format: int32 */
+            read?: number;
+            /** Format: int32 */
+            added?: number;
+            /** Format: int32 */
+            belowAdherence?: number;
         };
         PromotedJobResponse: {
             /** Format: uuid */
@@ -1491,7 +1504,11 @@ export interface components {
         };
         SuggestionCountResponse: {
             /** Format: int64 */
-            count?: number;
+            newSuggestions?: number;
+            /** Format: int64 */
+            belowAdherence?: number;
+            /** Format: int64 */
+            discarded?: number;
         };
         GoogleCredentialsRequest: {
             clientId: string;
@@ -1989,7 +2006,7 @@ export interface components {
         };
         CriterionMatch: {
             /** @enum {string} */
-            criterion?: "WORK_MODEL" | "SALARY" | "CONTRACT_TYPE" | "BENEFITS" | "COMPANY" | "SENIORITY" | "LOCATION";
+            criterion?: "WORK_MODEL" | "SALARY" | "CONTRACT_TYPE" | "BENEFITS" | "COMPANY" | "SENIORITY" | "LOCATION" | "KEYWORDS";
             /** @enum {string} */
             status?: "MATCH" | "PARTIAL" | "UNKNOWN" | "MISMATCH";
             detail?: string;
@@ -2037,7 +2054,7 @@ export interface components {
         };
         RewriteProgressView: {
             /** @enum {string} */
-            phase?: "READING" | "REWRITING" | "CHECKING" | "EXPORTING" | "SCORING";
+            phase?: "READING" | "REWRITING" | "CHECKING" | "REFINING" | "EXPORTING" | "SCORING";
         };
         AnalysisAtsView: {
             rawText?: string;

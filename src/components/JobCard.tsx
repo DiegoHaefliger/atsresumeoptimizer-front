@@ -1,5 +1,6 @@
 import type { SelectionProcess } from "../api/types";
 import { jobDetails } from "../lib/jobMeta";
+import { siteLabel } from "../lib/suggestionLabels";
 import type { Job } from "../lib/useJobs";
 import { JobScore } from "./JobScore";
 import { JobActions, type JobActionHandlers } from "./JobActions";
@@ -15,11 +16,13 @@ type JobCardProps = JobActionHandlers & {
 };
 
 export function JobCard({ job, process, removing, onAnalyze, ...actions }: JobCardProps) {
+	const site = siteLabel(job.sourceUrl);
 	return (
 		<article className="job-card">
 			<header className="job-card-top">
 				<JobCode code={job.code} />
 				{job.origin === "AUTOMATIC_SEARCH" && <Badge tone="info">Busca automática</Badge>}
+				{site && <Badge tone="neutral">{site}</Badge>}
 				{process && <StageBadge stage={process.stage} />}
 			</header>
 			<div className="job-card-heading">

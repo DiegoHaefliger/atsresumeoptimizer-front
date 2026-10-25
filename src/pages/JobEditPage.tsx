@@ -7,6 +7,7 @@ import { matchingOption, SENIORITY_OPTIONS } from "../lib/jobLabels";
 import { Skeleton } from "../components/Skeleton";
 import { StateMessage } from "../components/StateMessage";
 import { useJobs } from "../lib/useJobs";
+import type { JobsPageState } from "./JobsPage";
 
 export function JobEditPage() {
 	const { jobId } = useParams<{ jobId: string }>();
@@ -16,7 +17,9 @@ export function JobEditPage() {
 
 	async function save(draft: JobDraft) {
 		await apiPutJson(`/api/v1/jobs/${jobId}`, jobRequest(draft));
-		navigate("/jobs");
+		const reviewingPromoted = job?.origin === "AUTOMATIC_SEARCH" && !job.lastUsedAt;
+		const state: JobsPageState | undefined = reviewingPromoted ? { analyzeJobId: jobId } : undefined;
+		navigate("/jobs", { state });
 	}
 
 	return (
