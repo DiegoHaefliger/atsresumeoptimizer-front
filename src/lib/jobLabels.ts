@@ -1,5 +1,14 @@
 import type { BadgeTone } from "../components/Badge";
-import type { ContractType, MatchStatus, PreferenceCriterion, WorkModel } from "../api/types";
+import type { ContractType, MatchStatus, PostedWithin, PreferenceCriterion, SearchSite, WorkModel } from "../api/types";
+
+export const SEARCH_SITE_LABELS: Record<SearchSite, string> = {
+	LINKEDIN: "LinkedIn",
+	GUPY: "Gupy",
+	PROGRAMATHOR: "Programathor",
+	INFOJOBS: "InfoJobs",
+	VAGAS: "Vagas.com",
+	REMOTAR: "Remotar",
+};
 
 export const WORK_MODEL_LABELS: Record<WorkModel, string> = {
 	REMOTE: "Remoto",
@@ -22,6 +31,7 @@ const CRITERION_LABELS: Record<PreferenceCriterion, string> = {
 	COMPANY: "Empresa",
 	SENIORITY: "Senioridade",
 	LOCATION: "Localização",
+	KEYWORDS: "Cargos e palavras-chave",
 };
 
 const MATCH_STATUS_LABELS: Record<MatchStatus, string> = {
@@ -98,3 +108,14 @@ export const BENEFIT_OPTIONS = [
 export function matchingOption(options: readonly string[], value: string): string | undefined {
 	return options.find((option) => option.localeCompare(value, "pt-BR", { sensitivity: "base" }) === 0);
 }
+
+export const POSTED_WITHIN_LABELS: Record<PostedWithin, string> = {
+	ANY: "Qualquer data",
+	PAST_HOUR: "Última hora",
+	PAST_2_HOURS: "Últimas 2 horas",
+	PAST_6_HOURS: "Últimas 6 horas",
+	PAST_12_HOURS: "Últimas 12 horas",
+	PAST_24_HOURS: "Últimas 24 horas",
+	PAST_WEEK: "Últimos 7 dias",
+	PAST_MONTH: "Últimos 30 dias",
+};

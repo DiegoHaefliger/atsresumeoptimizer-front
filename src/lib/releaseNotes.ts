@@ -14,6 +14,24 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.7",
+		date: "2026-10-25",
+		summary: "Busca automática de vagas em vários sites, com sugestões para você promover, nota de aderência mais completa e ajustes na adaptação do currículo.",
+		changes: [
+			{ kind: "feat", text: "Nova busca de vagas em LinkedIn, Gupy, Programathor, InfoJobs, Vagas.com e Remotar, todos sem login. Os sites são consultados ao mesmo tempo, e um site fora do ar não interrompe os outros. Você escolhe os sites ativos em Preferências, na aba Busca de vagas." },
+			{ kind: "feat", text: "A busca roda na hora, pelo botão Buscar novas vagas, ou sozinha, no agendamento que você definir (mínimo de 1 hora entre buscas). Enquanto roda, uma animação mostra quantas vagas já foram processadas e quantas foram para cada aba, em tempo real." },
+			{ kind: "feat", text: "Nova aba Sugestões em Vagas, com Sugeridas, Abaixo da aderência e Descartadas, cada uma com seu contador. Vagas repetidas ou já cadastradas não voltam, e a lista aparece conforme as vagas são encontradas, ordenada por maior aderência e depois pela data. Uma sugestão só vira vaga cadastrada quando você promove." },
+			{ kind: "feat", text: "Importar postagem: cole o link de uma postagem de vaga do LinkedIn para trazê-la às sugestões, com a nota de aderência." },
+			{ kind: "feat", text: "A nota de aderência das sugestões passou a considerar também cargos, palavras-chave e palavras a excluir, e o salário quando o site informa. Em Preferências, cada campo tem as etiquetas Busca e Nota, para mostrar se serve para procurar vagas, para calcular a nota ou para os dois." },
+			{ kind: "improvement", text: "Cada vaga cadastrada mostra de qual site veio. Erros de um site aparecem como mensagem clara, podem ser dispensados e não impedem a busca nos demais." },
+			{ kind: "improvement", text: "Ao promover uma sugestão, a vaga é cadastrada na hora, e a leitura da IA continua em segundo plano. A tela mostra só a vaga promovida, com o botão Ver todas as vagas, e a descrição vem organizada em tópicos quando o anúncio tem seções." },
+			{ kind: "improvement", text: "Ao salvar a edição de uma vaga que veio da busca e ainda não foi analisada, a tela já abre a escolha do currículo para adaptar." },
+			{ kind: "fix", text: "O currículo base voltou a aparecer na lista. Ele ficava de fora quando havia mais de 50 currículos adaptados mais recentes." },
+			{ kind: "fix", text: "Currículo adaptado não repete mais os itens comportamentais em Competências Técnicas quando eles já estão em Habilidades." },
+			{ kind: "fix", text: "Listas de vagas e de sugestões carregam mais rápido, com novos índices no banco de dados." },
+		],
+	},
+	{
 		version: "1.1.6",
 		date: "2026-10-23",
 		summary: "Reordene as experiências, edite o currículo adaptado como num documento e acompanhe cada candidatura em telas novas, com resumo, custo de IA e linha do tempo.",

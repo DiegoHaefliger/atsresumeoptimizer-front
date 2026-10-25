@@ -1401,6 +1401,18 @@ export interface components {
             locations?: string[];
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
+            searchKeywords?: string[];
+            searchExcludedKeywords?: string[];
+            /** @enum {string} */
+            searchPostedWithin?: "ANY" | "PAST_HOUR" | "PAST_2_HOURS" | "PAST_6_HOURS" | "PAST_12_HOURS" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            /** Format: int32 */
+            searchMaxResults?: number;
+            /** Format: int32 */
+            searchMinAdherence?: number;
+            searchEnabled?: boolean;
+            /** Format: int32 */
+            searchCron?: string;
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
         };
         JobPreferenceResponse: {
             workModels?: ("REMOTE" | "HYBRID" | "ON_SITE")[];
@@ -1412,6 +1424,91 @@ export interface components {
             locations?: string[];
             preferredCompanies?: string[];
             avoidedCompanies?: string[];
+            searchKeywords?: string[];
+            searchExcludedKeywords?: string[];
+            /** @enum {string} */
+            searchPostedWithin?: "ANY" | "PAST_HOUR" | "PAST_2_HOURS" | "PAST_6_HOURS" | "PAST_12_HOURS" | "PAST_24_HOURS" | "PAST_WEEK" | "PAST_MONTH";
+            /** Format: int32 */
+            searchMaxResults?: number;
+            /** Format: int32 */
+            searchMinAdherence?: number;
+            searchEnabled?: boolean;
+            /** Format: int32 */
+            searchCron?: string;
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
+        };
+        ImportPostRequest: {
+            url: string;
+            text?: string;
+        };
+        JobSuggestionResponse: {
+            /** Format: uuid */
+            id?: string;
+            source?: string;
+            externalId?: string;
+            url?: string;
+            title?: string;
+            company?: string;
+            location?: string;
+            /** Format: date */
+            postedOn?: string;
+            description?: string;
+            /** Format: int32 */
+            score?: number;
+            /** @enum {string} */
+            status?: "NEW" | "PROMOTED" | "DISCARDED" | "FILTERED";
+            /** Format: date-time */
+            foundAt?: string;
+            /** Format: date-time */
+            decidedAt?: string;
+            /** Format: uuid */
+            jobPostingId?: string;
+        };
+        SearchRunResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            trigger?: "SCHEDULED" | "MANUAL";
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            finishedAt?: string;
+            /** Format: int32 */
+            read?: number;
+            /** Format: int32 */
+            added?: number;
+            /** Format: int32 */
+            duplicates?: number;
+            /** Format: int32 */
+            belowAdherence?: number;
+            error?: string;
+        };
+        SearchStatusResponse: {
+            running?: boolean;
+            lastRun?: components["schemas"]["SearchRunResponse"];
+            /** Format: date-time */
+            nextRun?: string;
+            progress?: components["schemas"]["SearchProgressResponse"];
+        };
+        SearchProgressResponse: {
+            /** Format: int32 */
+            read?: number;
+            /** Format: int32 */
+            added?: number;
+            /** Format: int32 */
+            belowAdherence?: number;
+        };
+        PromotedJobResponse: {
+            /** Format: uuid */
+            jobId?: string;
+        };
+        SuggestionCountResponse: {
+            /** Format: int64 */
+            newSuggestions?: number;
+            /** Format: int64 */
+            belowAdherence?: number;
+            /** Format: int64 */
+            discarded?: number;
         };
         GoogleCredentialsRequest: {
             clientId: string;
@@ -1909,7 +2006,7 @@ export interface components {
         };
         CriterionMatch: {
             /** @enum {string} */
-            criterion?: "WORK_MODEL" | "SALARY" | "CONTRACT_TYPE" | "BENEFITS" | "COMPANY" | "SENIORITY" | "LOCATION";
+            criterion?: "WORK_MODEL" | "SALARY" | "CONTRACT_TYPE" | "BENEFITS" | "COMPANY" | "SENIORITY" | "LOCATION" | "KEYWORDS";
             /** @enum {string} */
             status?: "MATCH" | "PARTIAL" | "UNKNOWN" | "MISMATCH";
             detail?: string;
@@ -1957,7 +2054,7 @@ export interface components {
         };
         RewriteProgressView: {
             /** @enum {string} */
-            phase?: "READING" | "REWRITING" | "CHECKING" | "EXPORTING" | "SCORING";
+            phase?: "READING" | "REWRITING" | "CHECKING" | "REFINING" | "EXPORTING" | "SCORING";
         };
         AnalysisAtsView: {
             rawText?: string;
@@ -1991,6 +2088,8 @@ export interface components {
             atsScore?: number;
             companyInfo?: string;
             benefitsMarkup?: string[];
+            /** @enum {string} */
+            origin?: "MANUAL" | "AUTOMATIC_SEARCH";
         };
         CostByModel: {
             model?: string;

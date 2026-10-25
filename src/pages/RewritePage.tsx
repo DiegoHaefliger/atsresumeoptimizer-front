@@ -24,7 +24,7 @@ import { TemplatePicker } from "../components/TemplatePicker";
 import { parseOriginal } from "../lib/originalResume";
 import { isSavedView } from "../lib/rewriteRoutes";
 import { useSteppedProgress } from "../lib/useSteppedProgress";
-import { AlertCircleIcon, ArrowRightIcon, DownloadIcon, SpinnerIcon } from "../components/icons";
+import { ArrowRightIcon, DownloadIcon, SpinnerIcon } from "../components/icons";
 
 type DownloadKind = "docx" | "pdf";
 
@@ -42,6 +42,7 @@ const REWRITE_STEPS: ProgressStep[] = [
 	{ key: "READING", label: "Lendo o currículo" },
 	{ key: "REWRITING", label: "Reescrevendo com IA" },
 	{ key: "CHECKING", label: "Conferindo que nada foi inventado" },
+	{ key: "REFINING", label: "Segunda passada da IA, só quando algo faltou" },
 	{ key: "EXPORTING", label: "Gerando PDF e DOCX" },
 	{ key: "SCORING", label: "Calculando a nova nota" },
 ];
@@ -349,36 +350,23 @@ export function RewritePage() {
 				</section>
 			)}
 
-			{(result.bullets?.items ?? []).some((bullet) => bullet.needsConfirmation) && (
-				<section>
-					<h2>Confira esses números</h2>
-					<ul className="bullets">
-						{(result.bullets?.items ?? [])
-							.filter((bullet) => bullet.needsConfirmation)
-							.map((bullet, index) => (
-								<li key={index} className="bullet-card bullet-card-needs-confirmation">
-									<div className="bullet-warning">
-										<AlertCircleIcon />
-										<span>{bullet.rewritten} — a IA pode ter generalizado o original.</span>
-									</div>
-								</li>
-							))}
-					</ul>
-				</section>
-			)}
-
 			{content && (
 				<section>
 					<div className="preview-toolbar">
 						<SegmentedTabs label="Modo" options={VIEW_OPTIONS} value={view} onChange={setView} />
 						{view === "preview" && canShowChanges && (
-							<label className="preview-toggle">
+							<label className="toggle-option preview-toggle">
 								<input
 									type="checkbox"
+									role="switch"
 									checked={showChanges}
 									onChange={(event) => setShowChanges(event.target.checked)}
 								/>
-								Mostrar o que mudou
+								<span className="toggle-switch" aria-hidden="true" />
+								<span className="toggle-option-text">
+									<span className="toggle-option-title">Mostrar o que mudou</span>
+									<span className="toggle-option-desc">Destaca o que a IA adicionou e removeu em relação ao original.</span>
+								</span>
 							</label>
 						)}
 					</div>

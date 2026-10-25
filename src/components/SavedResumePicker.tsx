@@ -1,5 +1,5 @@
 import type { ResumeSummary } from "../api/types";
-import { resumeMeta, splitByOrigin, versionLabel } from "../lib/resumeLabels";
+import { resumeMeta, versionLabel } from "../lib/resumeLabels";
 import { Badge } from "./Badge";
 import { FileTextIcon } from "./icons";
 import { ResumeListSkeleton } from "./ResumeListSkeleton";
@@ -17,30 +17,11 @@ export function SavedResumePicker({ resumes, selected, onSelect }: SavedResumePi
 		return <ResumeListSkeleton />;
 	}
 
-	const { base, adapted } = splitByOrigin(resumes);
-	const adaptedSelected = adapted.some((resume) => resume.id === selected?.resumeId);
-
 	return (
-		<div className="saved-resume-groups">
-			<div className="saved-resumes" role="radiogroup" aria-label="Currículos base">
-				{base.map((resume) => (
-					<ResumeOption key={resume.id} resume={resume} selected={selected} onSelect={onSelect} />
-				))}
-			</div>
-			{adapted.length > 0 && (
-				<details className="adapted-resumes" open={adaptedSelected}>
-					<summary>Usar um currículo gerado por análise ({adapted.length})</summary>
-					<p className="field-hint">
-						Versões que a IA já adaptou para uma vaga. Analisar uma delas compara o texto adaptado, não o seu
-						currículo base.
-					</p>
-					<div className="saved-resumes" role="radiogroup" aria-label="Currículos gerados por análise">
-						{adapted.map((resume) => (
-							<ResumeOption key={resume.id} resume={resume} selected={selected} onSelect={onSelect} />
-						))}
-					</div>
-				</details>
-			)}
+		<div className="saved-resumes" role="radiogroup" aria-label="Currículos base">
+			{resumes.map((resume) => (
+				<ResumeOption key={resume.id} resume={resume} selected={selected} onSelect={onSelect} />
+			))}
 		</div>
 	);
 }
@@ -68,7 +49,6 @@ function ResumeOption({ resume, selected, onSelect }: ResumeOptionProps) {
 					<span className="saved-resume-title">{resume.title}</span>
 					<span className="saved-resume-meta">{resumeMeta(resume)}</span>
 				</span>
-				{resume.origin === "ADAPTED" && <Badge tone="info">Adaptado</Badge>}
 				{resume.favorite && <Badge tone="info">Favorito</Badge>}
 			</label>
 			{selected && isSelected && versions.length > 1 && (
