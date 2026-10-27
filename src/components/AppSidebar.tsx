@@ -32,7 +32,7 @@ export function AppSidebar() {
 	return (
 		<aside className="app-sidebar">
 			<div className="brand">
-				<span className="brand-mark">A</span>
+				<img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
 				<span className="brand-text">
 					<span className="brand-name">ATS Resume</span>
 					<span className="brand-tagline">Optimizer</span>

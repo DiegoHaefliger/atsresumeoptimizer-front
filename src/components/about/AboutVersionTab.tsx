@@ -12,7 +12,7 @@ export function AboutVersionTab() {
 	return (
 		<>
 			<section className="about-hero panel" aria-label="Versão do sistema">
-				<span className="brand-mark about-hero-mark">A</span>
+				<img className="brand-mark about-hero-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
 				<div className="about-hero-body">
 					<span className="about-hero-label">Versão instalada</span>
 					<strong className="about-hero-version">{version?.current ? `v${version.current}` : "Indisponível"}</strong>
