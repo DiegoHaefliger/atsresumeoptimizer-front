@@ -6773,6 +6773,18 @@ kbd {
 	color: var(--text-muted);
 }
 
+.suggestion-bulk-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+}
+
+.suggestion-select {
+	cursor: pointer;
+}
+
 .suggestion-no-score {
 	padding: 2px var(--space-2);
 	border-radius: var(--radius-full);

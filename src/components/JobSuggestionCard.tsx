@@ -13,9 +13,10 @@ type JobSuggestionCardProps = {
 	onPromote: (id: string) => void;
 	onDiscard: (id: string) => void;
 	onRestore: (id: string) => void;
+	selection?: { selected: boolean; onToggle: (id: string) => void };
 };
 
-export function JobSuggestionCard({ suggestion, view, busy, onPromote, onDiscard, onRestore }: JobSuggestionCardProps) {
+export function JobSuggestionCard({ suggestion, view, busy, onPromote, onDiscard, onRestore, selection }: JobSuggestionCardProps) {
 	const [promoting, setPromoting] = useState(false);
 	const [expanded, setExpanded] = useState(false);
 	const details = [suggestion.company, suggestion.location, suggestion.postedOn ? `publicada em ${formatDate(suggestion.postedOn)}` : null]
@@ -30,7 +31,14 @@ export function JobSuggestionCard({ suggestion, view, busy, onPromote, onDiscard
 	return (
 		<article className="job-card suggestion-card">
 			<header className="job-card-top">
-				<span className="suggestion-source">{sourceLabel(suggestion.source)}</span>
+				{selection ? (
+					<label className="checkbox-row suggestion-select">
+						<input type="checkbox" checked={selection.selected} disabled={busy} onChange={() => selection.onToggle(suggestion.id)} />
+						<span className="suggestion-source">{sourceLabel(suggestion.source)}</span>
+					</label>
+				) : (
+					<span className="suggestion-source">{sourceLabel(suggestion.source)}</span>
+				)}
 				{suggestion.score != null ? (
 					<span className={`preference-score preference-score-${scoreTone(suggestion.score)}`} title="Aderência às suas preferências">
 						{suggestion.score}% de aderência
