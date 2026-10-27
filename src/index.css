@@ -7112,3 +7112,7 @@ kbd {
 .linkedin-history {
 	min-width: 240px;
 }
+
+.panel-header .linkedin-refresh {
+	margin-top: var(--space-3);
+}

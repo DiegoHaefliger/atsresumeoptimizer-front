@@ -86,7 +86,7 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 			<section className="panel">
 				<div className="panel-header">
 					<h2>Último perfil recebido</h2>
-					<button type="button" className="btn-secondary btn-small" onClick={() => void load()} disabled={loading}>
+					<button type="button" className="btn-secondary btn-small linkedin-refresh" onClick={() => void load()} disabled={loading}>
 						<RefreshIcon /> Atualizar
 					</button>
 				</div>
