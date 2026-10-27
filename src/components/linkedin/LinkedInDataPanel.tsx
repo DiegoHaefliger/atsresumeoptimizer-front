@@ -5,7 +5,6 @@ import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { Badge } from "../Badge";
 import { DownloadIcon, RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
-import { CopyButton } from "./CopyButton";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
 const EXTENSION_FILE = "ats-linkedin-extension.zip";
@@ -63,7 +62,9 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 					<ol className="linkedin-steps">
 						<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
 						<li>
-							Abra uma nova aba do Chrome e vá em <code>{EXTENSIONS_PAGE}</code> <CopyButton text={EXTENSIONS_PAGE} label="Copiar endereço" />
+							Abra uma nova aba do Chrome e vá em <a href={EXTENSIONS_PAGE} target="_blank" rel="noreferrer">
+								<code>{EXTENSIONS_PAGE}</code>
+							</a>
 						</li>
 						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
 						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
