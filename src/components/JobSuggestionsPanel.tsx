@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ApiError, errorMessage } from "../api/client";
 import type { JobSuggestion } from "../api/types";
 import { useJobSuggestions, type SuggestionCounts, type SuggestionView } from "../lib/useJobSuggestions";
+import { EMPTY_SUGGESTION_FILTERS, filterSuggestions, suggestionSources, type SuggestionFilters } from "../lib/suggestionFilters";
 import { useDismissedRun } from "../lib/useDismissedRun";
 import { useSearchStatus } from "../lib/useSearchStatus";
 import { BusyLabel } from "./BusyLabel";
@@ -10,6 +11,7 @@ import { DismissibleError } from "./DismissibleError";
 import { ImportPostForm } from "./ImportPostForm";
 import { JobSuggestionCard } from "./JobSuggestionCard";
 import { SegmentedTabs } from "./SegmentedTabs";
+import { SuggestionFiltersBar } from "./SuggestionFiltersBar";
 import { LoadFailed } from "./LoadFailed";
 import { SearchProgress } from "./SearchProgress";
 import { Skeleton } from "./Skeleton";
@@ -47,6 +49,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 	const [error, setError] = useState<string | null>(null);
 	const [importing, setImporting] = useState(false);
 	const [needsPreferences, setNeedsPreferences] = useState(false);
+	const [filters, setFilters] = useState<SuggestionFilters>(EMPTY_SUGGESTION_FILTERS);
 	const { suggestions, failed, reload, promote, decide } = useJobSuggestions(view);
 	const { status, start, busy: searching } = useSearchStatus(() => {
 		reload();
@@ -54,6 +57,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 	});
 	const lastRunError = useDismissedRun(status?.lastRun?.id);
 	const items = suggestions?.filter((item): item is IdentifiedSuggestion => Boolean(item.id)) ?? null;
+	const visible = items ? filterSuggestions(items, filters) : null;
 
 	async function run(id: string, action: () => Promise<unknown>, fallback: string) {
 		setBusyId(id);
@@ -162,19 +166,32 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 					action={view === "new" ? { label: "Abrir Preferências", to: "/preferences" } : undefined}
 				/>
 			) : (
-				<div className="job-grid">
-					{items.map((item) => (
-						<JobSuggestionCard
-							key={item.id}
-							suggestion={item}
-							view={view}
-							busy={busyId !== null}
-							onPromote={handlePromote}
-							onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
-							onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
-						/>
-					))}
-				</div>
+				<>
+					<SuggestionFiltersBar
+						filters={filters}
+						onChange={setFilters}
+						sources={suggestionSources(items)}
+						shown={visible?.length ?? 0}
+						total={items.length}
+					/>
+					{visible?.length === 0 ? (
+						<StateMessage variant="empty" layout="inline" message="Nenhuma vaga combina com esses filtros." />
+					) : (
+					<div className="job-grid">
+						{visible?.map((item) => (
+							<JobSuggestionCard
+								key={item.id}
+								suggestion={item}
+								view={view}
+								busy={busyId !== null}
+								onPromote={handlePromote}
+								onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
+								onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
+							/>
+						))}
+					</div>
+					)}
+				</>
 			)}
 		</section>
 	);
