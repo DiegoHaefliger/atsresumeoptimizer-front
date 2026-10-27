@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "ATS Resume Optimizer - Perfil do LinkedIn",
+  "version": "0.1.0",
+  "description": "Lê o seu próprio perfil aberto no LinkedIn e envia para o ATS Resume Optimizer analisar.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://media.licdn.com/*"
+  ],
+  "action": {
+    "default_title": "Analisar meu LinkedIn",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon.png",
+      "32": "icons/icon.png",
+      "48": "icons/icon.png",
+      "128": "icons/icon.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon.png",
+    "32": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  }
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+	<meta charset="utf-8">
+	<title>ATS Resume Optimizer</title>
+	<style>
+		body { font: 14px system-ui, sans-serif; width: 320px; margin: 0; padding: 14px; color: #1d2433; }
+		h1 { font-size: 15px; margin: 0 0 10px; }
+		button { width: 100%; padding: 8px; margin-top: 8px; border: 0; border-radius: 6px; background: #2457d6; color: #fff; font: inherit; cursor: pointer; }
+		button.secondary { background: #e6e9f0; color: #1d2433; }
+		button:disabled { opacity: .5; cursor: default; }
+		ul { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+		li { padding: 2px 8px; border-radius: 10px; font-size: 12px; background: #e6e9f0; }
+		li.ok { background: #d8f3e3; color: #14532d; }
+		label { display: block; margin-top: 8px; font-size: 12px; }
+		input { width: 100%; box-sizing: border-box; padding: 6px; font: inherit; }
+		#status { margin-top: 10px; min-height: 18px; font-size: 13px; }
+		#status.error { color: #b42318; }
+		details { margin-top: 12px; }
+	</style>
+</head>
+<body>
+	<h1>Analisar meu LinkedIn</h1>
+	<p style="margin:0;font-size:12px">Abra o seu perfil no LinkedIn e leia a página. Para competências, certificações e idiomas, abra "Mostrar tudo" e leia de novo.</p>
+	<button id="capture">Ler esta página</button>
+	<ul id="sections"></ul>
+	<button id="send" disabled>Enviar para o app</button>
+	<button id="reset" class="secondary">Limpar leitura</button>
+	<div id="status" role="status"></div>
+	<details>
+		<summary>Endereço do app</summary>
+		<label>Endereço<input id="serverUrl" value="http://localhost:8080"></label>
+	</details>
+	<script type="module" src="popup.js"></script>
+</body>
+</html>

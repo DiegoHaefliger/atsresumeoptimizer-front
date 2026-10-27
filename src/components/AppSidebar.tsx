@@ -7,6 +7,7 @@ import {
 	CalendarIcon,
 	FileTextIcon,
 	InfoIcon,
+	LinkedInIcon,
 	MessageSquareIcon,
 	MessagesIcon,
 	NotebookIcon,
@@ -19,6 +20,7 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/resumes", label: "Currículos", Icon: FileTextIcon },
 	{ to: "/calendar", label: "Agenda", Icon: CalendarIcon },
 	{ to: "/chat", label: "Chat", Icon: MessagesIcon },
+	{ to: "/linkedin", label: "LinkedIn", Icon: LinkedInIcon },
 	{ to: "/notes", label: "Notas", Icon: NotebookIcon },
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
@@ -30,7 +32,7 @@ export function AppSidebar() {
 	return (
 		<aside className="app-sidebar">
 			<div className="brand">
-				<span className="brand-mark">A</span>
+				<img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
 				<span className="brand-text">
 					<span className="brand-name">ATS Resume</span>
 					<span className="brand-tagline">Optimizer</span>
