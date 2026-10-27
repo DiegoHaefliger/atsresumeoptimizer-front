@@ -22,10 +22,10 @@ export const SECTION_LABELS = {
 	certifications: 'Certificações',
 	languages: 'Idiomas',
 	projects: 'Projetos',
-	publications: 'Publicações',
+	publications: 'Livros e artigos publicados',
 	recommendations: 'Recomendações',
 	featured: 'Em destaque',
-	recentActivity: 'Atividade',
+	recentActivity: 'Posts e atividade',
 	photo: 'Foto',
 	banner: 'Banner',
 }

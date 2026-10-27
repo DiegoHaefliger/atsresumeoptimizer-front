@@ -13,10 +13,10 @@ export const SECTION_LABELS: Record<ProfileSection, string> = {
 	CERTIFICATIONS: "Certificações",
 	LANGUAGES: "Idiomas",
 	PROJECTS: "Projetos",
-	PUBLICATIONS: "Publicações",
+	PUBLICATIONS: "Livros e artigos publicados",
 	RECOMMENDATIONS: "Recomendações",
 	FEATURED: "Em destaque",
-	ACTIVITY: "Atividade",
+	ACTIVITY: "Posts e atividade",
 };
 
 export const PRIORITY_LABELS: Record<SuggestionPriority, string> = {
