@@ -9,13 +9,11 @@ const elements = {
 	sections: document.getElementById('sections'),
 	status: document.getElementById('status'),
 	serverUrl: document.getElementById('serverUrl'),
-	token: document.getElementById('token'),
 }
 
 async function load() {
-	const stored = await chrome.storage.local.get(['draft', 'serverUrl', 'token'])
+	const stored = await chrome.storage.local.get(['draft', 'serverUrl'])
 	elements.serverUrl.value = stored.serverUrl || DEFAULT_SERVER
-	elements.token.value = stored.token || ''
 	return stored.draft || emptyDraft()
 }
 
@@ -70,8 +68,9 @@ elements.capture.addEventListener('click', async () => {
 elements.send.addEventListener('click', async () => {
 	elements.send.disabled = true
 	try {
-		await chrome.storage.local.set({ serverUrl: elements.serverUrl.value, token: elements.token.value })
-		await sendSnapshot({ serverUrl: elements.serverUrl.value, token: elements.token.value.trim(), draft })
+		const serverUrl = elements.serverUrl.value.trim()
+		await sendSnapshot({ serverUrl, draft })
+		await chrome.storage.local.set({ serverUrl })
 		draft = emptyDraft()
 		await save(draft)
 		say('Perfil enviado. Abra o app para ver a análise.')

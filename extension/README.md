@@ -6,14 +6,13 @@ Lê o **seu próprio perfil**, aberto por você no navegador, e envia para o app
 
 1. Abra `chrome://extensions` e ligue **Modo do desenvolvedor**.
 2. **Carregar sem compactação** e escolha a pasta `front/extension`.
-3. No app, abra a tela de análise do LinkedIn e copie o **token de pareamento**.
 
 ## Usar
 
 1. Abra o seu perfil em `linkedin.com/in/...` e role até o fim para carregar as seções.
 2. Clique na extensão e em **Ler esta página**.
 3. Competências, certificações, idiomas e recomendações só aparecem completas nas páginas "Mostrar tudo": abra cada uma e clique em **Ler esta página** de novo. As leituras se acumulam.
-4. Em **Conexão com o app**, informe o endereço (padrão `http://localhost:8080`) e o token, e clique em **Enviar para o app**.
+4. Clique em **Enviar para o app**. A extensão busca o token de pareamento sozinha; só mude o **Endereço do app** (padrão `http://localhost:8080`) se o backend rodar em outra porta.
 
 ## Manutenção
 

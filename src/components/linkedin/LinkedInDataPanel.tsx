@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiGet, apiPostJson, apiUrl, ApiError, errorMessage } from "../../api/client";
-import type { LinkedInSnapshotResponse, PairingTokenResponse } from "../../api/linkedinTypes";
+import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
+import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { Badge } from "../Badge";
 import { RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
-import { CopyButton } from "./CopyButton";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
 
 export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (snapshot: LinkedInSnapshotResponse | null) => void }) {
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
-	const [token, setToken] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -19,17 +17,13 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 		setLoading(true);
 		setError(null);
 		try {
-			const [latest, pairing] = await Promise.all([
-				apiGet<LinkedInSnapshotResponse>(`${SNAPSHOT_PATH}/latest`).catch((err) => {
-					if (err instanceof ApiError && err.status === 404) {
-						return null;
-					}
-					throw err;
-				}),
-				apiGet<PairingTokenResponse>("/api/v1/linkedin/pairing-token"),
-			]);
+			const latest = await apiGet<LinkedInSnapshotResponse>(`${SNAPSHOT_PATH}/latest`).catch((err) => {
+				if (err instanceof ApiError && err.status === 404) {
+					return null;
+				}
+				throw err;
+			});
 			setSnapshot(latest);
-			setToken(pairing.token);
 			onSnapshotLoaded?.(latest);
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra carregar os dados do LinkedIn."));
@@ -41,15 +35,6 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 	useEffect(() => {
 		void load();
 	}, [load]);
-
-	async function regenerate() {
-		try {
-			const pairing = await apiPostJson<PairingTokenResponse>("/api/v1/linkedin/pairing-token/regenerate", {});
-			setToken(pairing.token);
-		} catch (err) {
-			setError(errorMessage(err, "Não deu pra gerar um novo token."));
-		}
-	}
 
 	return (
 		<div className="settings-main">
@@ -66,18 +51,8 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 						</li>
 						<li>Abra o seu perfil em linkedin.com/in e role até o fim pra carregar as seções.</li>
 						<li>Clique na extensão, em “Ler esta página”. Repita nas páginas “Mostrar tudo” de competências e certificações.</li>
-						<li>Cole o token abaixo na extensão e clique em “Enviar para o app”.</li>
+						<li>Clique em “Enviar para o app”. O app precisa estar aberto; a extensão se pareia sozinha.</li>
 					</ol>
-					<div className="linkedin-token">
-						<span className="form-field-label">Token de pareamento</span>
-						<code className="linkedin-token-value">{token ?? "..."}</code>
-						<div className="linkedin-token-actions">
-							{token && <CopyButton text={token} />}
-							<button type="button" className="btn-secondary btn-small" onClick={regenerate}>
-								Gerar outro
-							</button>
-						</div>
-					</div>
 				</div>
 			</section>
 			<section className="panel">
