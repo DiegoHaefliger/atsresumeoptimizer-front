@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
@@ -9,6 +9,29 @@ import { StateMessage } from "../StateMessage";
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
 const EXTENSION_FILE = "ats-linkedin-extension.zip";
 const EXTENSIONS_PAGE = "chrome://extensions";
+
+const COPIED_FEEDBACK_MS = 4000;
+
+function ExtensionsLink() {
+	const [copied, setCopied] = useState(false);
+
+	async function copy(event: MouseEvent<HTMLAnchorElement>) {
+		event.preventDefault();
+		await navigator.clipboard.writeText(EXTENSIONS_PAGE);
+		setCopied(true);
+		window.setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+	}
+
+	return (
+		<>
+			Abra uma nova aba do Chrome e vá em{" "}
+			<a href={EXTENSIONS_PAGE} onClick={copy}>
+				<code>{EXTENSIONS_PAGE}</code>
+			</a>
+			{copied ? " (copiado, é só colar na barra de endereço)" : " (clique para copiar)"}
+		</>
+	);
+}
 
 function downloadExtension() {
 	const link = document.createElement("a");
@@ -62,9 +85,7 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 					<ol className="linkedin-steps">
 						<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
 						<li>
-							Abra uma nova aba do Chrome e vá em <a href={EXTENSIONS_PAGE} target="_blank" rel="noreferrer">
-								<code>{EXTENSIONS_PAGE}</code>
-							</a>
+							<ExtensionsLink />
 						</li>
 						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
 						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
