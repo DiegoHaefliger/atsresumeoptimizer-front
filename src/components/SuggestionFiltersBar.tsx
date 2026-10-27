@@ -20,7 +20,7 @@ export function SuggestionFiltersBar({ filters, onChange, sources, shown, total 
 	const active = hasActiveSuggestionFilters(filters);
 
 	return (
-		<div className="job-filters" role="search" aria-label="Filtrar vagas sugeridas">
+		<div className="job-filters job-filters-inline" role="search" aria-label="Filtrar vagas sugeridas">
 			<label className="job-filters-query">
 				<span className="sr-only">Buscar vaga sugerida</span>
 				<input
