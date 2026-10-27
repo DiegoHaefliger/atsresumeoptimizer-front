@@ -25,3 +25,5 @@ blob-report/
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+
+public/ats-linkedin-extension.zip

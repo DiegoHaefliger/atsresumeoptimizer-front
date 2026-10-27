@@ -3,10 +3,20 @@ import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { Badge } from "../Badge";
-import { RefreshIcon } from "../icons";
+import { DownloadIcon, RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
+import { CopyButton } from "./CopyButton";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
+const EXTENSION_FILE = "ats-linkedin-extension.zip";
+const EXTENSIONS_PAGE = "chrome://extensions";
+
+function downloadExtension() {
+	const link = document.createElement("a");
+	link.href = `${import.meta.env.BASE_URL}${EXTENSION_FILE}`;
+	link.download = EXTENSION_FILE;
+	link.click();
+}
 
 export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (snapshot: LinkedInSnapshotResponse | null) => void }) {
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
@@ -41,16 +51,34 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 			{error && <StateMessage variant="error" message={error} />}
 			<section className="panel">
 				<div className="panel-header">
-					<h2>Como trazer o seu perfil</h2>
-					<p>Você mesmo abre o perfil no LinkedIn, já logado. A extensão lê só a página aberta, sem guardar senha nem cookie.</p>
+					<h2>1. Instale a extensão do Chrome (uma vez só)</h2>
+					<p>Ela lê só a página do LinkedIn que você abrir, sem guardar senha nem cookie.</p>
+				</div>
+				<div className="panel-body">
+					<div className="linkedin-actions">
+						<button type="button" onClick={downloadExtension}>
+							<DownloadIcon /> Baixar extensão
+						</button>
+					</div>
+					<ol className="linkedin-steps">
+						<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
+						<li>
+							Abra uma nova aba do Chrome e vá em <code>{EXTENSIONS_PAGE}</code> <CopyButton text={EXTENSIONS_PAGE} label="Copiar endereço" />
+						</li>
+						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
+						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
+						<li>Clique no ícone de quebra-cabeça do Chrome e fixe a extensão “ATS Resume Optimizer”.</li>
+					</ol>
+				</div>
+			</section>
+			<section className="panel">
+				<div className="panel-header">
+					<h2>2. Traga o seu perfil</h2>
 				</div>
 				<div className="panel-body">
 					<ol className="linkedin-steps">
-						<li>
-							Instale a extensão do Chrome (pasta <code>extension</code> do projeto, modo desenvolvedor).
-						</li>
-						<li>Abra o seu perfil em linkedin.com/in e role até o fim pra carregar as seções.</li>
-						<li>Clique na extensão, em “Ler esta página”. Repita nas páginas “Mostrar tudo” de competências e certificações.</li>
+						<li>Abra o seu perfil em linkedin.com/in, já logado, e role até o fim pra carregar as seções.</li>
+						<li>Clique no ícone da extensão e em “Ler esta página”. Repita nas páginas “Mostrar tudo” de competências e certificações.</li>
 						<li>Clique em “Enviar para o app”. O app precisa estar aberto; a extensão se pareia sozinha.</li>
 					</ol>
 				</div>

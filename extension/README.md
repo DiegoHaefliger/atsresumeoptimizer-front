@@ -4,6 +4,8 @@ Lê o **seu próprio perfil**, aberto por você no navegador, e envia para o app
 
 ## Instalar (modo desenvolvedor)
 
+Na tela de LinkedIn do app, o botão **Baixar extensão** entrega o `.zip` (gerado por `npm run pack:extension`, também rodado em `dev` e `build`) com o passo a passo.
+
 1. Abra `chrome://extensions` e ligue **Modo do desenvolvedor**.
 2. **Carregar sem compactação** e escolha a pasta `front/extension`.
 
