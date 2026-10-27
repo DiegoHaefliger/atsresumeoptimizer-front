@@ -29,6 +29,33 @@ const ANALYSIS: LinkedInAnalysisResponse = {
 };
 
 describe("AnalysisResult", () => {
+	it("reviews each experience on its own with its own rewrite", () => {
+		render(<AnalysisResult analysis={{ ...ANALYSIS, sections: [
+			{
+				section: "EXPERIENCE",
+				score: 70,
+				diagnosis: "Cargos claros.",
+				suggestions: [],
+				items: [
+					{
+						title: "Porto - Desenvolvedor Sênior",
+						score: 60,
+						diagnosis: "Faltam métricas na Porto.",
+						suggestions: [{ priority: "HIGH", text: "Abrir com o resultado da Porto" }],
+						rewrite: "- Reduzi o tempo de resposta",
+					},
+					{ title: "Zup - Desenvolvedor", score: 85, diagnosis: "Claro na Zup.", suggestions: [] },
+				],
+			},
+		] }} />);
+
+		expect(screen.getByRole("heading", { name: "Porto - Desenvolvedor Sênior" })).toBeTruthy();
+		expect(screen.getByRole("heading", { name: "Zup - Desenvolvedor" })).toBeTruthy();
+		expect(screen.getByText("Abrir com o resultado da Porto")).toBeTruthy();
+		expect(screen.getByText("- Reduzi o tempo de resposta")).toBeTruthy();
+		expect(screen.getByText("85/100")).toBeTruthy();
+	});
+
 	it("shows the score, the top actions and the rewrite ready to copy", () => {
 		render(<AnalysisResult analysis={ANALYSIS} />);
 

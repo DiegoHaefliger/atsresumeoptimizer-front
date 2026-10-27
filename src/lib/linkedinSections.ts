@@ -2,7 +2,7 @@ import type { LinkedInSectionReviewResponse, SuggestionPriority } from "../api/l
 
 const PRIORITY_ORDER: Record<SuggestionPriority, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 
-export function sortedByPriority(review: LinkedInSectionReviewResponse): LinkedInSectionReviewResponse["suggestions"] {
+export function sortedByPriority(review: Pick<LinkedInSectionReviewResponse, "suggestions">): LinkedInSectionReviewResponse["suggestions"] {
 	return [...review.suggestions].sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
 }
 

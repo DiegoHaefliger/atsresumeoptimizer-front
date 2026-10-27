@@ -66,12 +66,21 @@ export type SuggestionPriority = "HIGH" | "MEDIUM" | "LOW";
 
 export type LinkedInSuggestionResponse = { priority: SuggestionPriority; text: string };
 
+export type LinkedInItemReviewResponse = {
+	title: string;
+	score: number;
+	diagnosis: string;
+	suggestions: LinkedInSuggestionResponse[];
+	rewrite?: string | null;
+};
+
 export type LinkedInSectionReviewResponse = {
 	section: ProfileSection;
 	score: number;
 	diagnosis: string;
 	suggestions: LinkedInSuggestionResponse[];
 	rewrite?: string | null;
+	items?: LinkedInItemReviewResponse[];
 };
 
 export type LinkedInAnalysisResponse = {

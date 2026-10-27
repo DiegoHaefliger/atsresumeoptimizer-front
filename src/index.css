@@ -7107,3 +7107,29 @@ kbd {
 .panel-header .linkedin-refresh {
 	margin-top: var(--space-3);
 }
+
+.linkedin-item {
+	display: grid;
+	gap: var(--space-3);
+	padding: var(--space-4);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--border);
+	background: var(--surface-2);
+}
+
+.linkedin-item-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+}
+
+.linkedin-item-head h4 {
+	margin: 0;
+	font-size: var(--font-size-base);
+}
+
+.linkedin-item p {
+	margin: 0;
+}
