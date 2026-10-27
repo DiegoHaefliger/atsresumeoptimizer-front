@@ -3298,6 +3298,27 @@ button.page-back {
 	font-weight: var(--font-weight-medium);
 }
 
+@media (min-width: 900px) {
+	.job-filters-inline {
+		flex-wrap: nowrap;
+	}
+
+	.job-filters-inline .job-filters-query {
+		flex: 2 1 0;
+	}
+
+	.job-filters-inline label {
+		flex: 1 1 0;
+	}
+
+	.job-filters-inline .job-filters-summary {
+		flex: 0 0 auto;
+		flex-direction: column;
+		align-items: flex-end;
+		justify-content: center;
+	}
+}
+
 .job-filters-summary {
 	flex-basis: 100%;
 	display: flex;
@@ -6741,6 +6762,18 @@ kbd {
 	font-size: var(--font-size-xs);
 	font-weight: var(--font-weight-semibold);
 	color: var(--text-muted);
+}
+
+.suggestion-bulk-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+}
+
+.suggestion-select {
+	cursor: pointer;
 }
 
 .suggestion-no-score {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ApiError, errorMessage } from "../api/client";
 import type { JobSuggestion } from "../api/types";
 import { useJobSuggestions, type SuggestionCounts, type SuggestionView } from "../lib/useJobSuggestions";
+import { EMPTY_SUGGESTION_FILTERS, filterSuggestions, suggestionSources, type SuggestionFilters } from "../lib/suggestionFilters";
 import { useDismissedRun } from "../lib/useDismissedRun";
 import { useSearchStatus } from "../lib/useSearchStatus";
 import { BusyLabel } from "./BusyLabel";
@@ -10,6 +11,8 @@ import { DismissibleError } from "./DismissibleError";
 import { ImportPostForm } from "./ImportPostForm";
 import { JobSuggestionCard } from "./JobSuggestionCard";
 import { SegmentedTabs } from "./SegmentedTabs";
+import { SuggestionBulkBar, type BulkAction } from "./SuggestionBulkBar";
+import { SuggestionFiltersBar } from "./SuggestionFiltersBar";
 import { LoadFailed } from "./LoadFailed";
 import { SearchProgress } from "./SearchProgress";
 import { Skeleton } from "./Skeleton";
@@ -47,6 +50,9 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 	const [error, setError] = useState<string | null>(null);
 	const [importing, setImporting] = useState(false);
 	const [needsPreferences, setNeedsPreferences] = useState(false);
+	const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+	const [bulkBusy, setBulkBusy] = useState<BulkAction | null>(null);
+	const [filters, setFilters] = useState<SuggestionFilters>(EMPTY_SUGGESTION_FILTERS);
 	const { suggestions, failed, reload, promote, decide } = useJobSuggestions(view);
 	const { status, start, busy: searching } = useSearchStatus(() => {
 		reload();
@@ -54,6 +60,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 	});
 	const lastRunError = useDismissedRun(status?.lastRun?.id);
 	const items = suggestions?.filter((item): item is IdentifiedSuggestion => Boolean(item.id)) ?? null;
+	const visible = items ? filterSuggestions(items, filters) : null;
 
 	async function run(id: string, action: () => Promise<unknown>, fallback: string) {
 		setBusyId(id);
@@ -67,6 +74,48 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 			return false;
 		} finally {
 			setBusyId(null);
+		}
+	}
+
+	const selectable = view === "below";
+	const selectedVisible = visible?.filter((item) => selected.has(item.id)) ?? [];
+
+	function toggle(id: string) {
+		setSelected((current) => {
+			const next = new Set(current);
+			if (!next.delete(id)) {
+				next.add(id);
+			}
+			return next;
+		});
+	}
+
+	function toggleAll(checked: boolean) {
+		setSelected(checked ? new Set(visible?.map((item) => item.id)) : new Set());
+	}
+
+	async function runBulk(action: BulkAction) {
+		const ids = selectedVisible.map((item) => item.id);
+		setBulkBusy(action);
+		setError(null);
+		const failed = new Set<string>();
+		for (const id of ids) {
+			try {
+				if (action === "promote") {
+					await promote(id);
+				} else {
+					await decide(id, "discard");
+				}
+			} catch {
+				failed.add(id);
+			}
+		}
+		setSelected(failed);
+		onChanged();
+		setBulkBusy(null);
+		if (failed.size > 0) {
+			const verb = action === "promote" ? "promover" : "descartar";
+			setError(`Não deu pra ${verb} ${failed.size} de ${ids.length} vagas. Elas continuam selecionadas, tenta de novo.`);
 		}
 	}
 
@@ -118,6 +167,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 					value={view}
 					onChange={(next) => {
 						setView(next);
+						setSelected(new Set());
 						setImporting(false);
 					}}
 				/>
@@ -162,19 +212,43 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 					action={view === "new" ? { label: "Abrir Preferências", to: "/preferences" } : undefined}
 				/>
 			) : (
-				<div className="job-grid">
-					{items.map((item) => (
-						<JobSuggestionCard
-							key={item.id}
-							suggestion={item}
-							view={view}
-							busy={busyId !== null}
-							onPromote={handlePromote}
-							onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
-							onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
+				<>
+					<SuggestionFiltersBar
+						filters={filters}
+						onChange={setFilters}
+						sources={suggestionSources(items)}
+						shown={visible?.length ?? 0}
+						total={items.length}
+					/>
+					{selectable && (
+						<SuggestionBulkBar
+							visible={visible?.length ?? 0}
+							selected={selectedVisible.length}
+							busy={bulkBusy}
+							onToggleAll={toggleAll}
+							onPromote={() => runBulk("promote")}
+							onDiscard={() => runBulk("discard")}
 						/>
-					))}
-				</div>
+					)}
+					{visible?.length === 0 ? (
+						<StateMessage variant="empty" layout="inline" message="Nenhuma vaga combina com esses filtros." />
+					) : (
+					<div className="job-grid">
+						{visible?.map((item) => (
+							<JobSuggestionCard
+								key={item.id}
+								suggestion={item}
+								view={view}
+								busy={busyId !== null || bulkBusy !== null}
+								selection={selectable ? { selected: selected.has(item.id), onToggle: toggle } : undefined}
+								onPromote={handlePromote}
+								onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
+								onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
+							/>
+						))}
+					</div>
+					)}
+				</>
 			)}
 		</section>
 	);
