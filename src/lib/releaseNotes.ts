@@ -14,6 +14,24 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.8",
+		date: "2026-10-27",
+		summary: "Análise do seu perfil do LinkedIn por IA, com nota por seção e textos reescritos prontos para copiar, além de filtros e seleção em lote nas sugestões de vagas.",
+		changes: [
+			{ kind: "feat", text: "Nova página LinkedIn no menu lateral, com as abas Análise, Perfil de carreira e Dados do LinkedIn." },
+			{ kind: "feat", text: "Em Perfil de carreira, você informa a área de atuação e o próximo cargo que quer alcançar. Senioridade, prazo, setores, empresas-alvo, pontos fortes e diferenciais são opcionais e deixam as sugestões mais certeiras." },
+			{ kind: "feat", text: "Nova extensão do Chrome que lê o seu perfil do LinkedIn quando você clica nela, sem pedir senha nem guardar cookies. A tela tem um botão para baixar a extensão com o passo a passo de instalação, e ela se conecta ao app sozinha." },
+			{ kind: "feat", text: "A IA avalia o perfil comparando com o cargo que você quer alcançar e dá uma nota geral e uma nota de 0 a 100 para cada seção, da mais fraca para a mais forte. Cada seção traz o diagnóstico, sugestões por prioridade e um texto reescrito com botão para copiar. Foto e banner também são avaliados." },
+			{ kind: "feat", text: "Cada experiência profissional recebe nota, diagnóstico e texto reescrito separados." },
+			{ kind: "feat", text: "A análise mostra os ajustes de maior impacto em Faça primeiro, as palavras-chave de recrutador que já aparecem no perfil e as que faltam." },
+			{ kind: "improvement", text: "As análises ficam salvas em um histórico, com quantos pontos a nota subiu ou desceu desde a anterior." },
+			{ kind: "feat", text: "Filtros de pesquisa em todas as abas de Sugestões." },
+			{ kind: "feat", text: "Na aba Abaixo da aderência, selecione várias sugestões de uma vez para promover ou descartar." },
+			{ kind: "improvement", text: "O ícone do app agora aparece na aba do navegador, no menu e na tela Sobre." },
+			{ kind: "fix", text: "Um erro inesperado em uma vaga ou consulta não interrompe mais a busca no restante do site." },
+		],
+	},
+	{
 		version: "1.1.7",
 		date: "2026-10-25",
 		summary: "Busca automática de vagas em vários sites, com sugestões para você promover, nota de aderência mais completa e ajustes na adaptação do currículo.",
