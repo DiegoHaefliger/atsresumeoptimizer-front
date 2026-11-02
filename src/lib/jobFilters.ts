@@ -1,5 +1,6 @@
 import type { ContractType, WorkModel } from "../api/types";
 import { formatJobCode, matchesJobCode } from "./jobCode";
+import { matchScore } from "./matchScore";
 import type { Job } from "./useJobs";
 
 export type JobFilters = {
@@ -7,11 +8,10 @@ export type JobFilters = {
 	workModel: WorkModel | "";
 	contractType: ContractType | "";
 	seniority: string;
-	minScore: number;
-	minAtsScore: number;
+	minMatch: number;
 };
 
-export const EMPTY_FILTERS: JobFilters = { query: "", workModel: "", contractType: "", seniority: "", minScore: 0, minAtsScore: 0 };
+export const EMPTY_FILTERS: JobFilters = { query: "", workModel: "", contractType: "", seniority: "", minMatch: 0 };
 
 export const MIN_SCORE_OPTIONS = [50, 70, 80] as const;
 
@@ -46,8 +46,7 @@ export function filterJobs(jobs: Job[], filters: JobFilters): Job[] {
 			(!filters.workModel || job.workModel === filters.workModel) &&
 			(!filters.contractType || job.contractType === filters.contractType) &&
 			(!filters.seniority || normalized(job.seniority) === normalized(filters.seniority)) &&
-			(filters.minScore === 0 || (job.preferenceScore ?? -1) >= filters.minScore) &&
-			(filters.minAtsScore === 0 || (job.atsScore ?? -1) >= filters.minAtsScore)
+			(filters.minMatch === 0 || (matchScore(job).score ?? -1) >= filters.minMatch)
 		);
 	});
 }
