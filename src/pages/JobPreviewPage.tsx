@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
-import { BackLink } from "../components/BackLink";
-import { JobCode } from "../components/JobCode";
+import { JobHeader } from "../components/JobHeader";
 import { JobLinksBar } from "../components/JobLinksBar";
 import { JobScore } from "../components/JobScore";
 import { RichTextView } from "../components/RichTextView";
@@ -27,14 +26,7 @@ export function JobPreviewPage() {
 
 	return (
 		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Prévia da vaga</span>
-					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Prévia da vaga"}</h1>
-					{job?.company && <p className="page-subtitle">{job.company}</p>}
-				</div>
-				<BackLink fallback="/jobs" />
-			</header>
+			<JobHeader jobId={jobId ?? ""} job={job} />
 
 			{failed || (jobs !== null && !job) ? (
 				<StateMessage

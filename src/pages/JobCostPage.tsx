@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
-import { BackLink } from "../components/BackLink";
-import { JobCode } from "../components/JobCode";
+import { JobHeader } from "../components/JobHeader";
 import { JobCostSection } from "../components/JobCostSection";
 import { useJobs } from "../lib/useJobs";
 
@@ -11,14 +10,7 @@ export function JobCostPage() {
 
 	return (
 		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Custo de IA</span>
-					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Custo de IA"}</h1>
-					{job?.company && <p className="page-subtitle">{job.company}</p>}
-				</div>
-				<BackLink fallback="/jobs" />
-			</header>
+			<JobHeader jobId={jobId} job={job} />
 			<JobCostSection jobId={jobId} />
 		</div>
 	);

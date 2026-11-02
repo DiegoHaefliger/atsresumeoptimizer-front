@@ -6,19 +6,23 @@ import { ArrowRightIcon, CheckCircleIcon } from "./icons";
 
 type JobSummaryStepProps = {
 	step: SummaryStep;
+	next: boolean;
 	actions?: ReactNode;
 };
 
-export function JobSummaryStep({ step, actions }: JobSummaryStepProps) {
+export function JobSummaryStep({ step, next, actions }: JobSummaryStepProps) {
 	const from = useFromHere();
 	return (
-		<li className={`job-summary-step${step.done ? " job-summary-step-done" : ""}`}>
+		<li className={`job-summary-step${step.done ? " job-summary-step-done" : ""}${next ? " job-summary-step-next" : ""}`}>
 			<span className="job-summary-mark" aria-hidden="true">
 				{step.done ? <CheckCircleIcon /> : <span className="job-summary-dot" />}
 			</span>
 			<div className="job-summary-body">
 				<div className="job-summary-text">
-					<strong>{step.title}</strong>
+					<strong>
+						{step.title}
+						{next && <span className="job-summary-next-tag">Próximo passo</span>}
+					</strong>
 					<span className="job-summary-detail">{step.detail}</span>
 				</div>
 				<div className="job-summary-links">
@@ -27,7 +31,7 @@ export function JobSummaryStep({ step, actions }: JobSummaryStepProps) {
 						<Link
 							key={link.to + link.label}
 							to={link.to}
-							className={`job-summary-chip${step.done ? "" : " job-summary-chip-primary"}`}
+							className={`job-summary-chip${next ? " job-summary-chip-primary" : ""}`}
 							state={from}
 						>
 							{link.label} <ArrowRightIcon />

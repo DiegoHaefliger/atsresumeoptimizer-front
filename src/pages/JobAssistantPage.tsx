@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import type { ResumeSummary } from "../api/types";
-import { BackLink } from "../components/BackLink";
 import { CandidateQuestionsHistory } from "../components/CandidateQuestionsHistory";
 import { CoverLetterHistory } from "../components/CoverLetterHistory";
 import { InterviewQuestionsHistory } from "../components/InterviewQuestionsHistory";
-import { JobCode } from "../components/JobCode";
+import { JobHeader } from "../components/JobHeader";
 import { ResumeVersionPicker } from "../components/ResumeVersionPicker";
 import { PageTabs } from "../components/PageTabs";
 import { Skeleton } from "../components/Skeleton";
@@ -16,32 +15,30 @@ import { useApiResource } from "../lib/useApiResource";
 import { useJobs } from "../lib/useJobs";
 
 const TABS: { value: AssistantTab; label: string }[] = [
-	{ value: "questions", label: "Perguntas técnicas" },
 	{ value: "cover-letter", label: "Apresentação" },
-	{ value: "doubts", label: "Perguntas Entrevista - Dúvidas" },
+	{ value: "questions", label: "Perguntas técnicas" },
+	{ value: "doubts", label: "Dúvidas para a entrevista" },
 ];
 
 export function JobAssistantPage() {
 	const { jobId = "" } = useParams<{ jobId: string }>();
 	const { jobs, failed: jobsFailed } = useJobs();
 	const { data: resumes, failed: resumesFailed } = useApiResource<ResumeSummary[]>(jobResumesPath(jobId));
-	const [searchParams] = useSearchParams();
-	const [tab, setTab] = useState<AssistantTab>(() => assistantTabFromParam(searchParams.get("tab")));
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { state } = useLocation();
+	const tab = assistantTabFromParam(searchParams.get("tab"));
 	const [pickedVersionId, setPickedVersionId] = useState<string | null>(null);
 	const job = jobs?.find((candidate) => candidate.id === jobId) ?? null;
 	const options = useMemo(() => resumeVersionOptions(resumes ?? []), [resumes]);
 	const resumeVersionId = pickedVersionId ?? options[0]?.versionId ?? "";
 
+	function selectTab(next: AssistantTab) {
+		setSearchParams({ tab: next }, { replace: true, state });
+	}
+
 	return (
 		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Assistente da vaga</span>
-					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Assistente da vaga"}</h1>
-					{job?.company && <p className="page-subtitle">{job.company}</p>}
-				</div>
-				<BackLink fallback="/jobs" />
-			</header>
+			<JobHeader jobId={jobId} job={job} />
 
 			{jobsFailed || resumesFailed || (jobs !== null && !job) ? (
 				<StateMessage
@@ -60,7 +57,7 @@ export function JobAssistantPage() {
 					{tab !== "doubts" && (
 						<ResumeVersionPicker options={options} value={resumeVersionId} onChange={setPickedVersionId} />
 					)}
-					<PageTabs label="O que gerar" options={TABS} value={tab} onChange={setTab} />
+					<PageTabs label="O que gerar" options={TABS} value={tab} onChange={selectTab} />
 					{tab === "questions" ? (
 						<InterviewQuestionsHistory jobId={job.id} resumeVersionId={resumeVersionId} resumeOptions={options} />
 					) : tab === "doubts" ? (
