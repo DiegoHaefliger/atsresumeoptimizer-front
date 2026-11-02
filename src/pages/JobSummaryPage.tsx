@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
-import { BackLink } from "../components/BackLink";
-import { JobCode } from "../components/JobCode";
+import { JobHeader } from "../components/JobHeader";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobSummary } from "../components/JobSummaryContent";
 import { Skeleton } from "../components/Skeleton";
-import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
 import { useJobs } from "../lib/useJobs";
 import { useProcesses } from "../lib/useProcesses";
@@ -23,19 +21,7 @@ export function JobSummaryPage() {
 
 	return (
 		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Resumo da candidatura</span>
-					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Resumo da candidatura"}</h1>
-					{job && (job.company || process) && (
-						<p className="page-subtitle job-summary-subtitle">
-							{job.company}
-							{process && <StageBadge stage={process.stage} />}
-						</p>
-					)}
-				</div>
-				<BackLink fallback="/jobs" />
-			</header>
+			<JobHeader jobId={jobId ?? ""} job={job} process={process} />
 
 			{failed || (jobs !== null && !job) ? (
 				<StateMessage

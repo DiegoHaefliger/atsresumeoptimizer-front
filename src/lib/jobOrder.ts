@@ -17,9 +17,22 @@ const STAGE_RANK: Record<SelectionStage, number> = {
 
 const WITHOUT_PROCESS_RANK = 8;
 
+export type JobGroup = "active" | "none" | "closed";
+
+export const JOB_GROUP_LABELS: Record<JobGroup, string> = {
+	active: "Em andamento",
+	none: "Sem processo seletivo",
+	closed: "Encerradas",
+};
+
 function rankOf(job: Job, processes: Map<string, SelectionProcess> | undefined): number {
 	const stage = processes?.get(job.id)?.stage;
 	return stage ? STAGE_RANK[stage] : WITHOUT_PROCESS_RANK;
+}
+
+export function jobGroup(job: Job, processes: Map<string, SelectionProcess> | undefined): JobGroup {
+	const rank = rankOf(job, processes);
+	return rank < WITHOUT_PROCESS_RANK ? "active" : rank === WITHOUT_PROCESS_RANK ? "none" : "closed";
 }
 
 export function byProcessStage(processes: Map<string, SelectionProcess> | undefined) {

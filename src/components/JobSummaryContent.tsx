@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { CandidateQuestionSet, CoverLetter, InterviewQuestionSet, ResumeSummary, SelectionProcess } from "../api/types";
 import { candidateQuestionsPath, coverLettersPath, interviewQuestionsPath, jobResumesPath } from "../lib/jobAssistantPaths";
-import { buildSummary, summaryProgress } from "../lib/jobSummary";
+import { buildSummary, nextStepKey, summaryProgress } from "../lib/jobSummary";
 import { formatCost } from "../lib/costFormat";
 import { STAGE_LABELS } from "../lib/processLabels";
 import { useFromHere } from "../lib/backTarget";
@@ -9,7 +9,9 @@ import { useApiResource } from "../lib/useApiResource";
 import { useJobCost } from "../lib/useJobCost";
 import type { Job } from "../lib/useJobs";
 import { ArrowRightIcon, ClipboardCheckIcon, CoinsIcon, EyeIcon, KanbanIcon } from "./icons";
+import { JobLinksBar } from "./JobLinksBar";
 import { JobNotes } from "./JobNotes";
+import { JobSummaryMatch } from "./JobSummaryMatch";
 import { JobSummaryStep } from "./JobSummaryStep";
 import { LoadFailed } from "./LoadFailed";
 import { Skeleton } from "./Skeleton";
@@ -58,16 +60,19 @@ export function JobSummary({ job, process, onAnalyze, onResumes }: JobSummaryPro
 		candidateSets: doubts.data.length,
 	});
 	const { done, total } = summaryProgress(steps);
+	const nextKey = nextStepKey(steps);
 	const spent = cost?.stages.some((stage) => stage.executed) ? formatCost(cost.totalCostBrl, "BRL") : null;
 
 	return (
 		<div className="job-summary-page">
+			<JobLinksBar adUrl={job.sourceUrl} applicationUrl={process?.processUrl ?? job.interviewUrl} />
+			<JobSummaryMatch job={job} onAnalyze={onAnalyze} />
 			<section className="job-summary-shortcuts" aria-label="Atalhos">
 				<Link to={`/jobs/${job.id}/preview`} className="job-summary-shortcut" state={from}>
 					<EyeIcon />
 					<span>
-						<strong>Vaga</strong>
-						<small>Ver prévia da descrição</small>
+						<strong>Descrição da vaga</strong>
+						<small>Requisitos, benefícios e empresa</small>
 					</span>
 					<ArrowRightIcon />
 				</Link>
@@ -95,7 +100,7 @@ export function JobSummary({ job, process, onAnalyze, onResumes }: JobSummaryPro
 							<strong>
 								{done} de {total}
 							</strong>{" "}
-							etapas concluídas
+							{done === total ? "etapas concluídas. Tudo pronto pra entrevista." : "etapas concluídas"}
 						</div>
 						<div className="job-summary-progress-track" aria-hidden="true">
 							<div className="job-summary-progress-fill" style={{ width: `${(done / total) * 100}%` }} />
@@ -106,6 +111,7 @@ export function JobSummary({ job, process, onAnalyze, onResumes }: JobSummaryPro
 							<JobSummaryStep
 								key={step.key}
 								step={step}
+								next={step.key === nextKey}
 								actions={
 									<>
 										{step.key === "analysis" && !step.done && (

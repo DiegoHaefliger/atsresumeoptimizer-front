@@ -1,8 +1,8 @@
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
 import { jobLabel } from "../lib/jobCode";
 import { jobMeta } from "../lib/jobMeta";
-import { byProcessStage } from "../lib/jobOrder";
+import { byProcessStage, JOB_GROUP_LABELS, jobGroup, type JobGroup } from "../lib/jobOrder";
 import { loadPageSize, savePageSize } from "../lib/jobPageSize";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
@@ -85,6 +85,14 @@ export function JobList({
 	const pageCount = pageSize ? Math.max(1, Math.ceil(orderedJobs.length / pageSize)) : 1;
 	const currentPage = Math.min(page, pageCount - 1);
 	const pageJobs = pageSize ? orderedJobs.slice(currentPage * pageSize, (currentPage + 1) * pageSize) : orderedJobs;
+	const groupCounts = useMemo(() => {
+		const counts = new Map<JobGroup, number>();
+		orderedJobs.forEach((job) => {
+			const group = jobGroup(job, processes);
+			counts.set(group, (counts.get(group) ?? 0) + 1);
+		});
+		return counts;
+	}, [orderedJobs, processes]);
 
 	async function remove(jobId: string) {
 		if (!onRemove) {
@@ -139,16 +147,26 @@ export function JobList({
 				<StateMessage variant="empty" layout="inline" message="Nenhuma vaga combina com esses filtros." />
 			) : view === "cards" ? (
 				<div className="job-grid">
-					{pageJobs.map((job) => (
-						<JobCard
-							key={job.id}
-							job={job}
-							process={processes?.get(job.id)}
-							removing={removingId === job.id}
-							onRemove={onRemove ? setConfirmingRemoval : undefined}
-							{...actions}
-						/>
-					))}
+					{pageJobs.map((job, index) => {
+						const group = jobGroup(job, processes);
+						const startsGroup = groupCounts.size > 1 && (index === 0 || jobGroup(pageJobs[index - 1], processes) !== group);
+						return (
+							<Fragment key={job.id}>
+								{startsGroup && (
+									<h2 className="job-grid-heading">
+										{JOB_GROUP_LABELS[group]} <span>{groupCounts.get(group)}</span>
+									</h2>
+								)}
+								<JobCard
+									job={job}
+									process={processes?.get(job.id)}
+									removing={removingId === job.id}
+									onRemove={onRemove ? setConfirmingRemoval : undefined}
+									{...actions}
+								/>
+							</Fragment>
+						);
+					})}
 				</div>
 			) : (
 				<div className="recent-jobs-scroll">

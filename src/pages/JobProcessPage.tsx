@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiPostJson, apiPutJson } from "../api/client";
-import { BackLink } from "../components/BackLink";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { JobLinksBar } from "../components/JobLinksBar";
-import { JobCode } from "../components/JobCode";
+import { JobHeader } from "../components/JobHeader";
 import { MoveStageDialog } from "../components/MoveStageDialog";
 import { ProcessForm } from "../components/ProcessForm";
 import { ProcessHistory } from "../components/ProcessHistory";
 import { ScheduleDialog } from "../components/ScheduleDialog";
 import { Skeleton } from "../components/Skeleton";
+import { StageAge } from "../components/StageAge";
 import { StageBadge } from "../components/StageBadge";
 import { StateMessage } from "../components/StateMessage";
 import { PencilIcon, TrashIcon } from "../components/icons";
 import { draftFromProcess, EMPTY_PROCESS, processRequest, type ProcessDraft } from "../lib/processDraft";
-import { formatDate, formatDateTime, STAGE_LABELS } from "../lib/processLabels";
+import { formatDate, nextStepLabel } from "../lib/processLabels";
 import { PROCESSES_PATH } from "../lib/processPath";
 import { createSchedule } from "../lib/scheduleApi";
 import { emptyScheduleDraft, type ScheduleDraft } from "../lib/scheduleDraft";
@@ -34,11 +34,7 @@ export function JobProcessPage() {
 	const job = jobs?.find((candidate) => candidate.id === jobId) ?? null;
 	const process = processes?.find((candidate) => candidate.jobPostingId === jobId) ?? null;
 
-	const nextStep = process?.nextSchedule
-		? `${formatDateTime(process.nextSchedule.scheduledAt)} - ${STAGE_LABELS[process.nextSchedule.stage]}`
-		: process?.nextStepOn
-			? formatDate(process.nextStepOn)
-			: null;
+	const nextStep = process ? nextStepLabel(process) : null;
 
 	async function create(draft: ProcessDraft) {
 		await apiPostJson(PROCESSES_PATH, processRequest(draft));
@@ -66,16 +62,7 @@ export function JobProcessPage() {
 
 	return (
 		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Processo seletivo</span>
-					<h1>{job ? <><JobCode code={job.code} /> {job.title ?? "Vaga sem título"}</> : "Processo seletivo"}</h1>
-					{job?.company && <p className="page-subtitle">{job.company}</p>}
-				</div>
-				<div className="page-header-actions">
-					<BackLink fallback="/jobs" />
-				</div>
-			</header>
+			<JobHeader jobId={jobId ?? ""} job={job} />
 
 			{jobsFailed || processesFailed || (jobs !== null && !job) ? (
 				<StateMessage
@@ -112,6 +99,7 @@ export function JobProcessPage() {
 					<section className="panel panel-body process-toolbar" aria-label="Situação do processo">
 						<div className="process-toolbar-status">
 							<StageBadge stage={process.stage} />
+							<StageAge process={process} />
 							<span className="process-toolbar-next">
 								{nextStep ? (
 									<>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSummary, summaryProgress } from "./jobSummary";
+import { buildSummary, nextStepKey, summaryProgress } from "./jobSummary";
 
 const base = { jobId: "job-1", resumes: [], coverLetters: 0, interviewSets: 0, candidateSets: 0 };
 
@@ -32,6 +32,12 @@ describe("buildSummary", () => {
 		expect(steps.find((step) => step.key === "cover-letter")?.links[0]?.to).toBe("/jobs/job-1/assistant?tab=cover-letter");
 		expect(steps.find((step) => step.key === "questions")?.detail).toBe("2 conjuntos gerados");
 		expect(steps.find((step) => step.key === "doubts")?.links[0]?.to).toBe("/jobs/job-1/assistant?tab=doubts");
+	});
+
+	it("points at the first unfinished step", () => {
+		expect(nextStepKey(buildSummary(base))).toBe("analysis");
+		expect(nextStepKey(buildSummary({ ...base, interviewSets: 1 }))).toBe("analysis");
+		expect(nextStepKey(buildSummary({ ...base, coverLetters: 1, interviewSets: 1, candidateSets: 1, resumes: [{ id: "r1", origin: "ADAPTED", sourceAnalysisId: "a1" }] }))).toBeUndefined();
 	});
 
 	it("counts finished steps", () => {

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { AppNotification } from "../api/types";
 import { notificationTime } from "../lib/notificationGroups";
 import { formatDateTime } from "../lib/processLabels";
-import { BellIcon, TrashIcon } from "./icons";
+import { AlertCircleIcon, BellIcon, TrashIcon } from "./icons";
 
 type NotificationItemProps = {
 	notification: AppNotification;
@@ -12,10 +12,11 @@ type NotificationItemProps = {
 
 export function NotificationItem({ notification, onRead, onRemove }: NotificationItemProps) {
 	const unread = notification.readAt === null;
+	const overdue = notification.type !== "SCHEDULE_REMINDER";
 	return (
-		<li className={`notification-row${unread ? " notification-unread" : ""}`}>
+		<li className={`notification-row${unread ? " notification-unread" : ""}${overdue ? " notification-overdue" : ""}`}>
 			<span className="notification-icon" aria-hidden="true">
-				<BellIcon />
+				{overdue ? <AlertCircleIcon /> : <BellIcon />}
 			</span>
 			<div className="notification-body">
 				<span className="notification-heading">

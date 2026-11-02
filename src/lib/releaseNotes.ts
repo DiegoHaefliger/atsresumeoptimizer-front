@@ -14,6 +14,24 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.9",
+		date: "2026-11-02",
+		summary: "Telas de vaga reorganizadas, cards que mostram o que precisa da sua atenção, um indicador único de compatibilidade e a busca de vagas respeitando as palavras a excluir.",
+		changes: [
+			{ kind: "feat", text: "As telas de uma vaga ganharam um cabeçalho único, com etapa do processo, há quantos dias ela está nessa etapa e abas para Resumo, Descrição, Processo seletivo, Assistente e Custo de IA." },
+			{ kind: "improvement", text: "O resumo da vaga destaca o próximo passo da candidatura e avisa quando está tudo pronto pra entrevista. A aba aberta no Assistente fica no endereço, então voltar pra ela abre onde você parou." },
+			{ kind: "feat", text: "Aderência e nota ATS viraram um indicador só, a Compatibilidade, em formato de velocímetro no card. Passe o mouse para ver as duas notas, e o resumo da vaga explica cada uma." },
+			{ kind: "improvement", text: "Os filtros de aderência e de nota ATS em Vagas viraram um filtro só, Compatibilidade mínima." },
+			{ kind: "feat", text: "A lista de vagas é separada em Em andamento, Sem processo seletivo e Encerradas, e cada card mostra há quantos dias a vaga está na etapa atual." },
+			{ kind: "feat", text: "O card avisa o que precisa de atenção: etapa atrasada, entrevista chegando, hora de mandar um follow-up ou de decidir se candidata. Um clique leva direto à ação, como o e-mail de follow-up pronto." },
+			{ kind: "feat", text: "Etapas agendadas e próximos passos que passaram da data sem registro geram notificação." },
+			{ kind: "improvement", text: "Os cards trocaram a tag do site pela tag Manual ou Auto, mostrando como a vaga entrou, e o título abre o resumo da vaga." },
+			{ kind: "improvement", text: "Quando o servidor não responde, um aviso aparece no topo da tela em vez de as páginas ficarem vazias." },
+			{ kind: "fix", text: "A busca de vagas passou a descartar vagas que citam palavras a excluir também na descrição, e não só no título. Ao salvar as Preferências, sugestões que citam essas palavras saem de Sugeridas." },
+			{ kind: "fix", text: "O app voltou a carregar os dados quando a interface roda em outra porta local." },
+		],
+	},
+	{
 		version: "1.1.8",
 		date: "2026-10-27",
 		summary: "Análise do seu perfil do LinkedIn por IA, com nota por seção e textos reescritos prontos para copiar, além de filtros e seleção em lote nas sugestões de vagas.",

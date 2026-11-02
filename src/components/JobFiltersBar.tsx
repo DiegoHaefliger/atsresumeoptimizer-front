@@ -64,23 +64,12 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 				</label>
 			)}
 			<label>
-				<span className="job-filters-label">Aderência mínima</span>
-				<select className={filters.minScore ? "is-active" : undefined} value={filters.minScore} onChange={(event) => update("minScore", Number(event.target.value))}>
+				<span className="job-filters-label">Compatibilidade mínima</span>
+				<select className={filters.minMatch ? "is-active" : undefined} value={filters.minMatch} onChange={(event) => update("minMatch", Number(event.target.value))}>
 					<option value={0}>Todas</option>
 					{MIN_SCORE_OPTIONS.map((value) => (
 						<option key={value} value={value}>
-							{value} ou mais
-						</option>
-					))}
-				</select>
-			</label>
-			<label>
-				<span className="job-filters-label">Nota ATS mínima</span>
-				<select className={filters.minAtsScore ? "is-active" : undefined} value={filters.minAtsScore} onChange={(event) => update("minAtsScore", Number(event.target.value))}>
-					<option value={0}>Todas</option>
-					{MIN_SCORE_OPTIONS.map((value) => (
-						<option key={value} value={value}>
-							{value} ou mais
+							{value}% ou mais
 						</option>
 					))}
 				</select>
