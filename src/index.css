@@ -4259,7 +4259,59 @@ button.page-back {
 	gap: var(--space-4);
 }
 
+.job-grid-heading {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin: var(--space-4) 0 0;
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.job-grid-heading:first-child {
+	margin-top: 0;
+}
+
+.job-grid-heading span {
+	padding: 0 var(--space-2);
+	border-radius: var(--radius-full);
+	background: var(--surface-2);
+	letter-spacing: 0;
+}
+
+.job-card-attention {
+	--attention-tone: var(--text-muted);
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: var(--space-1);
+	margin-left: auto;
+	padding: var(--space-1) var(--space-2-5);
+	border: 1px solid color-mix(in srgb, var(--attention-tone) 40%, var(--border));
+	border-radius: var(--radius-full);
+	background: color-mix(in srgb, var(--attention-tone) 10%, transparent);
+	color: var(--attention-tone);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.job-card-attention:hover {
+	background: color-mix(in srgb, var(--attention-tone) 18%, transparent);
+}
+
+.job-card-attention:focus-visible {
+	outline: 2px solid var(--attention-tone);
+	outline-offset: 2px;
+}
+
 .job-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-4);
@@ -4279,8 +4331,8 @@ button.page-back {
 
 .job-card-top {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
 	gap: var(--space-2);
 }
 
@@ -4312,14 +4364,113 @@ button.page-back {
 	font-size: var(--font-size-sm);
 }
 
-.job-card-scores {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--space-3);
-	margin: 0;
+.job-card-match {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
 	padding: var(--space-3);
 	border-radius: var(--radius-lg);
 	background: var(--surface-2);
+	text-align: center;
+	cursor: help;
+}
+
+.job-card-match .match-gauge {
+	width: 96px;
+	margin-bottom: var(--space-1);
+}
+
+.job-card-match-label {
+	font-size: 11px;
+	font-weight: var(--font-weight-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.job-card-match-value {
+	font-size: var(--font-size-xl);
+	font-weight: var(--font-weight-extrabold);
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+}
+
+.match-gauge {
+	width: 72px;
+	flex-shrink: 0;
+}
+
+.job-card-match-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.job-card-match-label {
+	font-size: 11px;
+	font-weight: var(--font-weight-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.job-card-match-value {
+	display: inline-flex;
+	align-items: baseline;
+	gap: var(--space-2);
+	font-size: var(--font-size-xl);
+	font-weight: var(--font-weight-extrabold);
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+}
+
+.job-card-match-value small {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	letter-spacing: 0;
+}
+
+.match-gauge {
+	display: block;
+	overflow: visible;
+}
+
+.match-gauge-track,
+.match-gauge-fill {
+	fill: none;
+	stroke-width: 10;
+	stroke-linecap: round;
+}
+
+.match-gauge-track {
+	stroke: var(--track);
+}
+
+.match-gauge-fill {
+	stroke: currentColor;
+}
+
+.match-gauge-needle {
+	stroke: var(--text);
+	stroke-width: 3;
+	stroke-linecap: round;
+}
+
+.match-gauge-hub {
+	fill: var(--text);
+}
+
+.match-gauge-high {
+	color: var(--success);
+}
+
+.match-gauge-mid {
+	color: var(--warning);
+}
+
+.match-gauge-low {
+	color: var(--error);
 }
 
 .job-card-score dt {
@@ -4376,7 +4527,49 @@ button.page-back {
 	line-height: 22px;
 }
 
+.job-card-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	font: inherit;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.job-card-link::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}
+
+.job-card-link:hover:not(:disabled) {
+	filter: none;
+	color: var(--brand-600);
+}
+
+.job-card-link:active:not(:disabled) {
+	transform: none;
+}
+
+.job-card:hover .job-card-link {
+	color: var(--brand-600);
+}
+
+.job-card-link:focus-visible {
+	outline: none;
+}
+
+.job-card:has(.job-card-link:focus-visible) {
+	outline: 2px solid var(--brand-600);
+	outline-offset: 2px;
+}
+
 .job-card-footer {
+	position: relative;
+	z-index: 1;
 	padding-top: var(--space-3);
 	border-top: 1px solid var(--border);
 }
@@ -4568,9 +4761,11 @@ button.page-back {
 }
 
 .job-card-footer .job-actions {
-	flex: 1;
-	justify-content: flex-end;
 	gap: 0;
+}
+
+.job-card-footer .job-actions-remove {
+	margin-left: 0;
 }
 
 .job-card-footer .job-actions .btn-icon {
@@ -4938,6 +5133,15 @@ button.page-back {
 	background: var(--brand-soft);
 	color: var(--text);
 	font-size: var(--font-size-md);
+}
+
+.connection-banner {
+	border-color: color-mix(in srgb, var(--error) 40%, var(--border));
+	background: color-mix(in srgb, var(--error) 10%, var(--surface));
+}
+
+.connection-banner .update-banner-icon {
+	color: var(--error);
 }
 
 .update-banner-icon {
@@ -5347,6 +5551,11 @@ button.page-back {
 	color: var(--text);
 }
 
+a.page-tab {
+	text-decoration: none;
+}
+
+.page-tab.active,
 .page-tab[aria-selected="true"] {
 	border-bottom-color: var(--brand-600);
 	background: var(--brand-soft);
@@ -6215,13 +6424,27 @@ kbd {
 	align-items: stretch;
 }
 
+.job-summary-page .job-links-bar {
+	margin-bottom: 0;
+}
+
 .job-summary-page {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-4);
 }
 
-.job-summary-subtitle {
+.job-header-top {
+	margin-bottom: var(--space-4);
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.job-header-nav {
+	margin-bottom: var(--space-6);
+}
+
+.job-header-subtitle {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -6295,6 +6518,26 @@ kbd {
 
 .job-summary-step-done {
 	color: var(--text);
+}
+
+.job-summary-step-next {
+	color: var(--text);
+}
+
+.job-summary-step-next .job-summary-dot {
+	border-color: var(--brand-600);
+	box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
+.job-summary-next-tag {
+	margin-left: var(--space-2);
+	padding: 1px var(--space-2);
+	border-radius: var(--radius-full);
+	background: var(--brand-soft);
+	color: var(--brand-600);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-semibold);
+	vertical-align: middle;
 }
 
 .job-summary-step-done:not(:last-child)::before {
@@ -6376,6 +6619,71 @@ kbd {
 	border-color: var(--brand-600);
 	background: var(--brand-soft);
 	color: var(--brand-600);
+}
+
+.job-summary-match {
+	display: grid;
+	grid-template-columns: 200px minmax(0, 1fr);
+	gap: var(--space-5);
+	align-items: center;
+}
+
+.job-summary-match-gauge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.job-summary-match-gauge .match-gauge {
+	width: 160px;
+}
+
+.job-summary-match-gauge strong {
+	margin-top: var(--space-2);
+	font-size: 2rem;
+	font-weight: var(--font-weight-extrabold);
+	line-height: 1;
+}
+
+.job-summary-match-gauge h2 {
+	margin: var(--space-2) 0 0;
+	font-size: var(--font-size-md);
+}
+
+.job-summary-match-gauge small,
+.job-summary-match-part p {
+	font-size: var(--font-size-xs);
+	color: var(--text-muted);
+}
+
+.job-summary-match-parts {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-4);
+}
+
+.job-summary-match-part {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--space-2);
+	padding: var(--space-3);
+	border-radius: var(--radius-lg);
+	background: var(--surface-2);
+}
+
+.job-summary-match-part dl,
+.job-summary-match-part p {
+	width: 100%;
+	margin: 0;
+}
+
+@media (max-width: 860px) {
+	.job-summary-match,
+	.job-summary-match-parts {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 .job-summary-shortcuts {
@@ -7170,4 +7478,31 @@ kbd {
 
 .linkedin-item p {
 	margin: 0;
+}
+
+.stage-age {
+	color: var(--text-muted);
+	font-size: var(--font-size-xs);
+	white-space: nowrap;
+}
+
+.stage-age-stale {
+	color: var(--warning);
+	font-weight: var(--font-weight-semibold);
+}
+
+.attention-overdue {
+	--attention-tone: var(--error);
+}
+
+.attention-upcoming {
+	--attention-tone: var(--brand-600);
+}
+
+.attention-stale {
+	--attention-tone: var(--warning);
+}
+
+.notification-overdue .notification-icon {
+	color: var(--error);
 }

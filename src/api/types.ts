@@ -135,6 +135,7 @@ export type SelectionProcess = {
 	history: StageMovement[];
 	schedules: SelectionSchedule[];
 	nextSchedule: SelectionSchedule | null;
+	stageSince: string | null;
 };
 
 export type CalendarEvent = {
@@ -152,7 +153,7 @@ export type CalendarEvent = {
 
 export type AppNotification = {
 	id: string;
-	type: "SCHEDULE_REMINDER";
+	type: "SCHEDULE_REMINDER" | "SCHEDULE_OVERDUE" | "NEXT_STEP_OVERDUE";
 	title: string;
 	message: string;
 	processId: string | null;

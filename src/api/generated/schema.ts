@@ -1210,6 +1210,8 @@ export interface components {
             history?: components["schemas"]["StageMovementResponse"][];
             schedules?: components["schemas"]["SelectionScheduleResponse"][];
             nextSchedule?: components["schemas"]["SelectionScheduleResponse"];
+            /** Format: date-time */
+            stageSince?: string;
         };
         SelectionScheduleResponse: {
             /** Format: uuid */
@@ -1639,7 +1641,7 @@ export interface components {
             /** Format: uuid */
             id?: string;
             /** @enum {string} */
-            type?: "SCHEDULE_REMINDER";
+            type?: "SCHEDULE_REMINDER" | "SCHEDULE_OVERDUE" | "NEXT_STEP_OVERDUE";
             title?: string;
             message?: string;
             /** Format: uuid */
