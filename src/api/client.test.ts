@@ -1,5 +1,7 @@
+import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { apiPostJson } from "./client";
+import { useServerUnreachable } from "../lib/serverReachability";
+import { ApiError, apiGet, apiPostJson } from "./client";
 
 function respond(status: number, body: string) {
 	vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body || null, { status })));
@@ -28,5 +30,21 @@ describe("apiPostJson", () => {
 	it("turns an error answer into the server message", async () => {
 		respond(409, '{"detail":"Já tem uma busca em andamento."}');
 		await expect(apiPostJson<void>("/x", {})).rejects.toThrow("Já tem uma busca em andamento.");
+	});
+});
+
+describe("server reachability", () => {
+	it("flags the server as unreachable when fetch fails, and clears it on the next answer", async () => {
+		const { result, rerender } = renderHook(() => useServerUnreachable());
+		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+
+		await expect(apiGet("/x")).rejects.toEqual(new ApiError("Sem conexão com o servidor.", 0));
+		rerender();
+		expect(result.current).toBe(true);
+
+		respond(200, "[]");
+		await apiGet("/x");
+		rerender();
+		expect(result.current).toBe(false);
 	});
 });

@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
+import { ConnectionBanner } from "./components/ConnectionBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { OnboardingPanel } from "./components/OnboardingPanel";
 import { UpdateBanner } from "./components/UpdateBanner";
@@ -34,6 +35,7 @@ export default function App() {
 			<div className="app-shell">
 				<AppSidebar />
 				<main className="app-main">
+					<ConnectionBanner />
 					<UpdateBanner />
 					{!pathname.startsWith("/chat") && <OnboardingPanel />}
 					<Routes>

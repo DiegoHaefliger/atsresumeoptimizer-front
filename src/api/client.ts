@@ -1,3 +1,5 @@
+import { setServerUnreachable } from "../lib/serverReachability";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export function apiUrl(path: string): string {
@@ -18,7 +20,17 @@ export function errorMessage(error: unknown, fallback: string): string {
 }
 
 async function request(path: string, init?: RequestInit): Promise<Response> {
-	const response = await fetch(apiUrl(path), init);
+	let response: Response;
+	try {
+		response = await fetch(apiUrl(path), init);
+	} catch (error) {
+		if (error instanceof DOMException && error.name === "AbortError") {
+			throw error;
+		}
+		setServerUnreachable(true);
+		throw new ApiError("Sem conexão com o servidor.", 0);
+	}
+	setServerUnreachable(false);
 	if (response.ok) {
 		return response;
 	}
