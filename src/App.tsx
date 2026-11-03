@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
+import { FeedbackPrompt } from "./components/FeedbackPrompt";
 import { ConnectionBanner } from "./components/ConnectionBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { OnboardingPanel } from "./components/OnboardingPanel";
@@ -24,6 +25,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { ChatPage } from "./pages/ChatPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
+import { FeedbackPage } from "./pages/FeedbackPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProcessRedirectPage } from "./pages/ProcessRedirectPage";
 
@@ -37,6 +39,7 @@ export default function App() {
 				<main className="app-main">
 					<ConnectionBanner />
 					<UpdateBanner />
+					<FeedbackPrompt />
 					{!pathname.startsWith("/chat") && <OnboardingPanel />}
 					<Routes>
 						<Route path="/upload" element={<Navigate to="/jobs" replace />} />
@@ -65,6 +68,7 @@ export default function App() {
 						<Route path="/chat" element={<ChatPage />} />
 						<Route path="/chat/:conversationId" element={<ChatPage />} />
 						<Route path="/changelog" element={<Navigate to="/about" replace />} />
+						<Route path="/feedback" element={<FeedbackPage />} />
 						<Route path="/about" element={<AboutPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
 						<Route path="*" element={<Navigate to="/jobs" replace />} />

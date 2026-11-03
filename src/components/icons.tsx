@@ -445,3 +445,23 @@ export function LinkedInIcon(props: SVGProps<SVGSVGElement>) {
 		</Icon>
 	);
 }
+
+export function LockIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<rect x="5" y="11" width="14" height="9" rx="2" />
+			<path d="M8 11V8a4 4 0 0 1 8 0v3" />
+		</Icon>
+	);
+}
+
+export function ImagePlusIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<path d="M4 16V6a2 2 0 0 1 2-2h9" />
+			<path d="M4 16l4-4 3 3 2-2 3 3" />
+			<rect x="4" y="4" width="16" height="16" rx="2" />
+			<path d="M18 2v4M16 4h4" />
+		</Icon>
+	);
+}
