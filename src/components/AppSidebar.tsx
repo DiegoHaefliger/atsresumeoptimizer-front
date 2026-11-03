@@ -13,6 +13,7 @@ import {
 	NotebookIcon,
 	SettingsIcon,
 	SlidersIcon,
+	StarIcon,
 } from "./icons";
 
 const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
@@ -25,8 +26,19 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
-	{ to: "/about", label: "Sobre", Icon: InfoIcon },
+	{ to: "/feedback", label: "Avaliar", Icon: StarIcon },
 ];
+
+const ABOUT_ITEM = { to: "/about", label: "Sobre", Icon: InfoIcon };
+
+function navLink({ to, label, Icon }: (typeof NAV_ITEMS)[number]) {
+	return (
+		<NavLink key={to} to={to} className="app-nav-link">
+			<Icon className="app-nav-icon" />
+			<span>{label}</span>
+		</NavLink>
+	);
+}
 
 export function AppSidebar() {
 	return (
@@ -39,12 +51,8 @@ export function AppSidebar() {
 				</span>
 			</div>
 			<nav className="app-nav" aria-label="Principal">
-				{NAV_ITEMS.map(({ to, label, Icon }) => (
-					<NavLink key={to} to={to} className="app-nav-link">
-						<Icon className="app-nav-icon" />
-						<span>{label}</span>
-					</NavLink>
-				))}
+				{NAV_ITEMS.map(navLink)}
+				{navLink(ABOUT_ITEM)}
 			</nav>
 			<div className="app-sidebar-actions">
 				<NotificationBell />
