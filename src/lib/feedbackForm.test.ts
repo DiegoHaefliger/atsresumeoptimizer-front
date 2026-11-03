@@ -14,14 +14,7 @@ describe("toRequest", () => {
 			rating: 5,
 			message: "ótimo",
 			contact: null,
-			allowPublish: false,
 			appVersion: "1.4.0",
 		});
-	});
-
-	it("only keeps the publish consent when there is a comment to publish", () => {
-		const draft = { ...EMPTY_DRAFT, rating: 5, allowPublish: true };
-		expect(toRequest(draft, null).allowPublish).toBe(false);
-		expect(toRequest({ ...draft, message: "gostei" }, null).allowPublish).toBe(true);
 	});
 });

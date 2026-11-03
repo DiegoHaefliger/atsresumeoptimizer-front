@@ -106,15 +106,6 @@ export function FeedbackPage() {
 										{message.length}/{MAX_MESSAGE}
 									</span>
 								</div>
-								<label className="checkbox-row">
-									<input
-										type="checkbox"
-										checked={draft.allowPublish}
-										disabled={busy || message.trim() === ""}
-										onChange={(event) => setDraft({ ...draft, allowPublish: event.target.checked })}
-									/>
-									Autorizo divulgar este comentário no projeto
-								</label>
 							</div>
 						</section>
 

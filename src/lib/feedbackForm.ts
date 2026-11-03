@@ -10,14 +10,12 @@ export type FeedbackDraft = {
 	rating: number;
 	message: string;
 	contact: string;
-	allowPublish: boolean;
 };
 
 export const EMPTY_DRAFT: FeedbackDraft = {
 	rating: 0,
 	message: "",
 	contact: "",
-	allowPublish: false,
 };
 
 export function canSubmit(draft: FeedbackDraft): boolean {
@@ -25,12 +23,10 @@ export function canSubmit(draft: FeedbackDraft): boolean {
 }
 
 export function toRequest(draft: FeedbackDraft, appVersion: string | null): FeedbackRequest {
-	const message = draft.message.trim() || null;
 	return {
 		rating: draft.rating,
-		message,
+		message: draft.message.trim() || null,
 		contact: draft.contact.trim() || null,
-		allowPublish: message !== null && draft.allowPublish,
 		appVersion,
 	};
 }

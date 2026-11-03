@@ -6,7 +6,6 @@ export type FeedbackRequest = {
 	rating: number;
 	message: string | null;
 	contact: string | null;
-	allowPublish: boolean;
 	appVersion: string | null;
 };
 
