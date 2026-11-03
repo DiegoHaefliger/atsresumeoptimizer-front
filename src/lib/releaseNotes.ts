@@ -16,11 +16,12 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 	{
 		version: "1.1.10",
 		date: "2026-11-03",
-		summary: "Avalie o app sem sair dele: dê uma nota de 1 a 5 estrelas, deixe comentários e anexe prints, tudo direto para quem desenvolve.",
+		summary: "Avalie o app sem sair dele, com nota de 1 a 5 estrelas, comentários e prints, e monte buscas de postagens de vagas no LinkedIn com links personalizados.",
 		changes: [
 			{ kind: "feat", text: "Nova página Avaliar no menu lateral, com nota de 1 a 5 estrelas, comentários de até 5000 caracteres e e-mail opcional para receber resposta." },
 			{ kind: "feat", text: "Anexe até 3 prints (PNG, JPG ou WebP, de até 3 MB cada) arrastando as imagens, colando com Ctrl+V ou escolhendo os arquivos." },
 			{ kind: "feat", text: "Alguns segundos depois de abrir o app, um aviso no topo convida você a avaliar. Ele volta a cada vez que o app abre até você avaliar a versão atual, e Agora não fecha na hora." },
+			{ kind: "feat", text: "Nova aba Links personalizados em Vagas: monte a busca de postagens de vagas do LinkedIn com cargos, palavras a excluir, perfis a ocultar, cidades, modelo de trabalho, idioma e data, e copie ou abra o link já filtrado. Os filtros ficam salvos neste navegador, e o app avisa quando um filtro não cabe no limite de 5 operadores do LinkedIn." },
 			{ kind: "improvement", text: "Só vão para o desenvolvedor a nota, os comentários, os prints, a versão do app e o e-mail, se você preencher. Nenhum currículo, vaga ou chave de IA sai do seu computador. Se o envio falhar, a avaliação fica salva no computador e é enviada de novo na próxima vez." },
 		],
 	},
