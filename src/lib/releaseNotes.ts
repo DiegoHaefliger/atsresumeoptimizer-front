@@ -14,6 +14,17 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.10",
+		date: "2026-11-03",
+		summary: "Avalie o app sem sair dele: dê uma nota de 1 a 5 estrelas, deixe comentários e anexe prints, tudo direto para quem desenvolve.",
+		changes: [
+			{ kind: "feat", text: "Nova página Avaliar no menu lateral, com nota de 1 a 5 estrelas, comentários de até 5000 caracteres e e-mail opcional para receber resposta." },
+			{ kind: "feat", text: "Anexe até 3 prints (PNG, JPG ou WebP, de até 3 MB cada) arrastando as imagens, colando com Ctrl+V ou escolhendo os arquivos." },
+			{ kind: "feat", text: "Alguns segundos depois de abrir o app, um aviso no topo convida você a avaliar. Ele volta a cada vez que o app abre até você avaliar a versão atual, e Agora não fecha na hora." },
+			{ kind: "improvement", text: "Só vão para o desenvolvedor a nota, os comentários, os prints, a versão do app e o e-mail, se você preencher. Nenhum currículo, vaga ou chave de IA sai do seu computador. Se o envio falhar, a avaliação fica salva no computador e é enviada de novo na próxima vez." },
+		],
+	},
+	{
 		version: "1.1.9",
 		date: "2026-11-02",
 		summary: "Telas de vaga reorganizadas, cards que mostram o que precisa da sua atenção, um indicador único de compatibilidade e a busca de vagas respeitando as palavras a excluir.",
