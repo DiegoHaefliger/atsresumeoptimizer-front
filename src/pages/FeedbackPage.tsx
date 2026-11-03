@@ -3,19 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { FeedbackAttachments } from "../components/FeedbackAttachments";
 import { CheckCircleIcon, LockIcon, SpinnerIcon } from "../components/icons";
-import { SegmentedTabs } from "../components/SegmentedTabs";
 import { StarRating } from "../components/StarRating";
 import { submitFeedback, type FeedbackReceipt } from "../lib/feedbackApi";
-import {
-	canSubmit,
-	EMPTY_DRAFT,
-	KIND_OPTIONS,
-	MAX_MESSAGE,
-	MESSAGE_PLACEHOLDERS,
-	messageRequired,
-	toRequest,
-	type FeedbackDraft,
-} from "../lib/feedbackForm";
+import { canSubmit, EMPTY_DRAFT, MAX_MESSAGE, MESSAGE_PLACEHOLDER, toRequest, type FeedbackDraft } from "../lib/feedbackForm";
 import { markRated } from "../lib/feedbackPrompt";
 import { useAppVersion } from "../lib/useAppVersion";
 
@@ -27,7 +17,7 @@ export function FeedbackPage() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [receipt, setReceipt] = useState<FeedbackReceipt | null>(null);
-	const message = draft.messages[draft.kind];
+	const message = draft.message;
 
 	async function submit(event: FormEvent) {
 		event.preventDefault();
@@ -98,43 +88,24 @@ export function FeedbackPage() {
 
 						<section className="panel">
 							<div className="panel-header">
-								<h2>Quer contar mais?</h2>
-								<p>Escolha o tipo de mensagem. Cada aba guarda o seu próprio texto.</p>
+								<h2>Comentários</h2>
+								<p>Opcional. Elogio, crítica, sugestão ou relato de uso: tudo ajuda.</p>
 							</div>
 							<div className="panel-body">
-								<SegmentedTabs
-									label="Tipo de mensagem"
-									options={KIND_OPTIONS}
-									value={draft.kind}
-									onChange={(kind) => setDraft({ ...draft, kind })}
-								/>
 								<div className="form-field">
 									<textarea
-										rows={6}
+										rows={7}
 										maxLength={MAX_MESSAGE}
 										value={message}
-										placeholder={MESSAGE_PLACEHOLDERS[draft.kind]}
-										aria-label={messageRequired(draft.kind) ? "Mensagem" : "Mensagem (opcional)"}
+										placeholder={MESSAGE_PLACEHOLDER}
+										aria-label="Comentários (opcional)"
 										disabled={busy}
-										onChange={(event) =>
-											setDraft({ ...draft, messages: { ...draft.messages, [draft.kind]: event.target.value } })
-										}
+										onChange={(event) => setDraft({ ...draft, message: event.target.value })}
 									/>
 									<span className="feedback-counter">
-										{messageRequired(draft.kind) ? "Obrigatório" : "Opcional"} · {message.length}/{MAX_MESSAGE}
+										{message.length}/{MAX_MESSAGE}
 									</span>
 								</div>
-								{draft.kind === "TESTIMONIAL" && (
-									<label className="checkbox-row">
-										<input
-											type="checkbox"
-											checked={draft.allowPublish}
-											disabled={busy}
-											onChange={(event) => setDraft({ ...draft, allowPublish: event.target.checked })}
-										/>
-										Autorizo divulgar este depoimento no projeto
-									</label>
-								)}
 							</div>
 						</section>
 

@@ -2,14 +2,10 @@ import { apiPostForm } from "../api/client";
 
 export const FEEDBACK_PATH = "/api/v1/feedback";
 
-export type FeedbackKind = "GENERAL" | "SUGGESTION" | "IMPROVEMENT" | "TESTIMONIAL";
-
 export type FeedbackRequest = {
-	kind: FeedbackKind;
 	rating: number;
 	message: string | null;
 	contact: string | null;
-	allowPublish: boolean;
 	appVersion: string | null;
 };
 
