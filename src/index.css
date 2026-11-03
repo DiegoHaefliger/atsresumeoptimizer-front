@@ -7695,11 +7695,3 @@ kbd {
 	font-size: var(--font-size-md);
 }
 
-.settings-main .segmented {
-	flex-wrap: nowrap;
-}
-
-.settings-main .segmented button {
-	flex: 1;
-	white-space: nowrap;
-}

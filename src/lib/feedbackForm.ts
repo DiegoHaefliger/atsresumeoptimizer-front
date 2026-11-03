@@ -1,57 +1,36 @@
-import type { FeedbackKind, FeedbackRequest } from "./feedbackApi";
+import type { FeedbackRequest } from "./feedbackApi";
 
-export const MAX_MESSAGE = 4000;
+export const MAX_MESSAGE = 5000;
 
-export const KIND_OPTIONS: { value: FeedbackKind; label: string }[] = [
-	{ value: "GENERAL", label: "Comentário" },
-	{ value: "SUGGESTION", label: "Sugestão" },
-	{ value: "IMPROVEMENT", label: "Melhoria" },
-	{ value: "TESTIMONIAL", label: "Depoimento" },
-];
-
-export const MESSAGE_PLACEHOLDERS: Record<FeedbackKind, string> = {
-	GENERAL: "Quer comentar algo? (opcional)",
-	SUGGESTION: "Que recurso ou ajuste você gostaria de ver?",
-	IMPROVEMENT: "O que poderia funcionar melhor, ou o que atrapalhou?",
-	TESTIMONIAL: "Conte como o app te ajudou.",
-};
+export const MESSAGE_PLACEHOLDER = "Conte como foi sua experiência, o que podemos melhorar ou que recurso você gostaria de ver.";
 
 export const RATING_LABELS = ["Ruim", "Fraco", "Regular", "Bom", "Excelente"] as const;
 
 export type FeedbackDraft = {
-	kind: FeedbackKind;
 	rating: number;
-	messages: Record<FeedbackKind, string>;
+	message: string;
 	contact: string;
 	allowPublish: boolean;
 };
 
 export const EMPTY_DRAFT: FeedbackDraft = {
-	kind: "GENERAL",
 	rating: 0,
-	messages: { GENERAL: "", SUGGESTION: "", IMPROVEMENT: "", TESTIMONIAL: "" },
+	message: "",
 	contact: "",
 	allowPublish: false,
 };
 
-export function messageRequired(kind: FeedbackKind): boolean {
-	return kind !== "GENERAL";
-}
-
 export function canSubmit(draft: FeedbackDraft): boolean {
-	if (draft.rating < 1 || draft.rating > 5) {
-		return false;
-	}
-	return !messageRequired(draft.kind) || draft.messages[draft.kind].trim().length > 0;
+	return draft.rating >= 1 && draft.rating <= 5;
 }
 
 export function toRequest(draft: FeedbackDraft, appVersion: string | null): FeedbackRequest {
+	const message = draft.message.trim() || null;
 	return {
-		kind: draft.kind,
 		rating: draft.rating,
-		message: draft.messages[draft.kind].trim() || null,
+		message,
 		contact: draft.contact.trim() || null,
-		allowPublish: draft.kind === "TESTIMONIAL" && draft.allowPublish,
+		allowPublish: message !== null && draft.allowPublish,
 		appVersion,
 	};
 }
