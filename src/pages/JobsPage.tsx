@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { AnalyzeJobDialog } from "../components/AnalyzeJobDialog";
 import { JobResumesDialog } from "../components/JobResumesDialog";
 import { JobSuggestionsPanel } from "../components/JobSuggestionsPanel";
+import { CustomLinksPanel } from "../components/CustomLinksPanel";
 import { PageTabs } from "../components/PageTabs";
 import { JobList } from "../components/JobList";
 import { StateMessage } from "../components/StateMessage";
@@ -16,13 +17,20 @@ const JOBS_PER_PAGE = 30;
 const PAGE_SIZE_OPTIONS = [30, 60, 100] as const;
 const STRUCTURING_RELOAD_MS = [8000, 20000];
 
-type JobsTab = "registered" | "suggestions";
+type JobsTab = "registered" | "suggestions" | "links";
+
+const TITLES: Record<JobsTab, string> = {
+	registered: "Vagas cadastradas",
+	suggestions: "Sugestões de vagas",
+	links: "Links personalizados",
+};
 
 const SUBTITLES: Record<JobsTab, string> = {
 	registered:
 		"Cadastre as vagas que te interessam. Elas ficam disponíveis pra analisar qualquer currículo e são cruzadas com suas preferências.",
 	suggestions:
 		"Vagas achadas pela busca automática ou importadas de postagens. Só viram vagas cadastradas quando você promove.",
+	links: "Gere links que abrem buscas já filtradas em outros sites, como as postagens de vagas do LinkedIn.",
 };
 
 export function JobsPage() {
@@ -46,10 +54,11 @@ export function JobsPage() {
 	const navigate = useNavigate();
 	const [params, setParams] = useSearchParams();
 	const { counts: suggestionCounts, reload: reloadSuggestionCounts } = useSuggestionCounts();
-	const tab: JobsTab = params.get("tab") === "suggestions" ? "suggestions" : "registered";
+	const requestedTab = params.get("tab");
+	const tab: JobsTab = requestedTab === "suggestions" || requestedTab === "links" ? requestedTab : "registered";
 
 	function selectTab(next: JobsTab) {
-		setParams(next === "suggestions" ? { tab: next } : {}, { replace: true });
+		setParams(next === "registered" ? {} : { tab: next }, { replace: true });
 	}
 
 	function handlePromoted(jobId: string) {
@@ -69,7 +78,7 @@ export function JobsPage() {
 			<header className="page-header">
 				<div>
 					<span className="eyebrow">Vagas</span>
-					<h1>{tab === "suggestions" ? "Sugestões de vagas" : "Vagas cadastradas"}</h1>
+					<h1>{TITLES[tab]}</h1>
 					<p className="page-subtitle">{SUBTITLES[tab]}</p>
 				</div>
 				<Link to="/jobs/new" className="button-link">
@@ -82,12 +91,15 @@ export function JobsPage() {
 				options={[
 					{ value: "registered", label: "Cadastradas" },
 					{ value: "suggestions", label: suggestionCounts.newSuggestions > 0 ? `Sugestões (${suggestionCounts.newSuggestions})` : "Sugestões" },
+					{ value: "links", label: "Links personalizados" },
 				]}
 				value={tab}
 				onChange={selectTab}
 			/>
 
-			{tab === "suggestions" ? (
+			{tab === "links" ? (
+				<CustomLinksPanel />
+			) : tab === "suggestions" ? (
 				<JobSuggestionsPanel counts={suggestionCounts} onChanged={reloadSuggestionCounts} onPromoted={handlePromoted} />
 			) : jobs !== null && jobs.length === 0 && !failed ? (
 				<StateMessage
