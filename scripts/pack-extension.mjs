@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { zip } from "./zip.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const FILES = ["manifest.json", "extract.js", "merge.js", "api.js", "popup.html", "popup.js", "icons/icon.png"];
+const FILES = ["manifest.json", "extract.js", "merge.js", "api.js", "capture.js", "background.js", "bridge.js", "popup.html", "popup.js", "icons/icon.png"];
 const OUTPUT = resolve(root, "public/ats-linkedin-extension.zip");
 
 const files = FILES.map((path) => ({ path, data: readFileSync(resolve(root, "extension", path)) }));

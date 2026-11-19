@@ -60,6 +60,11 @@ export type LinkedInSnapshotResponse = {
 	missingSections: ProfileSection[];
 };
 
+export type LinkedInCaptureResponse = LinkedInSnapshotResponse & {
+	unchanged: boolean;
+	changedSections: ProfileSection[];
+};
+
 export type PairingTokenResponse = { token: string };
 
 export type SuggestionPriority = "HIGH" | "MEDIUM" | "LOW";
@@ -104,6 +109,7 @@ export type LinkedInAnalysisResponse = {
 	sections: LinkedInSectionReviewResponse[];
 	checks?: LinkedInProfileCheckResponse[];
 	imagesAnalyzed: boolean;
+	unchanged?: boolean;
 	aiModel?: string;
 	costUsd?: number;
 };

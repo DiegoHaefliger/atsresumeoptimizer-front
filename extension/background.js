@@ -1,0 +1,40 @@
+import { captureProfile, CaptureError, profileBase } from './capture.js'
+import { sendSnapshot } from './api.js'
+
+const DEFAULT_SERVER = 'http://localhost:8080'
+const PORT_NAME = 'ats-capture'
+
+async function openProfileUrl() {
+	const tabs = await chrome.tabs.query({ url: 'https://*.linkedin.com/in/*' })
+	const found = tabs.map((tab) => profileBase(tab.url)).find(Boolean)
+	return found || null
+}
+
+async function run(port, request) {
+	const stored = await chrome.storage.local.get(['serverUrl', 'lastProfileUrl'])
+	const serverUrl = stored.serverUrl || DEFAULT_SERVER
+	const profileUrl = request.profileUrl || stored.lastProfileUrl || (await openProfileUrl())
+	const draft = await captureProfile({
+		chromeApi: chrome,
+		profileUrl,
+		onProgress: (progress) => port.postMessage({ type: 'progress', ...progress }),
+	})
+	const snapshot = await sendSnapshot({ serverUrl, draft })
+	await chrome.storage.local.set({ lastProfileUrl: draft.profile.profileUrl })
+	port.postMessage({ type: 'result', snapshot })
+}
+
+chrome.runtime.onConnect.addListener((port) => {
+	if (port.name !== PORT_NAME) {
+		return
+	}
+	port.onMessage.addListener((request) => {
+		if (request.type !== 'capture') {
+			return
+		}
+		run(port, request).catch((error) => {
+			const code = error instanceof CaptureError ? error.code : 'failed'
+			port.postMessage({ type: 'error', code, message: error.message })
+		})
+	})
+})

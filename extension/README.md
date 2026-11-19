@@ -11,10 +11,22 @@ Na tela de LinkedIn do app, o botão **Baixar extensão** entrega o `.zip` (gera
 
 ## Usar
 
+### Automático (recomendado)
+
+No app, na tela de LinkedIn, clique em **Analisar meu LinkedIn**. A extensão abre o seu perfil e as páginas "Mostrar tudo" em abas de segundo plano, lê, fecha as abas e envia sozinha. Só precisa estar com o LinkedIn logado neste navegador. Se nada mudou desde a última leitura, o app mostra a análise anterior.
+
+Depois de atualizar a extensão (permissões novas), recarregue-a em `chrome://extensions` e recarregue a página do app.
+
+### Manual
+
 1. Abra o seu perfil em `linkedin.com/in/...` e role até o fim para carregar as seções.
 2. Clique na extensão e em **Ler esta página**.
 3. Competências, certificações, idiomas e recomendações só aparecem completas nas páginas "Mostrar tudo": abra cada uma e clique em **Ler esta página** de novo. As leituras se acumulam.
 4. Clique em **Enviar para o app**. A extensão busca o token de pareamento sozinha; só mude o **Endereço do app** (padrão `http://localhost:8080`) se o backend rodar em outra porta.
+
+## Como funciona o automático
+
+`bridge.js` roda nas páginas do app (`localhost`) e repassa o pedido do app para `background.js`. `capture.js` abre cada página em uma aba inativa, rola até carregar, roda `extract.js` e junta os resultados. O envio usa o mesmo `api.js` da leitura manual.
 
 ## Manutenção
 

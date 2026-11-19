@@ -1,0 +1,89 @@
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiError, apiGet, apiPostJson } from "../../api/client";
+import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
+import { captureWithExtension, pingExtension } from "../../lib/linkedinExtension";
+import { AnalysisPanel } from "./AnalysisPanel";
+
+vi.mock("../../api/client", async (importOriginal) => ({
+	...(await importOriginal<typeof import("../../api/client")>()),
+	apiGet: vi.fn(),
+	apiPostJson: vi.fn(),
+}));
+vi.mock("../../lib/linkedinExtension", async (importOriginal) => ({
+	...(await importOriginal<typeof import("../../lib/linkedinExtension")>()),
+	pingExtension: vi.fn(),
+	captureWithExtension: vi.fn(),
+}));
+
+const ANALYSIS: LinkedInAnalysisResponse = {
+	id: "a1",
+	snapshotId: "s1",
+	createdAt: "2026-11-19T12:00:00Z",
+	overallScore: 70,
+	summary: "Perfil razoável.",
+	topActions: [],
+	recruiterKeywords: [],
+	missingKeywords: [],
+	sections: [],
+	imagesAnalyzed: true,
+};
+
+beforeEach(() => {
+	window.sessionStorage.clear();
+	vi.mocked(apiGet).mockImplementation(async (path: string) => {
+		if (path.endsWith("/snapshots/latest")) {
+			return { id: "s1", capturedAt: "2026-11-19T11:00:00Z", profile: { profileUrl: "https://www.linkedin.com/in/ana/" } };
+		}
+		if (path.endsWith("/analyses/latest")) {
+			throw new ApiError("não achou", 404);
+		}
+		return [];
+	});
+});
+
+afterEach(() => {
+	cleanup();
+	vi.clearAllMocks();
+});
+
+function renderPanel() {
+	render(<AnalysisPanel hasProfile hasSnapshot onGoTo={() => {}} />);
+}
+
+describe("AnalysisPanel", () => {
+	it("reads the profile through the extension and then analyzes the fresh snapshot", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: true, changedSections: [] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue({ ...ANALYSIS, unchanged: true });
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await screen.findByText(/Seu perfil não mudou desde a última leitura/);
+		expect(captureWithExtension).toHaveBeenCalledWith(expect.objectContaining({ profileUrl: "https://www.linkedin.com/in/ana/" }));
+		expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s2" });
+	});
+
+	it("lists the sections that changed since the last reading", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: ["HEADLINE", "SKILLS"] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await screen.findByText("Mudou desde a última leitura: Título, Competências.");
+	});
+
+	it("does not analyze without a fresh reading when the extension is missing", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await screen.findByText("Falta ler o seu perfil de novo");
+		await waitFor(() => expect(apiPostJson).not.toHaveBeenCalled());
+		expect(captureWithExtension).not.toHaveBeenCalled();
+	});
+});

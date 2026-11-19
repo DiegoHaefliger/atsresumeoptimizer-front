@@ -1,0 +1,106 @@
+import { emptyDraft, mergeCapture } from './merge.js'
+
+const DETAIL_PAGES = ['experience', 'education', 'skills', 'certifications', 'languages', 'projects', 'publications', 'recommendations']
+const PROFILE_URL = /^https:\/\/([a-z]+\.)?linkedin\.com\/in\/([^/?#]+)/
+const LOGIN_PATH = /^\/(login|uas\/login|authwall|checkpoint)/
+const PAGE_TIMEOUT_MS = 30000
+const SETTLE_MS = 1500
+const PAUSE_MS = 800
+const SCROLL_STEPS = 6
+const SCROLL_WAIT_MS = 600
+
+export class CaptureError extends Error {
+	constructor(code, message) {
+		super(message)
+		this.code = code
+	}
+}
+
+export function profileBase(url) {
+	const match = PROFILE_URL.exec(url || '')
+	return match ? `https://www.linkedin.com/in/${match[2]}/` : null
+}
+
+export function pagesToRead(base) {
+	return [base, ...DETAIL_PAGES.map((page) => `${base}details/${page}/`)]
+}
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function scrollToEnd(steps, wait) {
+	let last = -1
+	for (let step = 0; step < steps; step++) {
+		window.scrollTo(0, document.body.scrollHeight)
+		await new Promise((resolve) => setTimeout(resolve, wait))
+		if (document.body.scrollHeight === last) {
+			break
+		}
+		last = document.body.scrollHeight
+	}
+	window.scrollTo(0, 0)
+}
+
+function waitUntilLoaded(chromeApi, tabId) {
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(() => {
+			chromeApi.tabs.onUpdated.removeListener(listener)
+			reject(new CaptureError('timeout', 'O LinkedIn demorou demais para abrir a página.'))
+		}, PAGE_TIMEOUT_MS)
+		function listener(updatedId, change) {
+			if (updatedId === tabId && change.status === 'complete') {
+				clearTimeout(timer)
+				chromeApi.tabs.onUpdated.removeListener(listener)
+				resolve()
+			}
+		}
+		chromeApi.tabs.onUpdated.addListener(listener)
+		chromeApi.tabs.get(tabId).then((tab) => listener(tabId, { status: tab.status }), () => {})
+	})
+}
+
+export async function readPage(chromeApi, url, pause = sleep) {
+	const tab = await chromeApi.tabs.create({ url, active: false })
+	try {
+		await waitUntilLoaded(chromeApi, tab.id)
+		const loaded = await chromeApi.tabs.get(tab.id)
+		if (loaded.url && LOGIN_PATH.test(new URL(loaded.url).pathname)) {
+			throw new CaptureError('login-required', 'Entre no LinkedIn neste navegador e tente de novo.')
+		}
+		await pause(SETTLE_MS)
+		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: scrollToEnd, args: [SCROLL_STEPS, SCROLL_WAIT_MS] })
+		const [injection] = await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
+		return injection && injection.result
+	} finally {
+		await chromeApi.tabs.remove(tab.id).catch(() => {})
+	}
+}
+
+export async function captureProfile({ chromeApi, profileUrl, onProgress = () => {}, pause = sleep, read = readPage }) {
+	const base = profileBase(profileUrl)
+	if (!base) {
+		throw new CaptureError('no-profile', 'Não sei qual é o seu perfil. Abra-o no LinkedIn uma vez e tente de novo.')
+	}
+	const pages = pagesToRead(base)
+	let draft = emptyDraft()
+	for (const [index, url] of pages.entries()) {
+		onProgress({ step: index + 1, total: pages.length })
+		const isMainPage = index === 0
+		try {
+			const capture = await read(chromeApi, url, pause)
+			if (capture) {
+				draft = mergeCapture(draft, capture)
+			}
+		} catch (error) {
+			if (isMainPage || error.code === 'login-required') {
+				throw error
+			}
+		}
+		if (isMainPage && !draft.profile.headline) {
+			throw new CaptureError('unreadable', 'Não consegui ler o seu perfil. Confira se o LinkedIn abriu normalmente.')
+		}
+		await pause(PAUSE_MS)
+	}
+	return draft
+}

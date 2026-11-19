@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiGet, apiPostJson, ApiError, errorMessage } from "../../api/client";
+import { apiGet, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInAnalysisResponse, LinkedInAnalysisSummaryResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt } from "../../lib/linkedinLabels";
 import { BusyLabel } from "../BusyLabel";
 import { SparklesIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
 import { AnalysisResult } from "./AnalysisResult";
+import { busyText, WaitingForCapture } from "./WaitingForCapture";
+import { useAnalysisRun } from "./useAnalysisRun";
 
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
 
@@ -28,7 +30,6 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 	const [analysis, setAnalysis] = useState<LinkedInAnalysisResponse | null>(null);
 	const [history, setHistory] = useState<LinkedInAnalysisSummaryResponse[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [running, setRunning] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const loadHistory = useCallback(async () => {
@@ -40,24 +41,20 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		setHistory(list);
 	}, []);
 
+	const handleAnalysis = useCallback(
+		(created: LinkedInAnalysisResponse) => {
+			setAnalysis(created);
+			loadHistory().catch((err) => setError(errorMessage(err, "Não deu pra carregar as análises.")));
+		},
+		[loadHistory],
+	);
+	const { phase, notice, error: runError, run, cancel } = useAnalysisRun(handleAnalysis);
+
 	useEffect(() => {
 		loadHistory()
 			.catch((err) => setError(errorMessage(err, "Não deu pra carregar as análises.")))
 			.finally(() => setLoading(false));
 	}, [loadHistory]);
-
-	async function run() {
-		setRunning(true);
-		setError(null);
-		try {
-			setAnalysis(await apiPostJson<LinkedInAnalysisResponse>(ANALYSES_PATH, {}));
-			await loadHistory();
-		} catch (err) {
-			setError(errorMessage(err, "Não deu pra analisar o perfil. Tenta de novo."));
-		} finally {
-			setRunning(false);
-		}
-	}
 
 	async function open(id: string) {
 		try {
@@ -67,6 +64,8 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		}
 	}
 
+	const busy = phase.kind === "capturing" || phase.kind === "analyzing";
+	const waiting = phase.kind === "waiting";
 	const previous = analysis ? history.find((item) => new Date(item.createdAt) < new Date(analysis.createdAt)) : undefined;
 
 	return (
@@ -84,22 +83,12 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					}
 				/>
 			)}
-			{!hasSnapshot && (
-				<StateMessage
-					variant="empty"
-					message={
-						<>
-							Falta trazer o seu perfil do LinkedIn.{" "}
-							<button type="button" className="link" onClick={() => onGoTo("data")}>
-								Ver como
-							</button>
-						</>
-					}
-				/>
+			{!hasSnapshot && phase.kind === "idle" && (
+				<StateMessage variant="empty" message="O app lê o seu perfil no LinkedIn sozinho, pela extensão, quando você pede a análise." />
 			)}
 			<div className="linkedin-actions">
-				<button type="button" onClick={run} disabled={running || !hasProfile || !hasSnapshot} aria-busy={running}>
-					<BusyLabel busy={running} busyText="Analisando... pode levar um minuto">
+				<button type="button" onClick={run} disabled={busy || waiting || !hasProfile} aria-busy={busy}>
+					<BusyLabel busy={busy} busyText={busyText(phase)}>
 						<SparklesIcon /> {analysis ? "Analisar de novo" : "Analisar meu LinkedIn"}
 					</BusyLabel>
 				</button>
@@ -116,7 +105,9 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					</label>
 				)}
 			</div>
-			{error && <StateMessage variant="error" message={error} />}
+			{waiting && <WaitingForCapture reason={phase.reason} onGoTo={() => onGoTo("data")} onCancel={cancel} />}
+			{notice && <StateMessage variant="empty" message={notice} />}
+			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
 			{loading && <p className="field-hint">Carregando...</p>}
 			{analysis && <AnalysisResult analysis={analysis} previousScore={previous?.overallScore} />}
 		</div>
