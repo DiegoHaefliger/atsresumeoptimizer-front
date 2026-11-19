@@ -8,6 +8,7 @@ type TagInputProps = {
 	placeholder: string;
 	values: string[];
 	onChange: (values: string[]) => void;
+	limitHint?: string;
 };
 
 const COMMIT_KEYS = new Set(["Enter", ","]);
@@ -25,7 +26,7 @@ function merge(current: string[], incoming: string[]): string[] {
 	return added.length > 0 ? [...current, ...added] : current;
 }
 
-export function TagInput({ label, tags, placeholder, values, onChange }: TagInputProps) {
+export function TagInput({ label, tags, placeholder, values, onChange, limitHint }: TagInputProps) {
 	const id = useId();
 	const [draft, setDraft] = useState("");
 
@@ -85,7 +86,7 @@ export function TagInput({ label, tags, placeholder, values, onChange }: TagInpu
 					Adicionar
 				</button>
 			</div>
-			<span className="field-hint">Digite e tecle Enter ou vírgula pra adicionar. O × remove.</span>
+			<span className="field-hint">{limitHint ?? "Digite e tecle Enter ou vírgula pra adicionar. O × remove."}</span>
 		</div>
 	);
 }
