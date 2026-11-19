@@ -24,7 +24,7 @@ export function ReadingSelector({ readings, selectedId, onSelect, onImportPdf, d
 		<fieldset className="panel panel-body reading-selector" disabled={disabled}>
 			<legend>Leitura usada na análise</legend>
 			{readings.map((reading, index) => (
-				<label key={reading.id} className="toggle-option">
+				<label key={reading.id} className={`reading-option${reading.id === selectedId ? " reading-option-selected" : ""}`}>
 					<input
 						type="radio"
 						name="linkedin-reading"

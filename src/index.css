@@ -7765,3 +7765,29 @@ kbd {
 	font-size: var(--font-size-md);
 }
 
+
+.reading-option {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-3);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	padding: var(--space-4);
+	cursor: pointer;
+}
+
+.reading-option input {
+	flex-shrink: 0;
+	margin-top: 3px;
+	accent-color: var(--brand-600);
+}
+
+.reading-option-selected {
+	border-color: var(--brand-600);
+	background: color-mix(in srgb, var(--brand-600) 12%, transparent);
+}
+
+.reading-option:has(input:focus-visible) {
+	outline: 2px solid var(--brand-600);
+	outline-offset: 2px;
+}
