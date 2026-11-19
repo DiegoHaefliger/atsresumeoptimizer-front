@@ -81,6 +81,46 @@ describe('captureProfile', () => {
 		expect(update).toHaveBeenCalledWith(7, { active: true })
 	})
 
+	it('reads again a section the profile shows but the first read left empty', async () => {
+		let skillReads = 0
+		const read = vi.fn(async (_chrome, url) => {
+			if (url.endsWith('/ana/')) {
+				return { profile: { headline: 'Dev', about: 'Texto' }, found: ['about', 'skills'], photoUrl: null, bannerUrl: null }
+			}
+			if (url.includes('skills')) {
+				skillReads += 1
+				return { profile: { skills: skillReads > 1 ? ['Java'] : [] }, found: ['skills'], photoUrl: null, bannerUrl: null }
+			}
+			return null
+		})
+
+		const draft = await captureProfile({ chromeApi: {}, profileUrl, pause: noPause, read })
+
+		expect(draft.profile.skills).toEqual(['Java'])
+		expect(skillReads).toBe(2)
+	})
+
+	it('refuses an incomplete capture when a core section is still empty after the retry', async () => {
+		const read = vi.fn(async (_chrome, url) =>
+			url.endsWith('/ana/') ? { profile: { headline: 'Dev', about: 'Texto' }, found: ['about', 'skills'], photoUrl: null, bannerUrl: null } : null,
+		)
+
+		await expect(captureProfile({ chromeApi: {}, profileUrl, pause: noPause, read })).rejects.toMatchObject({
+			code: 'incomplete',
+			message: expect.stringContaining('Competências'),
+		})
+	})
+
+	it('does not insist on non-core sections that stay empty', async () => {
+		const read = vi.fn(async (_chrome, url) =>
+			url.endsWith('/ana/') ? { profile: { headline: 'Dev' }, found: ['featured', 'activity'], photoUrl: null, bannerUrl: null } : null,
+		)
+
+		const draft = await captureProfile({ chromeApi: {}, profileUrl, pause: noPause, read })
+
+		expect(draft.profile.headline).toBe('Dev')
+	})
+
 	it('stops as soon as the user is not logged in', async () => {
 		const read = vi.fn(async () => {
 			throw new CaptureError('login-required', 'Entre no LinkedIn')

@@ -1,9 +1,11 @@
 import { CaptureError } from './capture-error.js'
-import { emptyDraft, mergeCapture } from './merge.js'
+import { emptyDraft, hasValue, mergeCapture, SECTION_LABELS } from './merge.js'
 
 export { CaptureError }
 
 const DETAIL_PAGES = ['experience', 'education', 'skills', 'certifications', 'languages', 'projects', 'publications', 'recommendations']
+const SECTION_FIELD = { experience: 'experiences', education: 'educations', activity: 'recentActivity' }
+const CORE_SECTIONS = ['about', 'experience', 'education', 'skills']
 const PROFILE_URL = /^https:\/\/([a-z]+\.)?linkedin\.com\/in\/([^/?#]+)/
 const LOGIN_PATH = /^\/(login|uas\/login|authwall|checkpoint)/
 const PAGE_TIMEOUT_MS = 30000
@@ -101,9 +103,16 @@ export async function captureProfile({ chromeApi, profileUrl, onProgress = () =>
 	return restoringActiveTab(chromeApi, () => readAllPages({ chromeApi, base, onProgress, pause, read }))
 }
 
+const fieldOf = (key) => SECTION_FIELD[key] || key
+
+function seenButEmpty(draft, seen) {
+	return seen.filter((key) => !hasValue(draft.profile[fieldOf(key)]))
+}
+
 async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 	const pages = pagesToRead(base)
 	let draft = emptyDraft()
+	let seen = []
 	for (const [index, url] of pages.entries()) {
 		onProgress({ step: index + 1, total: pages.length })
 		const isMainPage = index === 0
@@ -111,6 +120,7 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 			const capture = await read(chromeApi, url, pause)
 			if (capture) {
 				draft = mergeCapture(draft, capture)
+				seen = isMainPage ? capture.found || [] : seen
 			}
 		} catch (error) {
 			if (isMainPage || error.code === 'login-required') {
@@ -122,5 +132,30 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 		}
 		await pause(PAUSE_MS)
 	}
+	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen })
+	const missingCore = seenButEmpty(draft, seen).filter((key) => CORE_SECTIONS.includes(key))
+	if (missingCore.length > 0) {
+		const names = missingCore.map((key) => SECTION_LABELS[fieldOf(key)]).join(', ')
+		throw new CaptureError('incomplete', `O LinkedIn não carregou: ${names}. Tente de novo.`)
+	}
 	return draft
+}
+
+async function rereadMissing({ chromeApi, base, pause, read, draft, seen }) {
+	let current = draft
+	for (const key of seenButEmpty(draft, seen)) {
+		const url = DETAIL_PAGES.includes(key) ? `${base}details/${key}/` : base
+		try {
+			const capture = await read(chromeApi, url, pause)
+			if (capture) {
+				current = mergeCapture(current, capture)
+			}
+		} catch (error) {
+			if (error.code === 'login-required') {
+				throw error
+			}
+		}
+		await pause(PAUSE_MS)
+	}
+	return current
 }
