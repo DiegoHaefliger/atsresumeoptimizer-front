@@ -5,11 +5,10 @@ import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { Badge } from "../Badge";
 import { RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
-import { BookmarkletSteps } from "./BookmarkletSteps";
 import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
-const SOURCE_LABELS = { EXTENSION: "Extensão", TEXT: "Texto", BOOKMARKLET: "Favorito" } as const;
+const SOURCE_LABELS = { EXTENSION: "Extensão", TEXT: "Texto", PDF: "PDF" } as const;
 export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (snapshot: LinkedInSnapshotResponse | null) => void }) {
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -59,8 +58,6 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 						Na aba Análise, clique em <strong>Analisar meu LinkedIn</strong>. A extensão abre o seu perfil em segundo plano, lê e envia sozinha. Só precisa
 						estar com o LinkedIn logado neste navegador.
 					</p>
-					<h3>Sem a extensão: favorito</h3>
-					<BookmarkletSteps />
 					<p className="field-hint">Para ler à mão, abra o seu perfil, clique no ícone da extensão e em “Ler esta página”, repita nas páginas “Mostrar tudo” e clique em “Enviar para o app”.</p>
 				</div>
 			</section>

@@ -52,10 +52,10 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
-	it("uses a reading sent in the last ten minutes when there is no extension", async () => {
+	it("uses a reading imported in the last ten minutes when there is no extension", async () => {
 		vi.mocked(apiGet).mockImplementation(async (path: string) => {
 			if (path.endsWith("/snapshots/latest")) {
-				return { id: "s9", source: "BOOKMARKLET", capturedAt: new Date(Date.now() - 60_000).toISOString(), profile: {} };
+				return { id: "s9", source: "PDF", capturedAt: new Date(Date.now() - 60_000).toISOString(), profile: {} };
 			}
 			if (path.endsWith("/analyses/latest")) {
 				throw new ApiError("não achou", 404);

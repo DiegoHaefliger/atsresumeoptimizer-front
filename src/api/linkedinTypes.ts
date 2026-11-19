@@ -37,7 +37,7 @@ export type ProfileSection =
 	| "FEATURED"
 	| "ACTIVITY";
 
-export type SnapshotSource = "EXTENSION" | "TEXT" | "BOOKMARKLET";
+export type SnapshotSource = "EXTENSION" | "TEXT" | "PDF";
 
 export type LinkedInProfileResponse = {
 	profileUrl?: string;
