@@ -6,6 +6,19 @@ import { isMissingExtension, OUTDATED_EXTENSION_CODE, type RunPhase } from "./us
 const LINKEDIN_OWN_PROFILE = "https://www.linkedin.com/in/me/";
 const OPEN_LINKEDIN_CODES = new Set(["login-required", "no-profile"]);
 
+const PAGE_ACTIONS: Record<string, string> = {
+	profile: "Lendo o título, o Sobre, os destaques e a atividade",
+	experience: "Lendo as experiências",
+	education: "Lendo a formação",
+	skills: "Lendo as competências",
+	certifications: "Procurando certificações",
+	languages: "Procurando idiomas",
+	projects: "Lendo os projetos",
+	publications: "Procurando publicações",
+	recommendations: "Lendo as recomendações",
+	recheck: "Conferindo uma seção que não carregou",
+};
+
 export function busyText(phase: RunPhase): string {
 	if (phase.kind === "importing") {
 		return "Lendo o PDF do seu perfil...";
@@ -14,7 +27,8 @@ export function busyText(phase: RunPhase): string {
 		return "Analisando... pode levar um minuto";
 	}
 	if (phase.kind === "capturing" && phase.progress) {
-		return `Lendo o seu perfil no LinkedIn (${phase.progress.step} de ${phase.progress.total})...`;
+		const action = phase.progress.page ? PAGE_ACTIONS[phase.progress.page] : undefined;
+		return action ? `${action}...` : "Lendo o seu perfil no LinkedIn...";
 	}
 	return "Abrindo o LinkedIn...";
 }

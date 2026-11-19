@@ -47,7 +47,8 @@ describe('captureProfile', () => {
 		expect(draft.profile.skills).toEqual(['Java', 'Spring'])
 		expect(draft.photoUrl).toBe('p')
 		expect(onProgress).toHaveBeenCalledTimes(read.mock.calls.length)
-		expect(onProgress.mock.calls[0][0]).toEqual({ step: 1, total: read.mock.calls.length })
+		expect(onProgress.mock.calls[0][0]).toEqual({ step: 1, total: read.mock.calls.length, page: 'profile' })
+		expect(onProgress.mock.calls[3][0].page).toBe('skills')
 	})
 
 	it('fails when the main page has no headline', async () => {

@@ -116,7 +116,7 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 	let draft = emptyDraft()
 	let seen = []
 	for (const [index, url] of pages.entries()) {
-		onProgress({ step: index + 1, total: pages.length })
+		onProgress({ step: index + 1, total: pages.length, page: index === 0 ? 'profile' : DETAIL_PAGES[index - 1] })
 		const isMainPage = index === 0
 		try {
 			const capture = await read(chromeApi, url, pause)
@@ -134,8 +134,8 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 		}
 		await pause(PAUSE_MS)
 	}
-	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen })
-	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen, options: { visible: true } })
+	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen, onProgress })
+	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen, options: { visible: true }, onProgress })
 	const missingCore = seenButEmpty(draft, seen).filter((key) => CORE_SECTIONS.includes(key))
 	if (missingCore.length > 0) {
 		const names = missingCore.map((key) => SECTION_LABELS[fieldOf(key)]).join(', ')
@@ -144,9 +144,11 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 	return draft
 }
 
-async function rereadMissing({ chromeApi, base, pause, read, draft, seen, options }) {
+async function rereadMissing({ chromeApi, base, pause, read, draft, seen, options, onProgress }) {
 	let current = draft
-	for (const key of seenButEmpty(draft, seen)) {
+	const missing = seenButEmpty(draft, seen)
+	for (const key of missing) {
+		onProgress({ step: DETAIL_PAGES.length + 1, total: DETAIL_PAGES.length + 1, page: 'recheck' })
 		const url = DETAIL_PAGES.includes(key) ? `${base}details/${key}/` : base
 		try {
 			const capture = await read(chromeApi, url, pause, options)

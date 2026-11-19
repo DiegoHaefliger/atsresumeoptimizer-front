@@ -9,7 +9,7 @@ export const MIN_EXTENSION_VERSION = "0.3.6";
 
 export type ExtensionStatus = "missing" | "outdated" | "current";
 
-export type CaptureProgress = { step: number; total: number };
+export type CaptureProgress = { step: number; total: number; page?: string };
 
 export class CaptureFailedError extends Error {
 	readonly code: string;
@@ -25,6 +25,7 @@ type ExtensionMessage = {
 	id?: string;
 	type: string;
 	step?: number;
+	page?: string;
 	total?: number;
 	snapshot?: LinkedInCaptureResponse;
 	code?: string;
@@ -132,7 +133,7 @@ export function captureWithExtension(options: {
 		};
 		const stop = listen(id, (message) => {
 			if (message.type === "progress" && message.step && message.total) {
-				options.onProgress?.({ step: message.step, total: message.total });
+				options.onProgress?.({ step: message.step, total: message.total, page: message.page });
 				return false;
 			}
 			if (message.type === "result" && message.snapshot) {
