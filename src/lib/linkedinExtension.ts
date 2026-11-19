@@ -76,6 +76,15 @@ export function isOlderVersion(version: string | undefined, minimum: string = MI
 	return false;
 }
 
+export async function fetchAvailableVersion(): Promise<string | null> {
+	try {
+		const response = await fetch(`${import.meta.env.BASE_URL}ats-linkedin-extension.json`, { cache: "no-store" });
+		return response.ok ? ((await response.json()) as { version?: string }).version ?? null : null;
+	} catch {
+		return null;
+	}
+}
+
 export type ExtensionProbe = { status: ExtensionStatus; version: string | null };
 
 export function probeExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionProbe> {

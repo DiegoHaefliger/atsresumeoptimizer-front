@@ -1,14 +1,21 @@
-import { MIN_EXTENSION_VERSION, type ExtensionProbe } from "../../lib/linkedinExtension";
+import { isOlderVersion, MIN_EXTENSION_VERSION } from "../../lib/linkedinExtension";
+import type { ExtensionState } from "./useExtensionStatus";
 
-function label({ status, version }: ExtensionProbe): string {
+function label({ status, version, availableVersion }: NonNullable<ExtensionState>): string {
 	if (status === "missing") {
 		return "não detectada";
 	}
 	const shown = version ? `versão ${version}` : "versão antiga";
-	return status === "outdated" ? `${shown} (desatualizada, precisa da ${MIN_EXTENSION_VERSION})` : `${shown} (atualizada)`;
+	if (status === "outdated") {
+		return `${shown} (desatualizada, precisa da ${MIN_EXTENSION_VERSION})`;
+	}
+	if (availableVersion && version && isOlderVersion(version, availableVersion)) {
+		return `${shown} (há uma versão mais nova, ${availableVersion}; atualize quando puder)`;
+	}
+	return `${shown} (em dia)`;
 }
 
-export function ExtensionVersion({ probe }: { probe: ExtensionProbe | null }) {
+export function ExtensionVersion({ probe }: { probe: ExtensionState }) {
 	if (!probe) {
 		return null;
 	}

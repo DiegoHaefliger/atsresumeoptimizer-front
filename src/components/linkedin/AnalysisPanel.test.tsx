@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, apiGet, apiPostForm, apiPostJson } from "../../api/client";
 import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
-import { captureWithExtension, CaptureFailedError, checkExtension, probeExtension, type ExtensionStatus } from "../../lib/linkedinExtension";
+import { captureWithExtension, CaptureFailedError, checkExtension, fetchAvailableVersion, probeExtension, type ExtensionStatus } from "../../lib/linkedinExtension";
 import { AnalysisPanel } from "./AnalysisPanel";
 
 vi.mock("../../api/client", async (importOriginal) => ({
@@ -15,6 +15,7 @@ vi.mock("../../lib/linkedinExtension", async (importOriginal) => ({
 	...(await importOriginal<typeof import("../../lib/linkedinExtension")>()),
 	checkExtension: vi.fn(),
 	probeExtension: vi.fn(),
+	fetchAvailableVersion: vi.fn().mockResolvedValue(null),
 	captureWithExtension: vi.fn(),
 }));
 
@@ -132,7 +133,7 @@ describe("AnalysisPanel", () => {
 		extensionIs("current");
 		renderPanel();
 
-		expect((await screen.findByTestId("extension-version")).textContent).toBe("Extensão do Chrome: versão 0.2.2 (atualizada)");
+		expect((await screen.findByTestId("extension-version")).textContent).toBe("Extensão do Chrome: versão 0.2.2 (em dia)");
 	});
 
 	it("does not let an analysis start with the extension reading while the extension is outdated", async () => {
@@ -158,6 +159,15 @@ describe("AnalysisPanel", () => {
 		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
 
 		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "pdf1" }));
+	});
+
+	it("says when a newer extension version is available", async () => {
+		withReadings();
+		extensionIs("current");
+		vi.mocked(fetchAvailableVersion).mockResolvedValue("0.9.0");
+		renderPanel();
+
+		expect((await screen.findByTestId("extension-version")).textContent).toContain("há uma versão mais nova, 0.9.0");
 	});
 
 	it("falls back to the chosen reading when the extension cannot read the profile", async () => {

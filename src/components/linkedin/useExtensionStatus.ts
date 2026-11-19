@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { probeExtension, type ExtensionProbe } from "../../lib/linkedinExtension";
+import { fetchAvailableVersion, probeExtension, type ExtensionProbe } from "../../lib/linkedinExtension";
 
 const RECHECK_MS = 3000;
 
-export function useExtensionStatus(): ExtensionProbe | null {
-	const [probe, setProbe] = useState<ExtensionProbe | null>(null);
+export type ExtensionState = (ExtensionProbe & { availableVersion: string | null }) | null;
+
+export function useExtensionStatus(): ExtensionState {
+	const [probe, setProbe] = useState<ExtensionState>(null);
 
 	useEffect(() => {
 		let active = true;
 		async function check() {
-			const next = await probeExtension();
+			const [next, availableVersion] = await Promise.all([probeExtension(), fetchAvailableVersion()]);
 			if (active) {
-				setProbe(next);
+				setProbe({ ...next, availableVersion });
 			}
 		}
 		void check();
