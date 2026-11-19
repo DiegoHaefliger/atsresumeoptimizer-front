@@ -14,6 +14,10 @@ function frameRule(extensionId) {
 	}
 }
 
+function summarize(profile) {
+	return Object.fromEntries(Object.entries(profile || {}).map(([key, value]) => [key, Array.isArray(value) ? value.length : typeof value === 'string' ? value.length : value ? 1 : 0]))
+}
+
 export class FrameReader {
 	constructor(chromeApi, log = () => {}) {
 		this.chrome = chromeApi
@@ -49,7 +53,7 @@ export class FrameReader {
 			pending.started = true
 			this.log({ event: 'frame-started', path: message.path })
 		} else if (message.type === 'frame-read') {
-			this.log({ event: 'frame-read', path: message.path, rendered: message.reading?.rendered, found: message.reading?.result?.found, debug: message.reading?.debug })
+			this.log({ event: 'frame-read', path: message.path, rendered: message.reading?.rendered, found: message.reading?.result?.found, filled: summarize(message.reading?.result?.profile), debug: message.reading?.debug })
 			pending.resolve(message.reading)
 		}
 	}

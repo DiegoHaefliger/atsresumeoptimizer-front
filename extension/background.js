@@ -17,7 +17,7 @@ const frameReader = new FrameReader(chrome, dev.log)
 
 async function startFrameReader() {
 	const { hiddenFrames } = await chrome.storage.local.get('hiddenFrames')
-	if (hiddenFrames !== true) {
+	if (hiddenFrames === false) {
 		return null
 	}
 	try {
@@ -39,11 +39,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 	return true
 })
 
-async function run(port, request) {
+async function run(request, onProgress) {
 	const stored = await chrome.storage.local.get(['serverUrl', 'lastProfileUrl'])
 	const serverUrl = stored.serverUrl || DEFAULT_SERVER
 	const profileUrl = request.profileUrl || stored.lastProfileUrl || (await openProfileUrl())
-	dev.log({ event: 'capture-start', profileUrl, hiddenFrames: Boolean(await chrome.storage.local.get('hiddenFrames').then((stored) => stored.hiddenFrames)) })
+	dev.log({ event: 'capture-start', profileUrl })
 	const activeFrameReader = await startFrameReader()
 	let draft
 	try {
@@ -51,14 +51,42 @@ async function run(port, request) {
 			chromeApi: chrome,
 			profileUrl,
 			read: adaptiveReader(activeFrameReader, dev.log),
-			onProgress: (progress) => port.postMessage({ type: 'progress', ...progress }),
+			onProgress,
 		})
 	} finally {
 		await activeFrameReader?.dispose()
 	}
 	const snapshot = await sendSnapshot({ serverUrl, draft })
 	await chrome.storage.local.set({ lastProfileUrl: draft.profile.profileUrl })
-	port.postMessage({ type: 'result', snapshot })
+	return snapshot
+}
+
+let activeCapture = null
+
+function broadcast(message) {
+	for (const port of activeCapture.ports) {
+		try {
+			port.postMessage(message)
+		} catch {
+			activeCapture.ports.delete(port)
+		}
+	}
+}
+
+async function capture(port, request) {
+	if (activeCapture) {
+		activeCapture.ports.add(port)
+		return
+	}
+	activeCapture = { ports: new Set([port]) }
+	try {
+		const snapshot = await run(request, (progress) => broadcast({ type: 'progress', ...progress }))
+		broadcast({ type: 'result', snapshot })
+	} catch (error) {
+		broadcast({ type: 'error', code: error instanceof CaptureError ? error.code : 'failed', message: error.message })
+	} finally {
+		activeCapture = null
+	}
 }
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -69,10 +97,7 @@ chrome.runtime.onConnect.addListener((port) => {
 		if (request.type !== 'capture') {
 			return
 		}
-		run(port, request).catch((error) => {
-			const code = error instanceof CaptureError ? error.code : 'failed'
-			port.postMessage({ type: 'error', code, message: error.message })
-		})
+		void capture(port, request)
 	})
 })
 

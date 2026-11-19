@@ -5,6 +5,7 @@ export { CaptureError }
 
 const DETAIL_PAGES = ['experience', 'education', 'skills', 'certifications', 'languages', 'projects', 'publications', 'recommendations']
 const SECTION_FIELD = { experience: 'experiences', education: 'educations', activity: 'recentActivity' }
+const MAX_FRAME_FAILURES = 2
 const CORE_SECTIONS = ['about', 'experience', 'education', 'skills']
 const PROFILE_URL = /^https:\/\/([a-z]+\.)?linkedin\.com\/in\/([^/?#]+)/
 const LOGIN_PATH = /^\/(login|uas\/login|authwall|checkpoint)/
@@ -64,15 +65,16 @@ export async function readPage(chromeApi, url, pause = sleep, { visible = true }
 }
 
 export function adaptiveReader(frameReader, log = () => {}) {
-	let frameBroken = false
+	let failures = 0
 	return async (chromeApi, url, pause, options) => {
-		if (frameReader && !frameBroken && !options?.visible) {
+		if (frameReader && failures < MAX_FRAME_FAILURES && !options?.visible) {
 			try {
 				const result = await frameReader.read(url)
+				failures = 0
 				log({ event: 'read', method: 'iframe', url })
 				return result
 			} catch (error) {
-				frameBroken = true
+				failures += 1
 				log({ event: 'iframe-failed', url, code: error.code, message: error.message })
 			}
 		}

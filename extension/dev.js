@@ -11,13 +11,20 @@ export function createDevTools(chromeApi) {
 		}
 	}
 
-	async function log(entry) {
+	let writing = Promise.resolve()
+
+	async function append(entry) {
 		if (!(await isDevelopmentInstall())) {
 			return
 		}
 		const stored = await chromeApi.storage.local.get(LOG_KEY)
 		const entries = [...(stored[LOG_KEY] || []), { at: new Date().toISOString(), ...entry }]
 		await chromeApi.storage.local.set({ [LOG_KEY]: entries.slice(-LOG_LIMIT) })
+	}
+
+	function log(entry) {
+		writing = writing.then(() => append(entry)).catch(() => {})
+		return writing
 	}
 
 	async function handle(message) {

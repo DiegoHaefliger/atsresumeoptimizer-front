@@ -187,7 +187,7 @@ describe('adaptiveReader', () => {
 		expect(chromeApi.tabs.create).not.toHaveBeenCalled()
 	})
 
-	it('falls back to a tab when the frame fails and stops trying the frame afterwards', async () => {
+	it('falls back to a tab when the frame fails and stops trying the frame after repeated failures', async () => {
 		const frameReader = { read: vi.fn(async () => { throw new CaptureError('frame-blocked', 'bloqueado') }) }
 		const chromeApi = {
 			tabs: {
@@ -204,10 +204,12 @@ describe('adaptiveReader', () => {
 
 		const first = await read(chromeApi, url, noPause)
 		const second = await read(chromeApi, url, noPause)
+		const third = await read(chromeApi, url, noPause)
 
 		expect(first.profile.headline).toBe('Tab')
 		expect(second.profile.headline).toBe('Tab')
-		expect(frameReader.read).toHaveBeenCalledTimes(1)
+		expect(third.profile.headline).toBe('Tab')
+		expect(frameReader.read).toHaveBeenCalledTimes(2)
 	})
 
 	it('goes straight to a tab when there is no frame reader', async () => {
