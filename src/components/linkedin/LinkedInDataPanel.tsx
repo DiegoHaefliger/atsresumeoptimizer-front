@@ -1,45 +1,13 @@
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { Badge } from "../Badge";
-import { DownloadIcon, RefreshIcon } from "../icons";
+import { RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
+import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
-const EXTENSION_FILE = "ats-linkedin-extension.zip";
-const EXTENSIONS_PAGE = "chrome://extensions";
-
-const COPIED_FEEDBACK_MS = 4000;
-
-function ExtensionsLink() {
-	const [copied, setCopied] = useState(false);
-
-	async function copy(event: MouseEvent<HTMLAnchorElement>) {
-		event.preventDefault();
-		await navigator.clipboard.writeText(EXTENSIONS_PAGE);
-		setCopied(true);
-		window.setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
-	}
-
-	return (
-		<>
-			Abra uma nova aba do Chrome e vá em{" "}
-			<a href={EXTENSIONS_PAGE} onClick={copy}>
-				<code>{EXTENSIONS_PAGE}</code>
-			</a>
-			{copied ? " (copiado, é só colar na barra de endereço)" : " (clique para copiar)"}
-		</>
-	);
-}
-
-function downloadExtension() {
-	const link = document.createElement("a");
-	link.href = `${import.meta.env.BASE_URL}${EXTENSION_FILE}`;
-	link.download = EXTENSION_FILE;
-	link.click();
-}
-
 export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (snapshot: LinkedInSnapshotResponse | null) => void }) {
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -77,32 +45,19 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 					<p>Ela lê só a página do LinkedIn que você abrir, sem guardar senha nem cookie.</p>
 				</div>
 				<div className="panel-body">
-					<div className="linkedin-actions">
-						<button type="button" onClick={downloadExtension}>
-							<DownloadIcon /> Baixar extensão
-						</button>
-					</div>
-					<ol className="linkedin-steps">
-						<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
-						<li>
-							<ExtensionsLink />
-						</li>
-						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
-						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
-						<li>Clique no ícone de quebra-cabeça do Chrome e fixe a extensão “ATS Resume Optimizer”.</li>
-					</ol>
+					<ExtensionInstallSteps />
 				</div>
 			</section>
 			<section className="panel">
 				<div className="panel-header">
-					<h2>2. Traga o seu perfil</h2>
+					<h2>2. O perfil é lido a cada análise</h2>
 				</div>
 				<div className="panel-body">
-					<ol className="linkedin-steps">
-						<li>Abra o seu perfil em linkedin.com/in, já logado, e role até o fim pra carregar as seções.</li>
-						<li>Clique no ícone da extensão e em “Ler esta página”. Repita nas páginas “Mostrar tudo” de competências e certificações.</li>
-						<li>Clique em “Enviar para o app”. O app precisa estar aberto; a extensão se pareia sozinha.</li>
-					</ol>
+					<p>
+						Na aba Análise, clique em <strong>Analisar meu LinkedIn</strong>. A extensão abre o seu perfil em segundo plano, lê e envia sozinha. Só precisa
+						estar com o LinkedIn logado neste navegador.
+					</p>
+					<p className="field-hint">Para ler à mão, abra o seu perfil, clique no ícone da extensão e em “Ler esta página”, repita nas páginas “Mostrar tudo” e clique em “Enviar para o app”.</p>
 				</div>
 			</section>
 			<section className="panel">

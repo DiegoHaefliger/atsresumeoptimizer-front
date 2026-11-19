@@ -1,4 +1,9 @@
-import type { RunPhase } from "./useAnalysisRun";
+import { SpinnerIcon } from "../icons";
+import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
+import { NO_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
+
+const LINKEDIN_OWN_PROFILE = "https://www.linkedin.com/in/me/";
+const OPEN_LINKEDIN_CODES = new Set(["login-required", "no-profile"]);
 
 export function busyText(phase: RunPhase): string {
 	if (phase.kind === "analyzing") {
@@ -10,28 +15,61 @@ export function busyText(phase: RunPhase): string {
 	return "Abrindo o LinkedIn...";
 }
 
-type WaitingForCaptureProps = { reason: string; onGoTo: () => void; onCancel: () => void };
+type WaitingForCaptureProps = {
+	reason: string;
+	code: string;
+	onRetry: () => void;
+	onPaste: () => void;
+	onCancel: () => void;
+};
 
-export function WaitingForCapture({ reason, onGoTo, onCancel }: WaitingForCaptureProps) {
+function openLinkedIn() {
+	window.open(LINKEDIN_OWN_PROFILE, "_blank", "noopener");
+}
+
+export function WaitingForCapture({ reason, code, onRetry, onPaste, onCancel }: WaitingForCaptureProps) {
+	const missingExtension = code === NO_EXTENSION_CODE;
 	return (
 		<section className="panel" aria-live="polite">
 			<div className="panel-header">
-				<h2>Falta ler o seu perfil de novo</h2>
-				<p>{reason}</p>
+				<h2>{missingExtension ? "Instale a extensão para ler o seu perfil sozinho" : "Não consegui ler o seu perfil"}</h2>
+				<p>{missingExtension ? "Ela abre o seu perfil em segundo plano a cada análise. Instala uma vez só." : reason}</p>
 			</div>
 			<div className="panel-body">
-				<p>
-					Toda análise parte de uma leitura nova do seu perfil. Leia o perfil pela extensão ou cole o texto em Dados do LinkedIn. A análise começa
-					sozinha assim que a leitura chegar.
-				</p>
-				<div className="linkedin-actions">
-					<button type="button" onClick={onGoTo}>
-						Ver como ler o perfil
+				{missingExtension ? (
+					<>
+						<ExtensionInstallSteps />
+						<p className="field-hint">
+							<SpinnerIcon /> Procurando a extensão. Assim que ela for carregada, a análise começa sozinha.
+						</p>
+					</>
+				) : (
+					<>
+						{OPEN_LINKEDIN_CODES.has(code) && (
+							<p>Abra o LinkedIn, entre na sua conta e volte para esta aba. A leitura recomeça sozinha quando você voltar.</p>
+						)}
+						<div className="linkedin-actions">
+							{OPEN_LINKEDIN_CODES.has(code) && (
+								<button type="button" onClick={openLinkedIn}>
+									Abrir o LinkedIn
+								</button>
+							)}
+							<button type="button" className={OPEN_LINKEDIN_CODES.has(code) ? "btn-secondary" : undefined} onClick={onRetry}>
+								Tentar de novo
+							</button>
+						</div>
+					</>
+				)}
+				<p className="field-hint">
+					Prefere não instalar nada?{" "}
+					<button type="button" className="link" onClick={onPaste}>
+						Cole o texto do seu perfil
 					</button>
-					<button type="button" className="btn-secondary" onClick={onCancel}>
+					. A análise começa quando a leitura chegar.{" "}
+					<button type="button" className="link" onClick={onCancel}>
 						Cancelar
 					</button>
-				</div>
+				</p>
 			</div>
 		</section>
 	);

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, apiGet, apiPostJson } from "../../api/client";
 import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
-import { captureWithExtension, pingExtension } from "../../lib/linkedinExtension";
+import { captureWithExtension, CaptureFailedError, pingExtension } from "../../lib/linkedinExtension";
 import { AnalysisPanel } from "./AnalysisPanel";
 
 vi.mock("../../api/client", async (importOriginal) => ({
@@ -52,6 +52,35 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
+	it("starts the analysis on its own once the extension shows up", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+		await screen.findByText("Instale a extensão para ler o seu perfil sozinho");
+
+		vi.mocked(pingExtension).mockResolvedValue(true);
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s2" }), { timeout: 6000 });
+	}, 10000);
+
+	it("offers to open LinkedIn when the user is not logged in and retries by itself when they come back", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(captureWithExtension).mockRejectedValueOnce(new CaptureFailedError("Entre no LinkedIn neste navegador e tente de novo.", "login-required"));
+		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+		await screen.findByRole("button", { name: "Abrir o LinkedIn" });
+		expect(apiPostJson).not.toHaveBeenCalled();
+
+		document.dispatchEvent(new Event("visibilitychange"));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s2" }));
+	});
+
 	it("reads the profile through the extension and then analyzes the fresh snapshot", async () => {
 		vi.mocked(pingExtension).mockResolvedValue(true);
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: true, changedSections: [] } as never);
@@ -82,7 +111,9 @@ describe("AnalysisPanel", () => {
 
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
 
-		await screen.findByText("Falta ler o seu perfil de novo");
+		await screen.findByText("Instale a extensão para ler o seu perfil sozinho");
+		expect(screen.getByRole("button", { name: /Baixar extensão/ })).toBeTruthy();
+		expect(screen.queryByText("Ver como ler o perfil")).toBeNull();
 		await waitFor(() => expect(apiPostJson).not.toHaveBeenCalled());
 		expect(captureWithExtension).not.toHaveBeenCalled();
 	});

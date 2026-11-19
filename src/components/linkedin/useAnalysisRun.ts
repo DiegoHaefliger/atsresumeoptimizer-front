@@ -10,13 +10,14 @@ const ARMED_KEY = "linkedin-analysis-armed-at";
 const ARMED_MAX_AGE_MS = 30 * 60 * 1000;
 const POLL_MS = 3000;
 const CLOCK_TOLERANCE_MS = 2000;
-const NO_EXTENSION = "A extensão do Chrome não respondeu.";
+export const NO_EXTENSION_CODE = "no-extension";
+const EXTENSION_PROBE_MS = 2500;
 
 export type RunPhase =
 	| { kind: "idle" }
 	| { kind: "capturing"; progress: CaptureProgress | null }
 	| { kind: "analyzing" }
-	| { kind: "waiting"; reason: string };
+	| { kind: "waiting"; reason: string; code: string };
 
 async function latestSnapshot(): Promise<LinkedInSnapshotResponse | null> {
 	try {
@@ -61,7 +62,7 @@ function noticeFor(analysis: LinkedInAnalysisResponse, changed: ProfileSection[]
 }
 
 export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) => void) {
-	const [phase, setPhase] = useState<RunPhase>(() => (readArmedAt() ? { kind: "waiting", reason: NO_EXTENSION } : { kind: "idle" }));
+	const [phase, setPhase] = useState<RunPhase>(() => (readArmedAt() ? { kind: "waiting", reason: "", code: NO_EXTENSION_CODE } : { kind: "idle" }));
 	const [notice, setNotice] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const armedAt = useRef<number>(readArmedAt() ?? 0);
@@ -88,7 +89,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		try {
 			const latest = await latestSnapshot();
 			if (!(await pingExtension())) {
-				setPhase({ kind: "waiting", reason: NO_EXTENSION });
+				setPhase({ kind: "waiting", reason: "", code: NO_EXTENSION_CODE });
 				return;
 			}
 			const capture = await captureWithExtension({
@@ -98,7 +99,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 			await analyze(capture.id, capture.changedSections);
 		} catch (err) {
 			if (err instanceof CaptureFailedError) {
-				setPhase({ kind: "waiting", reason: err.message });
+				setPhase({ kind: "waiting", reason: err.message, code: err.code });
 				return;
 			}
 			writeArmedAt(null);
@@ -136,6 +137,33 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		}, POLL_MS);
 		return () => window.clearInterval(timer);
 	}, [phase.kind, analyze]);
+
+	const waitingCode = phase.kind === "waiting" ? phase.code : null;
+
+	useEffect(() => {
+		if (waitingCode !== NO_EXTENSION_CODE) {
+			return;
+		}
+		const timer = window.setInterval(async () => {
+			if (await pingExtension(EXTENSION_PROBE_MS / 2)) {
+				void run();
+			}
+		}, EXTENSION_PROBE_MS);
+		return () => window.clearInterval(timer);
+	}, [waitingCode, run]);
+
+	useEffect(() => {
+		if (waitingCode === null || waitingCode === NO_EXTENSION_CODE) {
+			return;
+		}
+		function retryWhenBack() {
+			if (document.visibilityState === "visible") {
+				void run();
+			}
+		}
+		document.addEventListener("visibilitychange", retryWhenBack);
+		return () => document.removeEventListener("visibilitychange", retryWhenBack);
+	}, [waitingCode, run]);
 
 	return { phase, notice, error, run, cancel };
 }

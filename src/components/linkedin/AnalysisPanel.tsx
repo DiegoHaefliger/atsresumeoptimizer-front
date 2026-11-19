@@ -105,7 +105,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					</label>
 				)}
 			</div>
-			{waiting && <WaitingForCapture reason={phase.reason} onGoTo={() => onGoTo("data")} onCancel={cancel} />}
+			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={run} onPaste={() => onGoTo("data")} onCancel={cancel} />}
 			{notice && <StateMessage variant="empty" message={notice} />}
 			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
 			{loading && <p className="field-hint">Carregando...</p>}
