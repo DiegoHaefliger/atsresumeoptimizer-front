@@ -22,8 +22,8 @@
 	const FOLLOWER_LINE = /seguidores|followers/i
 	const EMPTY_SECTION = /nenhuma novidade por enquanto|nothing to see for now|nada que ver por ahora/i
 	const PERIOD_RANGE = /\d{4}\s*[–-]\s*(\d{4}|o momento|atual|present|[a-z]{3}\.? de \d{4})/i
-	const FLAT_SECTIONS = ['certifications', 'projects', 'publications']
 	const FILTERED_SECTIONS = ['skills', 'recommendations']
+	const TAB_LABELS = /^(recebidas|fornecidas|received|given|recibidas|dadas)$/i
 	const MAX_PERIOD_LENGTH = 80
 	const MAX_ACTIVITY = 10
 	const MAX_ACTIVITY_CHARS = 600
@@ -119,6 +119,8 @@
 				return items.map((lines) => lines.slice(0, 3).join(' - '))
 			case 'activity':
 				return items.filter((lines) => !FOLLOWER_LINE.test(lines[0])).slice(0, MAX_ACTIVITY).map((lines) => lines.join('\n').slice(0, MAX_ACTIVITY_CHARS))
+			case 'recommendations':
+				return items.map((lines) => lines.filter((line) => !TAB_LABELS.test(line)).join('\n'))
 			default:
 				return items.map((lines) => lines.join('\n'))
 		}

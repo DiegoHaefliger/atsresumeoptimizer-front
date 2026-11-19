@@ -205,6 +205,14 @@ describe('extract on a details page', () => {
 		expect(result.profile.educations[0].organization).toBe('Anhanguera')
 	})
 
+	it('drops the Received/Given tab labels from a recommendation', () => {
+		render('<main><section><div><p>Recomendações</p></div><div><p>Recebidas</p><p>Fornecidas</p><p>Aline Cappelli</p><p>Recomendo o Diego.</p></div></section></main>')
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/recommendations/' })
+
+		expect(result.profile.recommendations).toEqual(['Aline Cappelli\nRecomendo o Diego.'])
+	})
+
 	it('reads languages as name and proficiency', () => {
 		render('<main><h1>Idiomas</h1><ul><li><p>Inglês</p><p>Profissional avançado</p></li></ul></main>')
 
