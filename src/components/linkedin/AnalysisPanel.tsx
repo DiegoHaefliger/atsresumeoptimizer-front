@@ -8,6 +8,7 @@ import { StateMessage } from "../StateMessage";
 import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
+import { recordValueEvent } from "../../lib/feedbackPrompt";
 import { ExtensionUpdateNotice } from "./ExtensionUpdateNotice";
 import { ReadingSelector } from "./ReadingSelector";
 import { OUTDATED_EXTENSION_CODE, useAnalysisRun } from "./useAnalysisRun";
@@ -53,6 +54,9 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 	const handleAnalysis = useCallback(
 		(created: LinkedInAnalysisResponse) => {
 			setAnalysis(created);
+			if (!created.unchanged) {
+				recordValueEvent();
+			}
 			void reloadReadings();
 			loadHistory().catch((err) => setError(errorMessage(err, "Não deu pra carregar as análises.")));
 		},
