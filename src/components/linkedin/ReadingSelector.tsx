@@ -40,6 +40,7 @@ export function ReadingSelector({ readings, selectedId, onSelect, onImportPdf, d
 						<span>
 							<strong>{TITLES[reading.source]}</strong>
 							<span className="reading-option-date">
+								{" · "}
 								{formatCapturedAt(reading.capturedAt)}
 								{index === 0 && readings.length > 1 && " · mais recente"}
 							</span>
