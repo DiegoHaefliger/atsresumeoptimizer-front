@@ -34,6 +34,25 @@ function downloadExtension() {
 	link.click();
 }
 
+export function ExtensionUpdateSteps() {
+	return (
+		<>
+			<div className="linkedin-actions">
+				<button type="button" onClick={downloadExtension}>
+					<DownloadIcon /> Baixar extensão atualizada
+				</button>
+			</div>
+			<ol className="linkedin-steps">
+				<li>Extraia o arquivo baixado por cima da mesma pasta que você já usa, substituindo os arquivos.</li>
+				<li>
+					<ExtensionsLink />
+				</li>
+				<li>Na extensão do app, clique no ícone de recarregar (↻). Se o Chrome pedir permissões novas, aceite.</li>
+			</ol>
+		</>
+	);
+}
+
 export function ExtensionInstallSteps() {
 	return (
 		<>

@@ -5,6 +5,10 @@ const EXTENSION = "ats-extension";
 const PING_TIMEOUT_MS = 1200;
 const CAPTURE_TIMEOUT_MS = 180_000;
 
+export const MIN_EXTENSION_VERSION = "0.2.1";
+
+export type ExtensionStatus = "missing" | "outdated" | "current";
+
 export type CaptureProgress = { step: number; total: number };
 
 export class CaptureFailedError extends Error {
@@ -25,6 +29,7 @@ type ExtensionMessage = {
 	snapshot?: LinkedInCaptureResponse;
 	code?: string;
 	message?: string;
+	version?: string;
 };
 
 let counter = 0;
@@ -52,7 +57,26 @@ function listen(id: string, handler: (message: ExtensionMessage) => boolean): ()
 	return () => window.removeEventListener("message", onMessage);
 }
 
-export function pingExtension(timeoutMs = PING_TIMEOUT_MS): Promise<boolean> {
+function versionParts(version: string): number[] {
+	return version.split(".").map((part) => Number.parseInt(part, 10) || 0);
+}
+
+export function isOlderVersion(version: string | undefined, minimum: string = MIN_EXTENSION_VERSION): boolean {
+	if (!version) {
+		return true;
+	}
+	const found = versionParts(version);
+	const required = versionParts(minimum);
+	for (let index = 0; index < Math.max(found.length, required.length); index++) {
+		const difference = (found[index] ?? 0) - (required[index] ?? 0);
+		if (difference !== 0) {
+			return difference < 0;
+		}
+	}
+	return false;
+}
+
+export function checkExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionStatus> {
 	return new Promise((resolve) => {
 		const id = nextId();
 		const stop = listen(id, (message) => {
@@ -60,12 +84,12 @@ export function pingExtension(timeoutMs = PING_TIMEOUT_MS): Promise<boolean> {
 				return false;
 			}
 			window.clearTimeout(timer);
-			resolve(true);
+			resolve(isOlderVersion(message.version) ? "outdated" : "current");
 			return true;
 		});
 		const timer = window.setTimeout(() => {
 			stop();
-			resolve(false);
+			resolve("missing");
 		}, timeoutMs);
 		post({ type: "ping", id });
 	});

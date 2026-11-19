@@ -3,7 +3,7 @@ import { apiGet, apiPostJson, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInAnalysisResponse, LinkedInSnapshotResponse, ProfileSection } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
 import { uploadLinkedInPdf } from "../../lib/linkedinPdf";
-import { captureWithExtension, CaptureFailedError, pingExtension, type CaptureProgress } from "../../lib/linkedinExtension";
+import { captureWithExtension, CaptureFailedError, checkExtension, type CaptureProgress } from "../../lib/linkedinExtension";
 
 const SNAPSHOT_LATEST_PATH = "/api/v1/linkedin/snapshots/latest";
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
@@ -12,6 +12,7 @@ const ARMED_MAX_AGE_MS = 30 * 60 * 1000;
 const POLL_MS = 3000;
 const CLOCK_TOLERANCE_MS = 2000;
 export const NO_EXTENSION_CODE = "no-extension";
+export const OUTDATED_EXTENSION_CODE = "extension-outdated";
 const EXTENSION_PROBE_MS = 2500;
 
 export type ChosenReading = { id: string; source: string; capturedAt: string };
@@ -35,8 +36,13 @@ async function latestSnapshot(): Promise<LinkedInSnapshotResponse | null> {
 }
 
 export function isMissingExtension(code: string | null): boolean {
-	return code === NO_EXTENSION_CODE;
+	return code === NO_EXTENSION_CODE || code === OUTDATED_EXTENSION_CODE;
 }
+
+const EXTENSION_REASONS = {
+	missing: { code: NO_EXTENSION_CODE, reason: "a extensão não respondeu; se for a versão antiga, atualize-a na aba Dados do LinkedIn" },
+	outdated: { code: OUTDATED_EXTENSION_CODE, reason: "a extensão está desatualizada e lê o perfil incompleto; atualize-a" },
+} as const;
 
 function readArmedAt(): number | null {
 	try {
@@ -128,12 +134,14 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		try {
 			const latest = await latestSnapshot();
 			fallback = fallback ?? (latest ? { id: latest.id, source: latest.source, capturedAt: latest.capturedAt } : null);
-			if (!(await pingExtension())) {
+			const status = await checkExtension();
+			if (status !== "current") {
+				const problem = EXTENSION_REASONS[status];
 				if (fallback) {
-					await analyze(fallback.id, [], fallbackNote(fallback, "a extensão não respondeu; se for a versão antiga, atualize-a na aba Dados do LinkedIn"));
+					await analyze(fallback.id, [], fallbackNote(fallback, problem.reason));
 					return;
 				}
-				setPhase({ kind: "waiting", reason: "", code: NO_EXTENSION_CODE });
+				setPhase({ kind: "waiting", reason: "", code: problem.code });
 				return;
 			}
 			const capture = await captureWithExtension({
@@ -209,7 +217,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 			return;
 		}
 		const timer = window.setInterval(async () => {
-			if (await pingExtension(EXTENSION_PROBE_MS / 2)) {
+			if ((await checkExtension(EXTENSION_PROBE_MS / 2)) === "current") {
 				void run();
 			}
 		}, EXTENSION_PROBE_MS);

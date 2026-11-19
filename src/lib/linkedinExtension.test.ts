@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { captureWithExtension, CaptureFailedError, pingExtension } from "./linkedinExtension";
+import { captureWithExtension, CaptureFailedError, checkExtension, isOlderVersion } from "./linkedinExtension";
 
 type AppMessage = { source: string; type: string; id: string };
 
@@ -23,16 +23,34 @@ afterEach(() => {
 	vi.useRealTimers();
 });
 
-describe("pingExtension", () => {
-	it("is true when the extension answers", async () => {
-		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong" }] : []));
+describe("checkExtension", () => {
+	it("is current when the extension answers with the minimum version or newer", async () => {
+		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.2.1" }] : []));
 
-		await expect(pingExtension(500)).resolves.toBe(true);
+		await expect(checkExtension(500)).resolves.toBe("current");
 		stop();
 	});
 
-	it("is false when nobody answers", async () => {
-		await expect(pingExtension(30)).resolves.toBe(false);
+	it("is outdated when the extension answers with an older or unknown version", async () => {
+		const stopOld = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.2.0" }] : []));
+		await expect(checkExtension(500)).resolves.toBe("outdated");
+		stopOld();
+
+		const stopUnknown = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong" }] : []));
+		await expect(checkExtension(500)).resolves.toBe("outdated");
+		stopUnknown();
+	});
+
+	it("is missing when nobody answers", async () => {
+		await expect(checkExtension(30)).resolves.toBe("missing");
+	});
+});
+
+describe("isOlderVersion", () => {
+	it("compares numerically, not as text", () => {
+		expect(isOlderVersion("0.10.0", "0.9.0")).toBe(false);
+		expect(isOlderVersion("0.2.0", "0.2.1")).toBe(true);
+		expect(isOlderVersion("1.0", "0.2.1")).toBe(false);
 	});
 });
 

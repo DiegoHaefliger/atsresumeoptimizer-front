@@ -8,8 +8,10 @@ import { StateMessage } from "../StateMessage";
 import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
+import { ExtensionUpdateNotice } from "./ExtensionUpdateNotice";
 import { ReadingSelector } from "./ReadingSelector";
-import { useAnalysisRun } from "./useAnalysisRun";
+import { OUTDATED_EXTENSION_CODE, useAnalysisRun } from "./useAnalysisRun";
+import { useExtensionStatus } from "./useExtensionStatus";
 import { useReadings } from "./useReadings";
 
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
@@ -44,6 +46,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		setHistory(list);
 	}, []);
 
+	const extensionStatus = useExtensionStatus();
 	const { readings, selected, failed: readingsFailed, select, reload: reloadReadings } = useReadings();
 
 	const handleAnalysis = useCallback(
@@ -92,6 +95,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			{!hasSnapshot && phase.kind === "idle" && (
 				<StateMessage variant="empty" message="O app lê o seu perfil no LinkedIn sozinho, pela extensão, quando você pede a análise." />
 			)}
+			{extensionStatus === "outdated" && !(waiting && phase.code === OUTDATED_EXTENSION_CODE) && <ExtensionUpdateNotice />}
 			{readingsFailed && <StateMessage variant="error" message="Não consegui carregar as leituras do LinkedIn para você escolher qual usar." />}
 			<ReadingSelector
 				readings={readings}

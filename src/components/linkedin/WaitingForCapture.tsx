@@ -1,7 +1,7 @@
 import { SpinnerIcon } from "../icons";
-import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
+import { ExtensionInstallSteps, ExtensionUpdateSteps } from "./ExtensionInstallSteps";
 import { PdfImport } from "./PdfImport";
-import { isMissingExtension, type RunPhase } from "./useAnalysisRun";
+import { isMissingExtension, OUTDATED_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
 
 const LINKEDIN_OWN_PROFILE = "https://www.linkedin.com/in/me/";
 const OPEN_LINKEDIN_CODES = new Set(["login-required", "no-profile"]);
@@ -29,11 +29,16 @@ type WaitingForCaptureProps = {
 };
 
 function title(code: string): string {
+	if (code === OUTDATED_EXTENSION_CODE) {
+		return "Atualize a extensão para ler o seu perfil";
+	}
 	return isMissingExtension(code) ? "Instale a extensão para ler o seu perfil sozinho" : "Não consegui ler o seu perfil";
 }
 
-function subtitle(): string {
-	return "Ela abre o seu perfil em segundo plano a cada análise. Instala uma vez só.";
+function subtitle(code: string): string {
+	return code === OUTDATED_EXTENSION_CODE
+		? "A versão instalada lê o perfil incompleto. Depois de atualizar, a análise começa sozinha."
+		: "Ela abre o seu perfil em segundo plano a cada análise. Instala uma vez só.";
 }
 
 function openLinkedIn() {
@@ -46,12 +51,12 @@ export function WaitingForCapture({ reason, code, onRetry, onImportPdf, onPaste,
 		<section className="panel" aria-live="polite">
 			<div className="panel-header">
 				<h2>{title(code)}</h2>
-				<p>{missingExtension ? subtitle() : reason}</p>
+				<p>{missingExtension ? subtitle(code) : reason}</p>
 			</div>
 			<div className="panel-body">
 				{missingExtension ? (
 					<>
-						<ExtensionInstallSteps />
+						{code === OUTDATED_EXTENSION_CODE ? <ExtensionUpdateSteps /> : <ExtensionInstallSteps />}
 						<p className="field-hint">
 							<SpinnerIcon /> Procurando a extensão. Assim que ela estiver pronta, a análise começa sozinha, sem precisar recarregar esta página.
 						</p>

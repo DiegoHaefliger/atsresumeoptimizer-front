@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, apiGet, apiPostForm, apiPostJson } from "../../api/client";
 import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
-import { captureWithExtension, CaptureFailedError, pingExtension } from "../../lib/linkedinExtension";
+import { captureWithExtension, CaptureFailedError, checkExtension } from "../../lib/linkedinExtension";
 import { AnalysisPanel } from "./AnalysisPanel";
 
 vi.mock("../../api/client", async (importOriginal) => ({
@@ -13,7 +13,7 @@ vi.mock("../../api/client", async (importOriginal) => ({
 }));
 vi.mock("../../lib/linkedinExtension", async (importOriginal) => ({
 	...(await importOriginal<typeof import("../../lib/linkedinExtension")>()),
-	pingExtension: vi.fn(),
+	checkExtension: vi.fn(),
 	captureWithExtension: vi.fn(),
 }));
 
@@ -99,7 +99,7 @@ describe("AnalysisPanel", () => {
 
 	it("does not block the analysis when the extension does not answer and a reading already exists", async () => {
 		withReadings();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
 		await screen.findAllByRole("radio");
@@ -112,9 +112,32 @@ describe("AnalysisPanel", () => {
 		expect(screen.queryByText("Atualize a extensão para ler o seu perfil sozinho")).toBeNull();
 	});
 
+	it("warns up front when the installed extension is outdated", async () => {
+		withReadings();
+		vi.mocked(checkExtension).mockResolvedValue("outdated");
+		renderPanel();
+
+		expect(await screen.findByText("Atualize a extensão do Chrome")).toBeTruthy();
+		expect(screen.getByRole("button", { name: /Baixar extensão atualizada/ })).toBeTruthy();
+	});
+
+	it("does not read with an outdated extension and uses the existing reading, saying why", async () => {
+		withReadings();
+		vi.mocked(checkExtension).mockResolvedValue("outdated");
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		await screen.findAllByRole("radio");
+
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "ext1" }));
+		expect(captureWithExtension).not.toHaveBeenCalled();
+		await screen.findByText(/a extensão está desatualizada e lê o perfil incompleto/);
+	});
+
 	it("falls back to the chosen reading when the extension cannot read the profile", async () => {
 		withReadings();
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 		vi.mocked(captureWithExtension).mockRejectedValue(new CaptureFailedError("Entre no LinkedIn neste navegador.", "login-required"));
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
@@ -148,16 +171,17 @@ describe("AnalysisPanel", () => {
 		renderPanel();
 
 		fireEvent.click((await screen.findAllByRole("radio"))[1]);
+		vi.mocked(checkExtension).mockClear();
 		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
 
 		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "pdf1" }));
-		expect(pingExtension).not.toHaveBeenCalled();
+		expect(checkExtension).not.toHaveBeenCalled();
 		expect(captureWithExtension).not.toHaveBeenCalled();
 	});
 
 	it("reads the profile again through the extension when the extension reading is the chosen one", async () => {
 		withReadings();
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "ext2", unchanged: false, changedSections: [] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
@@ -205,7 +229,7 @@ describe("AnalysisPanel", () => {
 
 	it("imports the exported pdf and analyzes the snapshot it produced", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(apiPostForm).mockResolvedValue({ id: "s7", unchanged: false, changedSections: ["HEADLINE"] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
@@ -223,7 +247,7 @@ describe("AnalysisPanel", () => {
 
 	it("shows the reason when the pdf cannot be read and keeps the options open", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(apiPostForm).mockRejectedValue(new ApiError("Este arquivo não parece ser o PDF do seu perfil do LinkedIn.", 400));
 		renderPanel();
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
@@ -251,7 +275,7 @@ describe("AnalysisPanel", () => {
 			}
 			return [];
 		});
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
 		await screen.findAllByRole("radio");
@@ -264,7 +288,7 @@ describe("AnalysisPanel", () => {
 
 	it("asks to update the extension only when there is no reading at all to analyze", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		renderPanel();
 
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
@@ -274,7 +298,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("analyzes the latest reading when the selector has nothing but a snapshot exists and the extension does not answer", async () => {
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
 
@@ -285,21 +309,21 @@ describe("AnalysisPanel", () => {
 
 	it("starts the analysis on its own once the extension shows up", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
 		await screen.findByText("Instale a extensão para ler o seu perfil sozinho");
 
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 
 		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s2" }), { timeout: 6000 });
 	}, 10000);
 
 	it("offers to open LinkedIn when the user is not logged in and retries by itself when they come back", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 		vi.mocked(captureWithExtension).mockRejectedValueOnce(new CaptureFailedError("Entre no LinkedIn neste navegador e tente de novo.", "login-required"));
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
@@ -315,7 +339,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("reads the profile through the extension and then analyzes the fresh snapshot", async () => {
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: true, changedSections: [] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue({ ...ANALYSIS, unchanged: true });
 		renderPanel();
@@ -328,7 +352,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("lists the sections that changed since the last reading", async () => {
-		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(checkExtension).mockResolvedValue("current");
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: ["HEADLINE", "SKILLS"] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
@@ -340,7 +364,7 @@ describe("AnalysisPanel", () => {
 
 	it("does not analyze without a fresh reading when the extension is missing", async () => {
 		withoutAnySnapshot();
-		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(checkExtension).mockResolvedValue("missing");
 		renderPanel();
 
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));

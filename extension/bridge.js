@@ -34,7 +34,7 @@
 			return
 		}
 		if (message.type === 'ping') {
-			reply({ id: message.id, type: 'pong' })
+			reply({ id: message.id, type: 'pong', version: chrome.runtime.getManifest().version })
 		} else if (message.type === 'capture') {
 			capture(message)
 		}
