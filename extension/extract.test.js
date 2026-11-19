@@ -158,6 +158,19 @@ describe('extract on a details page', () => {
 		expect(result.profile.skills).toEqual(['Desenvolvimento Java', 'Java'])
 	})
 
+	it('reads only the list section on a details page, not the sidebar or footer after it', () => {
+		render(
+			`<main><section><div><p>Competências</p></div>
+				<div><p><span>Java</span></p></div><hr>
+				<div><p><span>Spring Boot</span></p></div>
+			</section><aside><section><p>Quem seus visitantes também viram</p><hr><p>Fulano</p></section></aside><footer><p>Sobre</p></footer></main>`,
+		)
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/skills/' })
+
+		expect(result.profile.skills).toEqual(['Java', 'Spring Boot'])
+	})
+
 	it('reads languages as name and proficiency', () => {
 		render('<main><h1>Idiomas</h1><ul><li><p>Inglês</p><p>Profissional avançado</p></li></ul></main>')
 

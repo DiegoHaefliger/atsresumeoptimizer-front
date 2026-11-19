@@ -6,7 +6,8 @@ const LOGIN_PATH = /^\/(login|uas\/login|authwall|checkpoint)/
 const PAGE_TIMEOUT_MS = 30000
 const SETTLE_MS = 1500
 const PAUSE_MS = 800
-const SCROLL_STEPS = 6
+const SCROLL_STEPS = 40
+const SCROLL_PATIENCE = 3
 const SCROLL_WAIT_MS = 600
 const RENDER_WAIT_MS = 10000
 const RENDER_POLL_MS = 500
@@ -32,17 +33,18 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function scrollToEnd(steps, wait) {
+async function scrollToEnd(maxSteps, wait, patience) {
+	const scrollers = [document.scrollingElement, document.querySelector('main')].filter(Boolean)
+	const size = () => scrollers.reduce((total, element) => total + element.scrollHeight, 0)
 	let last = -1
-	for (let step = 0; step < steps; step++) {
-		window.scrollTo(0, document.body.scrollHeight)
+	let unchanged = 0
+	for (let step = 0; step < maxSteps && unchanged < patience; step++) {
+		scrollers.forEach((element) => element.scrollTo(0, element.scrollHeight))
 		await new Promise((resolve) => setTimeout(resolve, wait))
-		if (document.body.scrollHeight === last) {
-			break
-		}
-		last = document.body.scrollHeight
+		unchanged = size() === last ? unchanged + 1 : 0
+		last = size()
 	}
-	window.scrollTo(0, 0)
+	scrollers.forEach((element) => element.scrollTo(0, 0))
 }
 
 async function waitForRender(maxWait, poll, minChars) {
@@ -91,7 +93,7 @@ export async function readPage(chromeApi, url, pause = sleep, { visible = false 
 		if (!(rendering && rendering.result)) {
 			throw new CaptureError('not-rendered', 'A página não terminou de carregar em segundo plano.')
 		}
-		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: scrollToEnd, args: [SCROLL_STEPS, SCROLL_WAIT_MS] })
+		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: scrollToEnd, args: [SCROLL_STEPS, SCROLL_WAIT_MS, SCROLL_PATIENCE] })
 		const [injection] = await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
 		return injection && injection.result
 	} finally {

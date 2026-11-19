@@ -188,7 +188,7 @@
 	function detailTarget(doc, slug) {
 		const main = doc.querySelector('main')
 		const key = sectionKey(slug.replace(/-/g, ' ')) || sectionKey((main && main.querySelector('h1, h2') || { textContent: '' }).textContent)
-		return key && main ? [[key, main]] : []
+		return key && main ? [[key, main.querySelector('section') || main]] : []
 	}
 
 	function extract(doc, location) {
