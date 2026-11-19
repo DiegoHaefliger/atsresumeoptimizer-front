@@ -48,7 +48,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		},
 		[loadHistory],
 	);
-	const { phase, notice, error: runError, run, cancel } = useAnalysisRun(handleAnalysis);
+	const { phase, notice, error: runError, run, importPdf, cancel } = useAnalysisRun(handleAnalysis);
 
 	useEffect(() => {
 		loadHistory()
@@ -64,7 +64,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		}
 	}
 
-	const busy = phase.kind === "capturing" || phase.kind === "analyzing";
+	const busy = phase.kind === "capturing" || phase.kind === "importing" || phase.kind === "analyzing";
 	const waiting = phase.kind === "waiting";
 	const previous = analysis ? history.find((item) => new Date(item.createdAt) < new Date(analysis.createdAt)) : undefined;
 
@@ -105,7 +105,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					</label>
 				)}
 			</div>
-			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={run} onPaste={() => onGoTo("data")} onCancel={cancel} />}
+			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={run} onImportPdf={importPdf} onPaste={() => onGoTo("data")} onCancel={cancel} />}
 			{notice && <StateMessage variant="empty" message={notice} />}
 			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
 			{loading && <p className="field-hint">Carregando...</p>}

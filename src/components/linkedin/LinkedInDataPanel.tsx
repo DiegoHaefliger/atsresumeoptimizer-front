@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
+import { uploadLinkedInPdf } from "../../lib/linkedinPdf";
 import { Badge } from "../Badge";
 import { RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
 import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
+import { PdfImport } from "./PdfImport";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
 const SOURCE_LABELS = { EXTENSION: "Extensão", TEXT: "Texto", PDF: "PDF" } as const;
@@ -13,6 +15,8 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [importing, setImporting] = useState(false);
+	const [imported, setImported] = useState<string | null>(null);
 
 	const load = useCallback(async () => {
 		setLoading(true);
@@ -37,6 +41,22 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 		void load();
 	}, [load]);
 
+	async function importPdf(file: File) {
+		setImporting(true);
+		setError(null);
+		setImported(null);
+		try {
+			const capture = await uploadLinkedInPdf(file);
+			const changed = capture.changedSections.map((section) => SECTION_LABELS[section]).join(", ");
+			setImported(capture.unchanged ? "PDF lido. Nada mudou desde a última leitura." : `PDF lido.${changed ? ` Mudou: ${changed}.` : ""}`);
+			await load();
+		} catch (err) {
+			setError(errorMessage(err, "Não deu pra ler o PDF. Tenta de novo."));
+		} finally {
+			setImporting(false);
+		}
+	}
+
 	return (
 		<div className="settings-main">
 			{error && <StateMessage variant="error" message={error} />}
@@ -59,6 +79,17 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 						estar com o LinkedIn logado neste navegador.
 					</p>
 					<p className="field-hint">Para ler à mão, abra o seu perfil, clique no ícone da extensão e em “Ler esta página”, repita nas páginas “Mostrar tudo” e clique em “Enviar para o app”.</p>
+				</div>
+			</section>
+			<section className="panel">
+				<div className="panel-header">
+					<h2>Ou importe o PDF do seu perfil</h2>
+					<p>Sem instalar nada. O PDF é lido com a IA configurada no app e depois não fica guardado.</p>
+				</div>
+				<div className="panel-body">
+					<PdfImport onImport={(file) => void importPdf(file)} busy={importing} />
+					{importing && <p className="field-hint">Lendo o PDF...</p>}
+					{imported && <StateMessage variant="empty" message={imported} />}
 				</div>
 			</section>
 			<section className="panel">

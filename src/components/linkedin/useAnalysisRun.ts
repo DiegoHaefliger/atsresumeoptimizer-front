@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { apiGet, apiPostJson, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInAnalysisResponse, LinkedInSnapshotResponse, ProfileSection } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
+import { uploadLinkedInPdf } from "../../lib/linkedinPdf";
 import { captureWithExtension, CaptureFailedError, pingExtension, type CaptureProgress } from "../../lib/linkedinExtension";
 
 const SNAPSHOT_LATEST_PATH = "/api/v1/linkedin/snapshots/latest";
@@ -18,6 +19,7 @@ const EXTENSION_PROBE_MS = 2500;
 export type RunPhase =
 	| { kind: "idle" }
 	| { kind: "capturing"; progress: CaptureProgress | null }
+	| { kind: "importing" }
 	| { kind: "analyzing" }
 	| { kind: "waiting"; reason: string; code: string };
 
@@ -118,6 +120,22 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		}
 	}, [analyze]);
 
+	const importPdf = useCallback(
+		async (file: File) => {
+			setError(null);
+			setNotice(null);
+			setPhase({ kind: "importing" });
+			try {
+				const capture = await uploadLinkedInPdf(file);
+				await analyze(capture.id, capture.changedSections);
+			} catch (err) {
+				setError(errorMessage(err, "Não deu pra ler o PDF. Tenta de novo."));
+				setPhase({ kind: "waiting", reason: "", code: NO_EXTENSION_CODE });
+			}
+		},
+		[analyze],
+	);
+
 	const cancel = useCallback(() => {
 		writeArmedAt(null);
 		setPhase({ kind: "idle" });
@@ -175,5 +193,5 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		return () => document.removeEventListener("visibilitychange", retryWhenBack);
 	}, [waitingCode, run]);
 
-	return { phase, notice, error, run, cancel };
+	return { phase, notice, error, run, importPdf, cancel };
 }

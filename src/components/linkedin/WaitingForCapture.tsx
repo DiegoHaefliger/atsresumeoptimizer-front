@@ -1,11 +1,15 @@
 import { SpinnerIcon } from "../icons";
 import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
+import { PdfImport } from "./PdfImport";
 import { isMissingExtension, OUTDATED_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
 
 const LINKEDIN_OWN_PROFILE = "https://www.linkedin.com/in/me/";
 const OPEN_LINKEDIN_CODES = new Set(["login-required", "no-profile"]);
 
 export function busyText(phase: RunPhase): string {
+	if (phase.kind === "importing") {
+		return "Lendo o PDF do seu perfil...";
+	}
 	if (phase.kind === "analyzing") {
 		return "Analisando... pode levar um minuto";
 	}
@@ -19,6 +23,7 @@ type WaitingForCaptureProps = {
 	reason: string;
 	code: string;
 	onRetry: () => void;
+	onImportPdf: (file: File) => void;
 	onPaste: () => void;
 	onCancel: () => void;
 };
@@ -40,7 +45,7 @@ function openLinkedIn() {
 	window.open(LINKEDIN_OWN_PROFILE, "_blank", "noopener");
 }
 
-export function WaitingForCapture({ reason, code, onRetry, onPaste, onCancel }: WaitingForCaptureProps) {
+export function WaitingForCapture({ reason, code, onRetry, onImportPdf, onPaste, onCancel }: WaitingForCaptureProps) {
 	const missingExtension = isMissingExtension(code);
 	const outdated = code === OUTDATED_EXTENSION_CODE;
 	return (
@@ -72,6 +77,12 @@ export function WaitingForCapture({ reason, code, onRetry, onPaste, onCancel }: 
 								Tentar de novo
 							</button>
 						</div>
+					</>
+				)}
+				{missingExtension && (
+					<>
+						<h3>Ou, sem instalar nada: importe o PDF do seu perfil</h3>
+						<PdfImport onImport={onImportPdf} busy={false} />
 					</>
 				)}
 				<p className="field-hint">

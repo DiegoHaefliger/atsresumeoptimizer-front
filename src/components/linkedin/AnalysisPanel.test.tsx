@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, apiGet, apiPostJson } from "../../api/client";
+import { ApiError, apiGet, apiPostForm, apiPostJson } from "../../api/client";
 import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
 import { captureWithExtension, CaptureFailedError, pingExtension } from "../../lib/linkedinExtension";
 import { AnalysisPanel } from "./AnalysisPanel";
@@ -8,6 +8,7 @@ import { AnalysisPanel } from "./AnalysisPanel";
 vi.mock("../../api/client", async (importOriginal) => ({
 	...(await importOriginal<typeof import("../../api/client")>()),
 	apiGet: vi.fn(),
+	apiPostForm: vi.fn(),
 	apiPostJson: vi.fn(),
 }));
 vi.mock("../../lib/linkedinExtension", async (importOriginal) => ({
@@ -52,6 +53,39 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
+	it("imports the exported pdf and analyzes the snapshot it produced", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(apiPostForm).mockResolvedValue({ id: "s7", unchanged: false, changedSections: ["HEADLINE"] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+		await screen.findByText(/Ou, sem instalar nada: importe o PDF do seu perfil/);
+
+		fireEvent.change(screen.getByLabelText("PDF do perfil do LinkedIn"), {
+			target: { files: [new File(["%PDF"], "Profile.pdf", { type: "application/pdf" })] },
+		});
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s7" }));
+		expect(apiPostForm).toHaveBeenCalledWith("/api/v1/linkedin/snapshots/pdf", expect.any(FormData));
+		await screen.findByText("Mudou desde a última leitura: Título.");
+	});
+
+	it("shows the reason when the pdf cannot be read and keeps the options open", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(apiPostForm).mockRejectedValue(new ApiError("Este arquivo não parece ser o PDF do seu perfil do LinkedIn.", 400));
+		renderPanel();
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+		await screen.findByText(/Ou, sem instalar nada/);
+
+		fireEvent.change(screen.getByLabelText("PDF do perfil do LinkedIn"), {
+			target: { files: [new File(["x"], "Profile.pdf", { type: "application/pdf" })] },
+		});
+
+		await screen.findByText("Este arquivo não parece ser o PDF do seu perfil do LinkedIn.");
+		expect(screen.getByText(/Ou, sem instalar nada/)).toBeTruthy();
+		expect(apiPostJson).not.toHaveBeenCalled();
+	});
+
 	it("uses a reading imported in the last ten minutes when there is no extension", async () => {
 		vi.mocked(apiGet).mockImplementation(async (path: string) => {
 			if (path.endsWith("/snapshots/latest")) {
