@@ -9,6 +9,7 @@ import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
 import { ExtensionUpdateNotice } from "./ExtensionUpdateNotice";
+import { ExtensionVersion } from "./ExtensionVersion";
 import { ReadingSelector } from "./ReadingSelector";
 import { OUTDATED_EXTENSION_CODE, useAnalysisRun } from "./useAnalysisRun";
 import { useExtensionStatus } from "./useExtensionStatus";
@@ -46,7 +47,8 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		setHistory(list);
 	}, []);
 
-	const extensionStatus = useExtensionStatus();
+	const extensionProbe = useExtensionStatus();
+	const extensionStatus = extensionProbe?.status;
 	const { readings, selected, failed: readingsFailed, select, reload: reloadReadings } = useReadings();
 
 	const handleAnalysis = useCallback(
@@ -104,6 +106,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 				onImportPdf={() => onGoTo("data")}
 				disabled={busy || waiting}
 			/>
+			<ExtensionVersion probe={extensionProbe} />
 			<div className="linkedin-actions">
 				<button type="button" onClick={() => void run(selected)} disabled={busy || waiting || !hasProfile} aria-busy={busy}>
 					<BusyLabel busy={busy} busyText={busyText(phase)}>

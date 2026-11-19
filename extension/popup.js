@@ -11,6 +11,8 @@ const elements = {
 	serverUrl: document.getElementById('serverUrl'),
 }
 
+document.getElementById('version').textContent = `Extensão versão ${chrome.runtime.getManifest().version}`
+
 async function load() {
 	const stored = await chrome.storage.local.get(['draft', 'serverUrl'])
 	elements.serverUrl.value = stored.serverUrl || DEFAULT_SERVER

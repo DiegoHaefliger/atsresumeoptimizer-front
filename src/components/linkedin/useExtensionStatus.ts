@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
-import { checkExtension, type ExtensionStatus } from "../../lib/linkedinExtension";
+import { probeExtension, type ExtensionProbe } from "../../lib/linkedinExtension";
 
 const RECHECK_MS = 3000;
 
-export function useExtensionStatus(): ExtensionStatus | null {
-	const [status, setStatus] = useState<ExtensionStatus | null>(null);
+export function useExtensionStatus(): ExtensionProbe | null {
+	const [probe, setProbe] = useState<ExtensionProbe | null>(null);
 
 	useEffect(() => {
 		let active = true;
-		async function probe() {
-			const next = await checkExtension();
+		async function check() {
+			const next = await probeExtension();
 			if (active) {
-				setStatus(next);
+				setProbe(next);
 			}
 		}
-		void probe();
+		void check();
 		const timer = window.setInterval(() => {
 			if (document.visibilityState === "visible") {
-				void probe();
+				void check();
 			}
 		}, RECHECK_MS);
 		return () => {
@@ -26,5 +26,5 @@ export function useExtensionStatus(): ExtensionStatus | null {
 		};
 	}, []);
 
-	return status;
+	return probe;
 }
