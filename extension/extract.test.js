@@ -144,6 +144,20 @@ describe('extract on a details page', () => {
 		expect(result.profile.profileUrl).toBe('https://www.linkedin.com/in/ana-souza/')
 	})
 
+	it('reads skills from the layout without headings, ignoring the filter tabs', () => {
+		render(
+			`<main><section><section><div><p>Competências</p></div>
+				<nav><ul><li><a>Todos</a></li><li><a>Ferramentas e tecnologias</a></li></ul></nav>
+				<div><p><span>Desenvolvimento Java</span></p><p><a>2 experiências na empresa Porto</a></p></div><hr>
+				<div><p><span>Java</span></p><p><a>4 experiências na empresa Porto</a></p></div>
+			</section></section></main>`,
+		)
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/skills/' })
+
+		expect(result.profile.skills).toEqual(['Desenvolvimento Java', 'Java'])
+	})
+
 	it('reads languages as name and proficiency', () => {
 		render('<main><h1>Idiomas</h1><ul><li><p>Inglês</p><p>Profissional avançado</p></li></ul></main>')
 

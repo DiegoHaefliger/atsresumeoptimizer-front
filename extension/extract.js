@@ -112,10 +112,22 @@
 		}
 	}
 
+	function withoutFilterTabs(container) {
+		const clone = container.cloneNode(true)
+		clone.querySelectorAll('nav').forEach((nav) => nav.remove())
+		return clone
+	}
+
+	function isSectionTitle(key, line) {
+		return Boolean(line) && HEADINGS[key].includes(fold(line))
+	}
+
 	function parseSection(key, container) {
 		const heading = container.querySelector('h1, h2')
-		const items = buckets(container)
+		const source = key === 'skills' ? withoutFilterTabs(container) : container
+		const items = buckets(source)
 			.map((lines) => (heading && fold(lines[0]) === fold(heading.textContent) ? lines.slice(1) : lines))
+			.map((lines) => (key === 'skills' && isSectionTitle(key, lines[0]) ? lines.slice(1) : lines))
 			.filter((lines) => lines.length)
 		return key === 'about' ? items.map((lines) => lines.join('\n')).join('\n') || null : parseItems(key, items)
 	}

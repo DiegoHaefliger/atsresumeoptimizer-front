@@ -8,6 +8,9 @@ const SETTLE_MS = 1500
 const PAUSE_MS = 800
 const SCROLL_STEPS = 6
 const SCROLL_WAIT_MS = 600
+const RENDER_WAIT_MS = 10000
+const RENDER_POLL_MS = 500
+const MIN_RENDERED_CHARS = 80
 
 export class CaptureError extends Error {
 	constructor(code, message) {
@@ -42,6 +45,17 @@ async function scrollToEnd(steps, wait) {
 	window.scrollTo(0, 0)
 }
 
+async function waitForRender(maxWait, poll, minChars) {
+	for (let waited = 0; waited <= maxWait; waited += poll) {
+		const main = document.querySelector('main')
+		if (main && main.innerText.trim().length >= minChars) {
+			return true
+		}
+		await new Promise((resolve) => setTimeout(resolve, poll))
+	}
+	return false
+}
+
 function waitUntilLoaded(chromeApi, tabId) {
 	return new Promise((resolve, reject) => {
 		const timer = setTimeout(() => {
@@ -60,8 +74,8 @@ function waitUntilLoaded(chromeApi, tabId) {
 	})
 }
 
-export async function readPage(chromeApi, url, pause = sleep) {
-	const tab = await chromeApi.tabs.create({ url, active: false })
+export async function readPage(chromeApi, url, pause = sleep, { visible = false } = {}) {
+	const tab = await chromeApi.tabs.create({ url, active: visible })
 	try {
 		await waitUntilLoaded(chromeApi, tab.id)
 		const loaded = await chromeApi.tabs.get(tab.id)
@@ -69,11 +83,41 @@ export async function readPage(chromeApi, url, pause = sleep) {
 			throw new CaptureError('login-required', 'Entre no LinkedIn neste navegador e tente de novo.')
 		}
 		await pause(SETTLE_MS)
+		const [rendering] = await chromeApi.scripting.executeScript({
+			target: { tabId: tab.id },
+			func: waitForRender,
+			args: [RENDER_WAIT_MS, RENDER_POLL_MS, MIN_RENDERED_CHARS],
+		})
+		if (!(rendering && rendering.result)) {
+			throw new CaptureError('not-rendered', 'A página não terminou de carregar em segundo plano.')
+		}
 		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: scrollToEnd, args: [SCROLL_STEPS, SCROLL_WAIT_MS] })
 		const [injection] = await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
 		return injection && injection.result
 	} finally {
 		await chromeApi.tabs.remove(tab.id).catch(() => {})
+	}
+}
+
+async function readWithFallback(read, chromeApi, url, pause) {
+	try {
+		return await read(chromeApi, url, pause)
+	} catch (error) {
+		if (error.code !== 'not-rendered') {
+			throw error
+		}
+		return restoringActiveTab(chromeApi, () => read(chromeApi, url, pause, { visible: true }))
+	}
+}
+
+async function restoringActiveTab(chromeApi, action) {
+	const [previous] = await chromeApi.tabs.query({ active: true, lastFocusedWindow: true })
+	try {
+		return await action()
+	} finally {
+		if (previous) {
+			await chromeApi.tabs.update(previous.id, { active: true }).catch(() => {})
+		}
 	}
 }
 
@@ -88,7 +132,7 @@ export async function captureProfile({ chromeApi, profileUrl, onProgress = () =>
 		onProgress({ step: index + 1, total: pages.length })
 		const isMainPage = index === 0
 		try {
-			const capture = await read(chromeApi, url, pause)
+			const capture = await readWithFallback(read, chromeApi, url, pause)
 			if (capture) {
 				draft = mergeCapture(draft, capture)
 			}

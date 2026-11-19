@@ -70,6 +70,28 @@ describe('captureProfile', () => {
 		expect(draft.profile.headline).toBe('Dev')
 	})
 
+	it('retries a page that did not render in the background with a visible tab and restores the active one', async () => {
+		const update = vi.fn(async () => {})
+		const chromeApi = { tabs: { query: vi.fn(async () => [{ id: 7 }]), update } }
+		const read = vi.fn(async (_chrome, url, _pause, options) => {
+			if (url.endsWith('/ana/')) {
+				return { profile: { headline: 'Dev' }, photoUrl: null, bannerUrl: null }
+			}
+			if (url.includes('skills')) {
+				if (!options?.visible) {
+					throw new CaptureError('not-rendered', 'fundo')
+				}
+				return { profile: { skills: ['Java'] }, photoUrl: null, bannerUrl: null }
+			}
+			return null
+		})
+
+		const draft = await captureProfile({ chromeApi, profileUrl, pause: noPause, read })
+
+		expect(draft.profile.skills).toEqual(['Java'])
+		expect(update).toHaveBeenCalledWith(7, { active: true })
+	})
+
 	it('stops as soon as the user is not logged in', async () => {
 		const read = vi.fn(async () => {
 			throw new CaptureError('login-required', 'Entre no LinkedIn')
