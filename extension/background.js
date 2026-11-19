@@ -38,3 +38,10 @@ chrome.runtime.onConnect.addListener((port) => {
 		})
 	})
 })
+
+chrome.runtime.onInstalled.addListener(async () => {
+	const tabs = await chrome.tabs.query({ url: ['http://localhost/*', 'http://127.0.0.1/*'] })
+	for (const tab of tabs) {
+		chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['bridge.js'] }).catch(() => {})
+	}
+})

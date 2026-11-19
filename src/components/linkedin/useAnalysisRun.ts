@@ -11,6 +11,7 @@ const ARMED_MAX_AGE_MS = 30 * 60 * 1000;
 const POLL_MS = 3000;
 const CLOCK_TOLERANCE_MS = 2000;
 export const NO_EXTENSION_CODE = "no-extension";
+export const OUTDATED_EXTENSION_CODE = "outdated-extension";
 const EXTENSION_PROBE_MS = 2500;
 
 export type RunPhase =
@@ -28,6 +29,10 @@ async function latestSnapshot(): Promise<LinkedInSnapshotResponse | null> {
 		}
 		throw err;
 	}
+}
+
+export function isMissingExtension(code: string | null): boolean {
+	return code === NO_EXTENSION_CODE || code === OUTDATED_EXTENSION_CODE;
 }
 
 function readArmedAt(): number | null {
@@ -89,7 +94,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		try {
 			const latest = await latestSnapshot();
 			if (!(await pingExtension())) {
-				setPhase({ kind: "waiting", reason: "", code: NO_EXTENSION_CODE });
+				setPhase({ kind: "waiting", reason: "", code: latest?.source === "EXTENSION" ? OUTDATED_EXTENSION_CODE : NO_EXTENSION_CODE });
 				return;
 			}
 			const capture = await captureWithExtension({
@@ -141,7 +146,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 	const waitingCode = phase.kind === "waiting" ? phase.code : null;
 
 	useEffect(() => {
-		if (waitingCode !== NO_EXTENSION_CODE) {
+		if (!isMissingExtension(waitingCode)) {
 			return;
 		}
 		const timer = window.setInterval(async () => {
@@ -153,7 +158,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 	}, [waitingCode, run]);
 
 	useEffect(() => {
-		if (waitingCode === null || waitingCode === NO_EXTENSION_CODE) {
+		if (waitingCode === null || isMissingExtension(waitingCode)) {
 			return;
 		}
 		function retryWhenBack() {

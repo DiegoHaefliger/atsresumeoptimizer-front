@@ -1,6 +1,6 @@
 import { SpinnerIcon } from "../icons";
 import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
-import { NO_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
+import { isMissingExtension, OUTDATED_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
 
 const LINKEDIN_OWN_PROFILE = "https://www.linkedin.com/in/me/";
 const OPEN_LINKEDIN_CODES = new Set(["login-required", "no-profile"]);
@@ -23,24 +23,38 @@ type WaitingForCaptureProps = {
 	onCancel: () => void;
 };
 
+function title(code: string): string {
+	if (code === OUTDATED_EXTENSION_CODE) {
+		return "Atualize a extensão para ler o seu perfil sozinho";
+	}
+	return isMissingExtension(code) ? "Instale a extensão para ler o seu perfil sozinho" : "Não consegui ler o seu perfil";
+}
+
+function subtitle(outdated: boolean): string {
+	return outdated
+		? "A versão instalada só lê a página que você abre. A nova abre o seu perfil em segundo plano a cada análise."
+		: "Ela abre o seu perfil em segundo plano a cada análise. Instala uma vez só.";
+}
+
 function openLinkedIn() {
 	window.open(LINKEDIN_OWN_PROFILE, "_blank", "noopener");
 }
 
 export function WaitingForCapture({ reason, code, onRetry, onPaste, onCancel }: WaitingForCaptureProps) {
-	const missingExtension = code === NO_EXTENSION_CODE;
+	const missingExtension = isMissingExtension(code);
+	const outdated = code === OUTDATED_EXTENSION_CODE;
 	return (
 		<section className="panel" aria-live="polite">
 			<div className="panel-header">
-				<h2>{missingExtension ? "Instale a extensão para ler o seu perfil sozinho" : "Não consegui ler o seu perfil"}</h2>
-				<p>{missingExtension ? "Ela abre o seu perfil em segundo plano a cada análise. Instala uma vez só." : reason}</p>
+				<h2>{title(code)}</h2>
+				<p>{missingExtension ? subtitle(outdated) : reason}</p>
 			</div>
 			<div className="panel-body">
 				{missingExtension ? (
 					<>
-						<ExtensionInstallSteps />
+						<ExtensionInstallSteps update={outdated} />
 						<p className="field-hint">
-							<SpinnerIcon /> Procurando a extensão. Assim que ela for carregada, a análise começa sozinha.
+							<SpinnerIcon /> Procurando a extensão. Assim que ela estiver pronta, a análise começa sozinha, sem precisar recarregar esta página.
 						</p>
 					</>
 				) : (

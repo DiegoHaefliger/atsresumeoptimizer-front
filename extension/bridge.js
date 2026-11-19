@@ -8,6 +8,9 @@
 	}
 
 	function capture(request) {
+		if (!chrome.runtime || !chrome.runtime.id) {
+			return
+		}
 		let port
 		try {
 			port = chrome.runtime.connect({ name: PORT_NAME })

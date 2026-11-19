@@ -34,21 +34,31 @@ function downloadExtension() {
 	link.click();
 }
 
-export function ExtensionInstallSteps() {
+export function ExtensionInstallSteps({ update = false }: { update?: boolean }) {
 	return (
 		<>
 			<div className="linkedin-actions">
 				<button type="button" onClick={downloadExtension}>
-					<DownloadIcon /> Baixar extensão
+					<DownloadIcon /> {update ? "Baixar a versão nova" : "Baixar extensão"}
 				</button>
 			</div>
 			<ol className="linkedin-steps">
-				<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
+				{update ? (
+					<li>Abra o arquivo baixado e extraia tudo na mesma pasta da extensão atual, substituindo os arquivos.</li>
+				) : (
+					<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
+				)}
 				<li>
 					<ExtensionsLink />
 				</li>
-				<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
-				<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
+				{update ? (
+					<li>Na extensão “ATS Resume Optimizer”, clique no ícone de recarregar (↻) e aceite as permissões novas, se o Chrome pedir.</li>
+				) : (
+					<>
+						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
+						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
+					</>
+				)}
 			</ol>
 		</>
 	);
