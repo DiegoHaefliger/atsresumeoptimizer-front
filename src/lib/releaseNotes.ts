@@ -25,9 +25,20 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 			{ kind: "fix", text: "A extensão passou a ler todas as competências (antes vinham só as primeiras), a separar projetos e certificações, a ignorar seções vazias do LinkedIn e a refazer a leitura de uma seção que não carregou. Se uma seção principal continuar faltando, a leitura é recusada em vez de gerar uma análise com dados faltando." },
 			{ kind: "improvement", text: "O app avisa quando existe uma versão mais nova da extensão e impede a análise pela extensão até você atualizá-la. A análise pelo PDF continua liberada." },
 			{ kind: "feat", text: "Novas fontes na busca de vagas: Jobicy, Himalayas e Get on Board, que você ativa em Preferências, na aba Busca de vagas." },
-			{ kind: "feat", text: "Nova tela Avaliar no menu lateral, para dar uma nota ao app e enviar uma mensagem, com prints se quiser." },
 			{ kind: "improvement", text: "O pedido de avaliação agora aparece só depois que você conclui algo, como uma análise do LinkedIn ou o download de um currículo, e não mais ao abrir o app. Dá para dar a nota tocando numa estrela, depois comentar e enviar prints, e o Agora não adia o aviso por uma semana." },
 			{ kind: "feat", text: "No Currículo adaptado, na aba Editar campos, agora dá para excluir uma seção inteira, com confirmação antes de apagar." },
+		],
+	},
+	{
+		version: "1.1.10",
+		date: "2026-11-03",
+		summary: "Avalie o app sem sair dele, com nota de 1 a 5 estrelas, comentários e prints, e monte buscas de postagens de vagas no LinkedIn com links personalizados.",
+		changes: [
+			{ kind: "feat", text: "Nova página Avaliar no menu lateral, com nota de 1 a 5 estrelas, comentários de até 5000 caracteres e e-mail opcional para receber resposta." },
+			{ kind: "feat", text: "Anexe até 3 prints (PNG, JPG ou WebP, de até 3 MB cada) arrastando as imagens, colando com Ctrl+V ou escolhendo os arquivos." },
+			{ kind: "feat", text: "Alguns segundos depois de abrir o app, um aviso no topo convida você a avaliar. Ele volta a cada vez que o app abre até você avaliar a versão atual, e Agora não fecha na hora." },
+			{ kind: "feat", text: "Nova aba Links personalizados em Vagas: monte a busca de postagens de vagas do LinkedIn com cargos, palavras a excluir, perfis a ocultar, cidades, modelo de trabalho, idioma e data, e copie ou abra o link já filtrado. Os filtros ficam salvos neste navegador, e o app avisa quando um filtro não cabe no limite de 5 operadores do LinkedIn." },
+			{ kind: "improvement", text: "Só vão para o desenvolvedor a nota, os comentários, os prints, a versão do app e o e-mail, se você preencher. Nenhum currículo, vaga ou chave de IA sai do seu computador. Se o envio falhar, a avaliação fica salva no computador e é enviada de novo na próxima vez." },
 		],
 	},
 	{
