@@ -16,7 +16,6 @@ import { BulletsSkeleton, ScoreRingSkeleton, Skeleton } from "../components/Skel
 import { StateMessage } from "../components/StateMessage";
 import { DocumentEditor } from "../components/DocumentEditor";
 import { ResumeEditor } from "../components/ResumeEditor";
-import { recordValueEvent } from "../lib/feedbackPrompt";
 import { ResumePreview } from "../components/ResumePreview";
 import { ProgressSteps, type ProgressStep } from "../components/ProgressSteps";
 import { ScoreRing } from "../components/ScoreRing";
@@ -183,7 +182,6 @@ export function RewritePage() {
 				return;
 			}
 			await downloadResume(current.resumeId, current.docxVersionId, kind.toUpperCase() as ResumeExportFormat);
-			recordValueEvent();
 		} catch (err) {
 			setError(errorMessage(err, "Não deu pra baixar o arquivo."));
 		} finally {
