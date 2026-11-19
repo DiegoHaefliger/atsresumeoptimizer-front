@@ -171,6 +171,16 @@ describe('extract on a details page', () => {
 		expect(result.profile.skills).toEqual(['Java', 'Spring Boot'])
 	})
 
+	it('returns nothing for a details page that only shows the empty state', () => {
+		render(
+			`<main><section><div><p>Publicações</p></div><div><p>Nenhuma novidade por enquanto</p><p>Quando você adicionar novas publicações, elas serão exibidas aqui.</p><a>Adicionar publicações</a></div></section></main>`,
+		)
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/publications/' })
+
+		expect(result.profile.publications).toEqual([])
+	})
+
 	it('reads languages as name and proficiency', () => {
 		render('<main><h1>Idiomas</h1><ul><li><p>Inglês</p><p>Profissional avançado</p></li></ul></main>')
 

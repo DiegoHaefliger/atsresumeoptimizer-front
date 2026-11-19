@@ -20,6 +20,7 @@
 	const CONTACT_LINE = /dados de contato|contact info/i
 	const SEPARATOR_LINE = /^[·•]$|^\(?\d+º/
 	const FOLLOWER_LINE = /seguidores|followers/i
+	const EMPTY_SECTION = /nenhuma novidade por enquanto|nothing to see for now|nada que ver por ahora/i
 	const MAX_PERIOD_LENGTH = 80
 	const MAX_ACTIVITY = 10
 	const MAX_ACTIVITY_CHARS = 600
@@ -123,6 +124,9 @@
 	}
 
 	function parseSection(key, container) {
+		if (key !== 'about' && EMPTY_SECTION.test(container.textContent)) {
+			return []
+		}
 		const heading = container.querySelector('h1, h2')
 		const source = key === 'skills' ? withoutFilterTabs(container) : container
 		const items = buckets(source)
