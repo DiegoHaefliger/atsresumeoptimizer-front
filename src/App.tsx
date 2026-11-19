@@ -16,6 +16,7 @@ import { JobCostPage } from "./pages/JobCostPage";
 import { JobSummaryPage } from "./pages/JobSummaryPage";
 import { JobProcessPage } from "./pages/JobProcessPage";
 import { PromptsPage } from "./pages/PromptsPage";
+import { LinkedInReceivePage } from "./pages/LinkedInReceivePage";
 import { LinkedInPage } from "./pages/LinkedInPage";
 import { NotesPage } from "./pages/NotesPage";
 import { PreferencesPage } from "./pages/PreferencesPage";
@@ -57,6 +58,7 @@ export default function App() {
 						<Route path="/analyses/:id" element={<ResultPage />} />
 						<Route path="/analyses/:id/rewrite" element={<RewritePage />} />
 						<Route path="/linkedin" element={<LinkedInPage />} />
+						<Route path="/linkedin/receber" element={<LinkedInReceivePage />} />
 						<Route path="/notes" element={<NotesPage />} />
 						<Route path="/preferences" element={<PreferencesPage />} />
 						<Route path="/prompts" element={<PromptsPage />} />

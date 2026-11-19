@@ -5,17 +5,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/pack-extension.mjs",
+    "predev": "node scripts/pack-extension.mjs && node scripts/build-bookmarklet.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/pack-extension.mjs",
+    "prebuild": "node scripts/pack-extension.mjs && node scripts/build-bookmarklet.mjs",
     "build": "tsc -b && vite build",
-    "prebuild:desktop": "node scripts/pack-extension.mjs",
+    "prebuild:desktop": "node scripts/pack-extension.mjs && node scripts/build-bookmarklet.mjs",
     "build:desktop": "tsc -b && vite build --mode desktop",
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
     "gen:api": "node scripts/gen-api.mjs",
-    "pack:extension": "node scripts/pack-extension.mjs"
+    "pack:extension": "node scripts/pack-extension.mjs",
+    "build:bookmarklet": "node scripts/build-bookmarklet.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

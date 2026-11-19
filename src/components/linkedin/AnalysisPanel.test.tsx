@@ -52,6 +52,26 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
+	it("uses a reading sent in the last ten minutes when there is no extension", async () => {
+		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/snapshots/latest")) {
+				return { id: "s9", source: "BOOKMARKLET", capturedAt: new Date(Date.now() - 60_000).toISOString(), profile: {} };
+			}
+			if (path.endsWith("/analyses/latest")) {
+				throw new ApiError("não achou", 404);
+			}
+			return [];
+		});
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s9" }));
+		expect(screen.queryByText("Instale a extensão para ler o seu perfil sozinho")).toBeNull();
+	});
+
 	it("asks to update the extension when the user already read the profile through it before", async () => {
 		vi.mocked(apiGet).mockImplementation(async (path: string) => {
 			if (path.endsWith("/snapshots/latest")) {

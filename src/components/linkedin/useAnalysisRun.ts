@@ -8,6 +8,7 @@ const SNAPSHOT_LATEST_PATH = "/api/v1/linkedin/snapshots/latest";
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
 const ARMED_KEY = "linkedin-analysis-armed-at";
 const ARMED_MAX_AGE_MS = 30 * 60 * 1000;
+const RECENT_SNAPSHOT_MS = 10 * 60 * 1000;
 const POLL_MS = 3000;
 const CLOCK_TOLERANCE_MS = 2000;
 export const NO_EXTENSION_CODE = "no-extension";
@@ -94,6 +95,10 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		try {
 			const latest = await latestSnapshot();
 			if (!(await pingExtension())) {
+				if (latest && Date.now() - new Date(latest.capturedAt).getTime() < RECENT_SNAPSHOT_MS) {
+					await analyze(latest.id, []);
+					return;
+				}
 				setPhase({ kind: "waiting", reason: "", code: latest?.source === "EXTENSION" ? OUTDATED_EXTENSION_CODE : NO_EXTENSION_CODE });
 				return;
 			}

@@ -1,4 +1,5 @@
 import { SpinnerIcon } from "../icons";
+import { BookmarkletSteps } from "./BookmarkletSteps";
 import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
 import { isMissingExtension, OUTDATED_EXTENSION_CODE, type RunPhase } from "./useAnalysisRun";
 
@@ -74,10 +75,16 @@ export function WaitingForCapture({ reason, code, onRetry, onPaste, onCancel }: 
 						</div>
 					</>
 				)}
+				{missingExtension && (
+					<>
+						<h3>Ou, sem instalar nada: use o favorito</h3>
+						<BookmarkletSteps />
+					</>
+				)}
 				<p className="field-hint">
-					Prefere não instalar nada?{" "}
+					Também dá para{" "}
 					<button type="button" className="link" onClick={onPaste}>
-						Cole o texto do seu perfil
+						colar o texto do seu perfil
 					</button>
 					. A análise começa quando a leitura chegar.{" "}
 					<button type="button" className="link" onClick={onCancel}>
