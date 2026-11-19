@@ -1,14 +1,12 @@
-import { MIN_EXTENSION_VERSION } from "../../lib/linkedinExtension";
 import { ExtensionUpdateSteps } from "./ExtensionInstallSteps";
 
-export function ExtensionUpdateNotice() {
+export function ExtensionUpdateNotice({ requiredVersion }: { requiredVersion: string }) {
 	return (
 		<section className="panel" role="alert">
 			<div className="panel-header">
 				<h2>Atualize a extensão do Chrome</h2>
 				<p>
-					A versão instalada lê o perfil incompleto (faltam Competências, Formação e outras seções). Atualize para a {MIN_EXTENSION_VERSION} para
-					a análise usar tudo.
+					Há uma versão mais nova da extensão. Atualize para a {requiredVersion} para poder analisar.
 				</p>
 			</div>
 			<div className="panel-body">

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { captureWithExtension, CaptureFailedError, checkExtension, isOlderVersion } from "./linkedinExtension";
+import { captureWithExtension, CaptureFailedError, checkExtension, isOlderVersion, MIN_EXTENSION_VERSION, probeExtension } from "./linkedinExtension";
 
 type AppMessage = { source: string; type: string; id: string };
 
@@ -43,6 +43,36 @@ describe("checkExtension", () => {
 
 	it("is missing when nobody answers", async () => {
 		await expect(checkExtension(30)).resolves.toBe("missing");
+	});
+});
+
+describe("checkExtension with the newest version published by the app", () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	it("is outdated when the app publishes a newer version than the installed one", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ version: "0.9.0" }) }));
+		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.3.8" }] : []));
+
+		const probe = await probeExtension(500);
+
+		expect(probe).toMatchObject({ status: "outdated", requiredVersion: "0.9.0" });
+		stop();
+	});
+
+	it("is current when the installed version is the published one", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ version: "0.9.0" }) }));
+		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.9.0" }] : []));
+
+		await expect(checkExtension(500)).resolves.toBe("current");
+		stop();
+	});
+
+	it("falls back to the minimum version when the published one cannot be read", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: MIN_EXTENSION_VERSION }] : []));
+
+		await expect(checkExtension(500)).resolves.toBe("current");
+		stop();
 	});
 });
 

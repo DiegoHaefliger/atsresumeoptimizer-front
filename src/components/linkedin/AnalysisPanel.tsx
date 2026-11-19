@@ -9,7 +9,6 @@ import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
 import { ExtensionUpdateNotice } from "./ExtensionUpdateNotice";
-import { ExtensionVersion } from "./ExtensionVersion";
 import { ReadingSelector } from "./ReadingSelector";
 import { OUTDATED_EXTENSION_CODE, useAnalysisRun } from "./useAnalysisRun";
 import { useExtensionStatus } from "./useExtensionStatus";
@@ -98,7 +97,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			{!hasSnapshot && phase.kind === "idle" && (
 				<StateMessage variant="empty" message="O app lê o seu perfil no LinkedIn sozinho, pela extensão, quando você pede a análise." />
 			)}
-			{extensionStatus === "outdated" && !(waiting && phase.code === OUTDATED_EXTENSION_CODE) && <ExtensionUpdateNotice />}
+			{extensionStatus === "outdated" && !(waiting && phase.code === OUTDATED_EXTENSION_CODE) && <ExtensionUpdateNotice requiredVersion={extensionProbe?.requiredVersion ?? ""} />}
 			{readingsFailed && <StateMessage variant="error" message="Não consegui carregar as leituras do LinkedIn para você escolher qual usar." />}
 			<ReadingSelector
 				readings={readings}
@@ -107,7 +106,6 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 				onImportPdf={() => onGoTo("data")}
 				disabled={busy || waiting}
 			/>
-			<ExtensionVersion probe={extensionProbe} />
 			<div className="linkedin-actions">
 				<button type="button" onClick={() => void run(selected)} disabled={busy || waiting || !hasProfile || blockedByOutdatedExtension} aria-busy={busy}>
 					<BusyLabel busy={busy} busyText={busyText(phase)}>

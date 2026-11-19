@@ -85,9 +85,9 @@ export async function fetchAvailableVersion(): Promise<string | null> {
 	}
 }
 
-export type ExtensionProbe = { status: ExtensionStatus; version: string | null };
+export type ExtensionProbe = { status: ExtensionStatus; version: string | null; requiredVersion: string };
 
-export function probeExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionProbe> {
+function answerFromExtension(timeoutMs: number): Promise<string | null | undefined> {
 	return new Promise((resolve) => {
 		const id = nextId();
 		const stop = listen(id, (message) => {
@@ -95,15 +95,24 @@ export function probeExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionPr
 				return false;
 			}
 			window.clearTimeout(timer);
-			resolve({ status: isOlderVersion(message.version) ? "outdated" : "current", version: message.version ?? null });
+			resolve(message.version ?? null);
 			return true;
 		});
 		const timer = window.setTimeout(() => {
 			stop();
-			resolve({ status: "missing", version: null });
+			resolve(undefined);
 		}, timeoutMs);
 		post({ type: "ping", id });
 	});
+}
+
+export async function probeExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionProbe> {
+	const [answer, available] = await Promise.all([answerFromExtension(timeoutMs), fetchAvailableVersion()]);
+	const requiredVersion = available && isOlderVersion(MIN_EXTENSION_VERSION, available) ? available : MIN_EXTENSION_VERSION;
+	if (answer === undefined) {
+		return { status: "missing", version: null, requiredVersion };
+	}
+	return { status: isOlderVersion(answer ?? undefined, requiredVersion) ? "outdated" : "current", version: answer, requiredVersion };
 }
 
 export async function checkExtension(timeoutMs = PING_TIMEOUT_MS): Promise<ExtensionStatus> {
