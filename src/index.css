@@ -7395,9 +7395,29 @@ kbd {
 	background: color-mix(in srgb, var(--success) 14%, transparent);
 }
 
+.profile-check-fail {
+	padding: var(--space-3) var(--space-4);
+	border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+	border-left: 4px solid var(--error);
+	border-radius: var(--radius-lg);
+	background: color-mix(in srgb, var(--error) 8%, transparent);
+}
+
 .profile-check-fail .profile-check-icon {
+	color: #fff;
+	background: var(--error);
+}
+
+.profile-check-fail .profile-check-label {
+	font-weight: var(--font-weight-semibold);
+}
+
+.profile-check-line.profile-check-line-action dt {
 	color: var(--error);
-	background: color-mix(in srgb, var(--error) 14%, transparent);
+}
+
+.profile-check-line.profile-check-line-action dd {
+	font-weight: var(--font-weight-medium);
 }
 
 .profile-check-ok .profile-check-label {
@@ -7423,6 +7443,10 @@ kbd {
 .profile-check-line dt {
 	flex: none;
 	width: 3.25rem;
+	text-transform: uppercase;
+	font-size: var(--font-size-xs, 0.7rem);
+	letter-spacing: 0.04em;
+	padding-top: 0.1rem;
 	color: var(--text-muted);
 	font-weight: var(--font-weight-medium);
 }

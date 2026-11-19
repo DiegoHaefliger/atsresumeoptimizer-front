@@ -27,7 +27,7 @@ export function ProfileChecksCard({ checks }: { checks: LinkedInProfileCheckResp
 								<dl className="profile-check-detail">
 									{check.section && <CheckLine term="Onde" value={check.section} />}
 									{check.current && <CheckLine term="Hoje" value={check.current} />}
-									{check.action && <CheckLine term="Mudar" value={check.action} />}
+									{check.action && <CheckLine term="Mudar" value={check.action} emphasis />}
 								</dl>
 							)}
 						</span>
@@ -38,9 +38,9 @@ export function ProfileChecksCard({ checks }: { checks: LinkedInProfileCheckResp
 	);
 }
 
-function CheckLine({ term, value }: { term: string; value: string }) {
+function CheckLine({ term, value, emphasis = false }: { term: string; value: string; emphasis?: boolean }) {
 	return (
-		<div className="profile-check-line">
+		<div className={emphasis ? "profile-check-line profile-check-line-action" : "profile-check-line"}>
 			<dt>{term}</dt>
 			<dd>{value}</dd>
 		</div>
