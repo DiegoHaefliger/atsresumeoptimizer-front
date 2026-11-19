@@ -29,6 +29,29 @@ const ANALYSIS: LinkedInAnalysisResponse = {
 };
 
 describe("AnalysisResult", () => {
+	it("shows the objective checklist with failures first and no card for old analyses", () => {
+		const { rerender } = render(
+			<AnalysisResult
+				analysis={{
+					...ANALYSIS,
+					checks: [
+						{ label: "URL personalizada definida", passed: true },
+						{ label: "Sobre com texto suficiente", passed: false, detail: "Tem 80 caracteres, o ideal é a partir de 300." },
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("Checklist do perfil")).toBeTruthy();
+		expect(screen.getByText(/1 de 2 verificações ok/)).toBeTruthy();
+		expect(screen.getByText("Tem 80 caracteres, o ideal é a partir de 300.")).toBeTruthy();
+		const labels = screen.getAllByText(/URL personalizada definida|Sobre com texto suficiente/).map((node) => node.textContent);
+		expect(labels[0]).toBe("Sobre com texto suficiente");
+
+		rerender(<AnalysisResult analysis={ANALYSIS} />);
+		expect(screen.queryByText("Checklist do perfil")).toBeNull();
+	});
+
 	it("reviews each experience on its own with its own rewrite", () => {
 		render(<AnalysisResult analysis={{ ...ANALYSIS, sections: [
 			{

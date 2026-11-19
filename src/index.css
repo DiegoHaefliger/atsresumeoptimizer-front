@@ -7102,13 +7102,13 @@ kbd {
 .suggestion-text {
 	margin: 0;
 	white-space: pre-line;
+	overflow-wrap: anywhere;
 	font-size: var(--font-size-sm);
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
-	overflow-wrap: anywhere;
 
 .suggestion-text-open {
 	display: block;
@@ -7362,6 +7362,51 @@ kbd {
 .panel-body.linkedin-steps {
 	margin: 0;
 	padding: var(--space-6) var(--space-6) var(--space-6) calc(var(--space-6) + var(--space-5));
+}
+
+.profile-checks {
+	margin: 0;
+	padding: var(--space-4) var(--space-6);
+	list-style: none;
+	display: grid;
+	gap: var(--space-3);
+}
+
+.profile-check {
+	display: flex;
+	gap: var(--space-3);
+	align-items: flex-start;
+}
+
+.profile-check-icon {
+	flex: none;
+	width: 1.25rem;
+	height: 1.25rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-full);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+}
+
+.profile-check-ok .profile-check-icon {
+	color: var(--success);
+	background: color-mix(in srgb, var(--success) 14%, transparent);
+}
+
+.profile-check-fail .profile-check-icon {
+	color: var(--error);
+	background: color-mix(in srgb, var(--error) 14%, transparent);
+}
+
+.profile-check-ok .profile-check-label {
+	color: var(--text-muted);
+}
+
+.profile-check-detail {
+	display: block;
+	margin: 0;
 }
 
 .linkedin-token {

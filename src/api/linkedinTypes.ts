@@ -83,6 +83,8 @@ export type LinkedInSectionReviewResponse = {
 	items?: LinkedInItemReviewResponse[];
 };
 
+export type LinkedInProfileCheckResponse = { label: string; passed: boolean; detail?: string | null };
+
 export type LinkedInAnalysisResponse = {
 	id: string;
 	snapshotId: string;
@@ -94,6 +96,7 @@ export type LinkedInAnalysisResponse = {
 	recruiterKeywords: string[];
 	missingKeywords: string[];
 	sections: LinkedInSectionReviewResponse[];
+	checks?: LinkedInProfileCheckResponse[];
 	imagesAnalyzed: boolean;
 	aiModel?: string;
 	costUsd?: number;
