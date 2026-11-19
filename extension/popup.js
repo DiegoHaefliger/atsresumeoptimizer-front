@@ -47,7 +47,8 @@ async function readCurrentPage() {
 	if (!tab || !/^https:\/\/([a-z]+\.)?linkedin\.com\/in\//.test(tab.url || '')) {
 		throw new Error('Abra o seu perfil em linkedin.com/in/... e tente de novo.')
 	}
-	const [injection] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
+	await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
+	const [injection] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => globalThis.atsExtract(document, location) })
 	if (!injection || !injection.result) {
 		throw new Error('Não consegui ler esta página.')
 	}

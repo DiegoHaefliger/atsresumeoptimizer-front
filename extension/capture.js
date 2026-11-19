@@ -1,4 +1,7 @@
+import { CaptureError } from './capture-error.js'
 import { emptyDraft, mergeCapture } from './merge.js'
+
+export { CaptureError }
 
 const DETAIL_PAGES = ['experience', 'education', 'skills', 'certifications', 'languages', 'projects', 'publications', 'recommendations']
 const PROFILE_URL = /^https:\/\/([a-z]+\.)?linkedin\.com\/in\/([^/?#]+)/
@@ -6,19 +9,6 @@ const LOGIN_PATH = /^\/(login|uas\/login|authwall|checkpoint)/
 const PAGE_TIMEOUT_MS = 30000
 const SETTLE_MS = 1500
 const PAUSE_MS = 800
-const SCROLL_STEPS = 40
-const SCROLL_PATIENCE = 3
-const SCROLL_WAIT_MS = 600
-const RENDER_WAIT_MS = 10000
-const RENDER_POLL_MS = 500
-const MIN_RENDERED_CHARS = 80
-
-export class CaptureError extends Error {
-	constructor(code, message) {
-		super(message)
-		this.code = code
-	}
-}
 
 export function profileBase(url) {
 	const match = PROFILE_URL.exec(url || '')
@@ -31,31 +21,6 @@ export function pagesToRead(base) {
 
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function scrollToEnd(maxSteps, wait, patience) {
-	const scrollers = [document.scrollingElement, document.querySelector('main')].filter(Boolean)
-	const size = () => scrollers.reduce((total, element) => total + element.scrollHeight, 0)
-	let last = -1
-	let unchanged = 0
-	for (let step = 0; step < maxSteps && unchanged < patience; step++) {
-		scrollers.forEach((element) => element.scrollTo(0, element.scrollHeight))
-		await new Promise((resolve) => setTimeout(resolve, wait))
-		unchanged = size() === last ? unchanged + 1 : 0
-		last = size()
-	}
-	scrollers.forEach((element) => element.scrollTo(0, 0))
-}
-
-async function waitForRender(maxWait, poll, minChars) {
-	for (let waited = 0; waited <= maxWait; waited += poll) {
-		const main = document.querySelector('main')
-		if (main && main.innerText.trim().length >= minChars) {
-			return true
-		}
-		await new Promise((resolve) => setTimeout(resolve, poll))
-	}
-	return false
 }
 
 function waitUntilLoaded(chromeApi, tabId) {
@@ -85,19 +50,28 @@ export async function readPage(chromeApi, url, pause = sleep, { visible = false 
 			throw new CaptureError('login-required', 'Entre no LinkedIn neste navegador e tente de novo.')
 		}
 		await pause(SETTLE_MS)
-		const [rendering] = await chromeApi.scripting.executeScript({
-			target: { tabId: tab.id },
-			func: waitForRender,
-			args: [RENDER_WAIT_MS, RENDER_POLL_MS, MIN_RENDERED_CHARS],
-		})
-		if (!(rendering && rendering.result)) {
+		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js', 'page-reader.js'] })
+		const [reading] = await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: () => globalThis.atsPage.read() })
+		if (!(reading && reading.result && reading.result.rendered)) {
 			throw new CaptureError('not-rendered', 'A página não terminou de carregar em segundo plano.')
 		}
-		await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, func: scrollToEnd, args: [SCROLL_STEPS, SCROLL_WAIT_MS, SCROLL_PATIENCE] })
-		const [injection] = await chromeApi.scripting.executeScript({ target: { tabId: tab.id }, files: ['extract.js'] })
-		return injection && injection.result
+		return reading.result.result
 	} finally {
 		await chromeApi.tabs.remove(tab.id).catch(() => {})
+	}
+}
+
+export function adaptiveReader(frameReader) {
+	let frameBroken = false
+	return async (chromeApi, url, pause, options) => {
+		if (frameReader && !frameBroken && !options?.visible) {
+			try {
+				return await frameReader.read(url)
+			} catch {
+				frameBroken = true
+			}
+		}
+		return readPage(chromeApi, url, pause, options)
 	}
 }
 

@@ -216,5 +216,6 @@
 	if (typeof module === 'object' && module.exports) {
 		module.exports = { extract, sectionKey, fold }
 	}
-	return typeof document !== 'undefined' && root.location ? extract(document, root.location) : null
+	root.atsExtract = extract
+	return typeof document !== 'undefined' && root.location && !root.atsNoAutorun ? extract(document, root.location) : null
 })(typeof globalThis !== 'undefined' ? globalThis : this)

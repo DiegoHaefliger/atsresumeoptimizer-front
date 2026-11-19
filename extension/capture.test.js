@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { CaptureError, captureProfile, pagesToRead, profileBase, readPage } from './capture.js'
+import { adaptiveReader, CaptureError, captureProfile, pagesToRead, profileBase, readPage } from './capture.js'
 
 const noPause = () => Promise.resolve()
 
@@ -119,7 +119,11 @@ describe('readPage', () => {
 				remove,
 				onUpdated: { addListener: vi.fn(), removeListener: vi.fn() },
 			},
-			scripting: { executeScript: vi.fn().mockResolvedValue([{ result: { page: 'profile', profile: { headline: 'Dev' } } }]) },
+			scripting: {
+				executeScript: vi.fn(async (options) =>
+					options.files ? [{}] : [{ result: { rendered: true, result: { page: 'profile', profile: { headline: 'Dev' } } } }],
+				),
+			},
 		}
 	}
 
@@ -138,5 +142,60 @@ describe('readPage', () => {
 
 		await expect(readPage(chromeApi, 'https://www.linkedin.com/in/ana/', noPause)).rejects.toMatchObject({ code: 'login-required' })
 		expect(chromeApi.remove).toHaveBeenCalledWith(7)
+	})
+})
+
+describe('adaptiveReader', () => {
+	const url = 'https://www.linkedin.com/in/ana/'
+
+	it('uses the hidden frame when it works', async () => {
+		const frameReader = { read: vi.fn(async () => ({ profile: { headline: 'Dev' } })) }
+		const chromeApi = { tabs: { create: vi.fn() } }
+
+		const result = await adaptiveReader(frameReader)(chromeApi, url, noPause)
+
+		expect(result.profile.headline).toBe('Dev')
+		expect(chromeApi.tabs.create).not.toHaveBeenCalled()
+	})
+
+	it('falls back to a tab when the frame fails and stops trying the frame afterwards', async () => {
+		const frameReader = { read: vi.fn(async () => { throw new CaptureError('frame-blocked', 'bloqueado') }) }
+		const chromeApi = {
+			tabs: {
+				create: vi.fn().mockResolvedValue({ id: 3 }),
+				get: vi.fn().mockResolvedValue({ id: 3, status: 'complete', url }),
+				remove: vi.fn().mockResolvedValue(),
+				onUpdated: { addListener: vi.fn(), removeListener: vi.fn() },
+			},
+			scripting: {
+				executeScript: vi.fn(async (options) => (options.files ? [{}] : [{ result: { rendered: true, result: { profile: { headline: 'Tab' } } } }])),
+			},
+		}
+		const read = adaptiveReader(frameReader)
+
+		const first = await read(chromeApi, url, noPause)
+		const second = await read(chromeApi, url, noPause)
+
+		expect(first.profile.headline).toBe('Tab')
+		expect(second.profile.headline).toBe('Tab')
+		expect(frameReader.read).toHaveBeenCalledTimes(1)
+	})
+
+	it('goes straight to a tab when there is no frame reader', async () => {
+		const chromeApi = {
+			tabs: {
+				create: vi.fn().mockResolvedValue({ id: 3 }),
+				get: vi.fn().mockResolvedValue({ id: 3, status: 'complete', url }),
+				remove: vi.fn().mockResolvedValue(),
+				onUpdated: { addListener: vi.fn(), removeListener: vi.fn() },
+			},
+			scripting: {
+				executeScript: vi.fn(async (options) => (options.files ? [{}] : [{ result: { rendered: true, result: { profile: { headline: 'Tab' } } } }])),
+			},
+		}
+
+		const result = await adaptiveReader(null)(chromeApi, url, noPause)
+
+		expect(result.profile.headline).toBe('Tab')
 	})
 })

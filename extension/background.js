@@ -1,4 +1,5 @@
-import { captureProfile, CaptureError, profileBase } from './capture.js'
+import { adaptiveReader, captureProfile, CaptureError, profileBase } from './capture.js'
+import { FrameReader } from './frame.js'
 import { sendSnapshot } from './api.js'
 
 const DEFAULT_SERVER = 'http://localhost:8080'
@@ -10,15 +11,36 @@ async function openProfileUrl() {
 	return found || null
 }
 
+const frameReader = new FrameReader(chrome)
+
+async function startFrameReader() {
+	try {
+		await frameReader.prepare()
+		return frameReader
+	} catch {
+		await frameReader.dispose()
+		return null
+	}
+}
+
+chrome.runtime.onMessage.addListener((message, sender) => frameReader.handleMessage(message, sender))
+
 async function run(port, request) {
 	const stored = await chrome.storage.local.get(['serverUrl', 'lastProfileUrl'])
 	const serverUrl = stored.serverUrl || DEFAULT_SERVER
 	const profileUrl = request.profileUrl || stored.lastProfileUrl || (await openProfileUrl())
-	const draft = await captureProfile({
-		chromeApi: chrome,
-		profileUrl,
-		onProgress: (progress) => port.postMessage({ type: 'progress', ...progress }),
-	})
+	const activeFrameReader = await startFrameReader()
+	let draft
+	try {
+		draft = await captureProfile({
+			chromeApi: chrome,
+			profileUrl,
+			read: adaptiveReader(activeFrameReader),
+			onProgress: (progress) => port.postMessage({ type: 'progress', ...progress }),
+		})
+	} finally {
+		await activeFrameReader?.dispose()
+	}
 	const snapshot = await sendSnapshot({ serverUrl, draft })
 	await chrome.storage.local.set({ lastProfileUrl: draft.profile.profileUrl })
 	port.postMessage({ type: 'result', snapshot })

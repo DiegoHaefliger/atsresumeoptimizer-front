@@ -26,7 +26,7 @@ Depois de atualizar a extensão (permissões novas), recarregue-a em `chrome://e
 
 ## Como funciona o automático
 
-`bridge.js` roda nas páginas do app (`localhost`) e repassa o pedido do app para `background.js`. `capture.js` abre cada página em uma aba inativa, rola até carregar, roda `extract.js` e junta os resultados. O envio usa o mesmo `api.js` da leitura manual.
+`bridge.js` roda nas páginas do app (`localhost`) e repassa o pedido do app para `background.js`. `capture.js` lê cada página primeiro num iframe de um documento offscreen (`frame.js`, `offscreen.js`, `frame-reader.js`), sem abrir aba: uma regra `declarativeNetRequest` remove `X-Frame-Options` e `Content-Security-Policy` só das requisições de iframe feitas pela própria extensão. Se o iframe falhar, cai para uma aba inativa e, se a página não renderizar, para uma aba visível. Em ambos, `page-reader.js` espera renderizar e rola até carregar, `extract.js` extrai e o resultado é juntado. O envio usa o mesmo `api.js` da leitura manual.
 
 ## Manutenção
 
