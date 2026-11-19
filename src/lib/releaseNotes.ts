@@ -14,6 +14,22 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.11",
+		date: "2026-11-19",
+		summary: "Análise do LinkedIn bem mais confiável, com leitura automática do perfil, checklist do que mudar e escolha da leitura usada, mais três fontes de vagas, a tela Avaliar e exclusão de seções no currículo adaptado.",
+		changes: [
+			{ kind: "feat", text: "A análise do LinkedIn agora lê o seu perfil sozinha, pela extensão do Chrome, toda vez que você pede uma análise. A leitura roda em segundo plano, sem abrir abas, e a tela mostra o que está sendo lido: experiências, formação, competências, projetos e as demais seções." },
+			{ kind: "feat", text: "Novo Checklist do perfil, com conferências automáticas iguais a cada análise. Cada item que não passou mostra onde está o problema, como está hoje e o que mudar, em destaque." },
+			{ kind: "improvement", text: "A análise ficou consistente: o mesmo perfil gera a mesma análise e a nota geral é calculada pelo app. Se nada mudou desde a última leitura, o app mostra a análise anterior e diz o que mudou quando há mudança." },
+			{ kind: "feat", text: "Você pode importar o PDF do seu perfil, exportado pelo LinkedIn, como alternativa à extensão. Em Análise, escolha qual leitura usar: a mais recente da extensão ou o último PDF. Depois da análise, o app mostra de qual leitura ela partiu e quais seções ficaram sem leitura." },
+			{ kind: "fix", text: "A extensão passou a ler todas as competências (antes vinham só as primeiras), a separar projetos e certificações, a ignorar seções vazias do LinkedIn e a refazer a leitura de uma seção que não carregou. Se uma seção principal continuar faltando, a leitura é recusada em vez de gerar uma análise com dados faltando." },
+			{ kind: "improvement", text: "O app avisa quando existe uma versão mais nova da extensão e impede a análise pela extensão até você atualizá-la. A análise pelo PDF continua liberada." },
+			{ kind: "feat", text: "Novas fontes na busca de vagas: Jobicy, Himalayas e Get on Board, que você ativa em Preferências, na aba Busca de vagas." },
+			{ kind: "feat", text: "Nova tela Avaliar no menu lateral, para dar uma nota ao app e enviar uma mensagem, com prints se quiser." },
+			{ kind: "feat", text: "No Currículo adaptado, na aba Editar campos, agora dá para excluir uma seção inteira, com confirmação antes de apagar." },
+		],
+	},
+	{
 		version: "1.1.9",
 		date: "2026-11-02",
 		summary: "Telas de vaga reorganizadas, cards que mostram o que precisa da sua atenção, um indicador único de compatibilidade e a busca de vagas respeitando as palavras a excluir.",
