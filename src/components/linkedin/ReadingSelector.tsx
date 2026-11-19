@@ -20,27 +20,35 @@ export function ReadingSelector({ readings, selectedId, onSelect, onImportPdf, d
 	if (readings.length === 0) {
 		return null;
 	}
+	const current = readings.find((reading) => reading.id === selectedId);
 	return (
-		<fieldset className="panel panel-body reading-selector" disabled={disabled}>
+		<fieldset className="reading-selector" disabled={disabled}>
 			<legend>Leitura usada na análise</legend>
-			{readings.map((reading, index) => (
-				<label key={reading.id} className={`reading-option${reading.id === selectedId ? " reading-option-selected" : ""}`}>
-					<input
-						type="radio"
-						name="linkedin-reading"
-						value={reading.id}
-						checked={reading.id === selectedId}
-						onChange={() => onSelect(reading.id)}
-					/>
-					<span>
-						<strong>{TITLES[reading.source]}</strong> · {formatCapturedAt(reading.capturedAt)}
-						{index === 0 && readings.length > 1 && " · mais recente"}
-						<br />
-						<span className="field-hint">{NOTES[reading.source]}</span>
-					</span>
-				</label>
-			))}
+			<div className="reading-options">
+				{readings.map((reading, index) => (
+					<label
+						key={reading.id}
+						className={`reading-option${reading.id === selectedId ? " reading-option-selected" : ""}`}
+					>
+						<input
+							type="radio"
+							name="linkedin-reading"
+							value={reading.id}
+							checked={reading.id === selectedId}
+							onChange={() => onSelect(reading.id)}
+						/>
+						<span>
+							<strong>{TITLES[reading.source]}</strong>
+							<span className="reading-option-date">
+								{formatCapturedAt(reading.capturedAt)}
+								{index === 0 && readings.length > 1 && " · mais recente"}
+							</span>
+						</span>
+					</label>
+				))}
+			</div>
 			<p className="field-hint">
+				{current && NOTES[current.source]}{" "}
 				<button type="button" className="link" onClick={onImportPdf}>
 					Importar outro PDF
 				</button>
