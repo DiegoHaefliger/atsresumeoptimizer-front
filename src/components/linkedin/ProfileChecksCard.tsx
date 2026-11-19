@@ -20,14 +20,29 @@ export function ProfileChecksCard({ checks }: { checks: LinkedInProfileCheckResp
 						<span className="profile-check-icon" aria-hidden="true">
 							{check.passed ? "✓" : "✕"}
 						</span>
-						<span>
+						<span className="profile-check-body">
 							<span className="profile-check-label">{check.label}</span>
 							<span className="sr-only">{check.passed ? ": ok" : ": ajustar"}</span>
-							{!check.passed && check.detail && <span className="field-hint profile-check-detail">{check.detail}</span>}
+							{!check.passed && (
+								<dl className="profile-check-detail">
+									{check.section && <CheckLine term="Onde" value={check.section} />}
+									{check.current && <CheckLine term="Hoje" value={check.current} />}
+									{check.action && <CheckLine term="Mudar" value={check.action} />}
+								</dl>
+							)}
 						</span>
 					</li>
 				))}
 			</ul>
 		</section>
+	);
+}
+
+function CheckLine({ term, value }: { term: string; value: string }) {
+	return (
+		<div className="profile-check-line">
+			<dt>{term}</dt>
+			<dd>{value}</dd>
+		</div>
 	);
 }

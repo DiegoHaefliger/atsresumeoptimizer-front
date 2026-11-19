@@ -83,7 +83,13 @@ export type LinkedInSectionReviewResponse = {
 	items?: LinkedInItemReviewResponse[];
 };
 
-export type LinkedInProfileCheckResponse = { label: string; passed: boolean; detail?: string | null };
+export type LinkedInProfileCheckResponse = {
+	label: string;
+	passed: boolean;
+	section?: string | null;
+	current?: string | null;
+	action?: string | null;
+};
 
 export type LinkedInAnalysisResponse = {
 	id: string;

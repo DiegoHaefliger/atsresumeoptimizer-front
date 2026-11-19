@@ -36,7 +36,13 @@ describe("AnalysisResult", () => {
 					...ANALYSIS,
 					checks: [
 						{ label: "URL personalizada definida", passed: true },
-						{ label: "Sobre com texto suficiente", passed: false, detail: "Tem 80 caracteres, o ideal é a partir de 300." },
+						{
+							label: "Sobre com texto suficiente",
+							passed: false,
+							section: "Sobre",
+							current: "Tem 80 caracteres",
+							action: "Escreva pelo menos 300 caracteres.",
+						},
 					],
 				}}
 			/>,
@@ -44,7 +50,11 @@ describe("AnalysisResult", () => {
 
 		expect(screen.getByText("Checklist do perfil")).toBeTruthy();
 		expect(screen.getByText(/1 de 2 verificações ok/)).toBeTruthy();
-		expect(screen.getByText("Tem 80 caracteres, o ideal é a partir de 300.")).toBeTruthy();
+		expect(screen.getByText("Tem 80 caracteres")).toBeTruthy();
+		expect(screen.getByText("Escreva pelo menos 300 caracteres.")).toBeTruthy();
+		expect(screen.getByText("Onde")).toBeTruthy();
+		expect(screen.getByText("Hoje")).toBeTruthy();
+		expect(screen.getByText("Mudar")).toBeTruthy();
 		const labels = screen.getAllByText(/URL personalizada definida|Sobre com texto suficiente/).map((node) => node.textContent);
 		expect(labels[0]).toBe("Sobre com texto suficiente");
 
