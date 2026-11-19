@@ -10,6 +10,9 @@ const SITE_HINTS: Record<SearchSite, string> = {
 	INFOJOBS: "Vagas de todas as áreas, com descrição completa. Até 20 por página.",
 	VAGAS: "Vagas de todas as áreas. Traz poucas vagas por busca.",
 	REMOTAR: "Só vagas 100% remotas ou híbridas, de várias áreas. Até 50 por página.",
+	JOBICY: "Só vagas remotas, em inglês, de empresas do mundo todo. Busca pela palavra-chave como tag.",
+	HIMALAYAS: "Só vagas remotas, em inglês, de empresas do mundo todo. Até 20 por página.",
+	GETONBOARD: "Foco em tecnologia na América Latina, em espanhol e inglês. Até 50 por página.",
 };
 
 type SiteSelectorProps = {

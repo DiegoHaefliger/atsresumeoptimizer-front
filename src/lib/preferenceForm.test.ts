@@ -32,7 +32,7 @@ describe("preferenceForm", () => {
 			searchMinAdherence: 70,
 			searchEnabled: false,
 			searchCron: "0 0 8,20 * * *",
-			searchSites: ["LINKEDIN", "GUPY", "PROGRAMATHOR", "INFOJOBS", "VAGAS", "REMOTAR"],
+			searchSites: ["LINKEDIN", "GUPY", "PROGRAMATHOR", "INFOJOBS", "VAGAS", "REMOTAR", "JOBICY", "HIMALAYAS", "GETONBOARD"],
 		});
 	});
 
@@ -61,7 +61,7 @@ describe("preferenceForm", () => {
 			workModels: ["REMOTE" as const],
 			locations: ["Curitiba"],
 		};
-		expect(describeSearch(form)).toEqual(["Java, Spring", "Pleno/Sênior", "Remoto", "Curitiba", "últimos 7 dias", "LinkedIn, Gupy, Programathor, InfoJobs, Vagas.com, Remotar"]);
+		expect(describeSearch(form)).toEqual(["Java, Spring", "Pleno/Sênior", "Remoto", "Curitiba", "últimos 7 dias", "LinkedIn, Gupy, Programathor, InfoJobs, Vagas.com, Remotar, Jobicy, Himalayas, Get on Board"]);
 	});
 
 	it("caps the max results at 100 while typing", () => {
