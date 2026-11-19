@@ -25,14 +25,14 @@ afterEach(() => {
 
 describe("checkExtension", () => {
 	it("is current when the extension answers with the minimum version or newer", async () => {
-		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.3.5" }] : []));
+		const stop = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.3.6" }] : []));
 
 		await expect(checkExtension(500)).resolves.toBe("current");
 		stop();
 	});
 
 	it("is outdated when the extension answers with an older or unknown version", async () => {
-		const stopOld = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.3.4" }] : []));
+		const stopOld = extensionAnswers((message) => (message.type === "ping" ? [{ type: "pong", version: "0.3.5" }] : []));
 		await expect(checkExtension(500)).resolves.toBe("outdated");
 		stopOld();
 
@@ -49,8 +49,8 @@ describe("checkExtension", () => {
 describe("isOlderVersion", () => {
 	it("compares numerically, not as text", () => {
 		expect(isOlderVersion("0.10.0", "0.9.0")).toBe(false);
-		expect(isOlderVersion("0.3.4", "0.3.5")).toBe(true);
-		expect(isOlderVersion("1.0", "0.3.5")).toBe(false);
+		expect(isOlderVersion("0.3.5", "0.3.6")).toBe(true);
+		expect(isOlderVersion("1.0", "0.3.6")).toBe(false);
 	});
 });
 

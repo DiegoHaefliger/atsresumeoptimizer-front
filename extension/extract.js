@@ -21,6 +21,9 @@
 	const SEPARATOR_LINE = /^[·•]$|^\(?\d+º/
 	const FOLLOWER_LINE = /seguidores|followers/i
 	const EMPTY_SECTION = /nenhuma novidade por enquanto|nothing to see for now|nada que ver por ahora/i
+	const PERIOD_RANGE = /\d{4}\s*[–-]\s*(\d{4}|o momento|atual|present|[a-z]{3}\.? de \d{4})/i
+	const FLAT_SECTIONS = ['certifications', 'projects', 'publications']
+	const FILTERED_SECTIONS = ['skills', 'recommendations']
 	const MAX_PERIOD_LENGTH = 80
 	const MAX_ACTIVITY = 10
 	const MAX_ACTIVITY_CHARS = 600
@@ -90,6 +93,14 @@
 		}))
 	}
 
+	function splitFlat(lines) {
+		const starts = lines.flatMap((line, index) => (index > 0 && line.length < MAX_PERIOD_LENGTH && PERIOD_RANGE.test(line) ? [index - 1] : []))
+		if (starts.length === 0) {
+			return [lines]
+		}
+		return starts.map((start, index) => lines.slice(start, starts[index + 1]))
+	}
+
 	function parseItems(key, items) {
 		switch (key) {
 			case 'experience':
@@ -99,7 +110,7 @@
 			case 'certifications':
 			case 'projects':
 			case 'publications':
-				return items.map((lines) => entryFrom(lines))
+				return items.flatMap(splitFlat).map((lines) => entryFrom(lines))
 			case 'skills':
 				return items.map((lines) => lines[0])
 			case 'languages':
@@ -128,10 +139,10 @@
 			return []
 		}
 		const heading = container.querySelector('h1, h2')
-		const source = key === 'skills' ? withoutFilterTabs(container) : container
+		const source = FILTERED_SECTIONS.includes(key) ? withoutFilterTabs(container) : container
 		const items = buckets(source)
 			.map((lines) => (heading && fold(lines[0]) === fold(heading.textContent) ? lines.slice(1) : lines))
-			.map((lines) => (key === 'skills' && isSectionTitle(key, lines[0]) ? lines.slice(1) : lines))
+			.map((lines) => (isSectionTitle(key, lines[0]) ? lines.slice(1) : lines))
 			.filter((lines) => lines.length)
 		return key === 'about' ? items.map((lines) => lines.join('\n')).join('\n') || null : parseItems(key, items)
 	}

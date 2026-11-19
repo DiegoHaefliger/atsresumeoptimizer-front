@@ -181,6 +181,30 @@ describe('extract on a details page', () => {
 		expect(result.profile.publications).toEqual([])
 	})
 
+	it('splits a flat details list into one entry per dated item and drops the section title and banner', () => {
+		render(
+			`<main><section><div><p>Projetos</p></div><div><p>Os projetos de aplicativos conectados são sincronizados automaticamente.</p>
+				<p>ATS Resume Optimizer</p><p>set. de 2026 – o momento</p><p>Plataforma com IA para currículos.</p>
+				<p>Liquibase Helper</p><p>mai. de 2026 – set. de 2026</p><p>Ferramenta de migração.</p></div></section></main>`,
+		)
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/projects/' })
+
+		expect(result.profile.projects.map((project) => project.title)).toEqual(['ATS Resume Optimizer', 'Liquibase Helper'])
+		expect(result.profile.projects[0].description).toContain('Plataforma com IA')
+	})
+
+	it('drops the section title from the first education entry', () => {
+		render(
+			`<main><section><div><p>Formação acadêmica</p></div><ul><li><p>Anhanguera</p><p>Mestrado</p><p>abr. de 2026 – abr. de 2027</p></li></ul></section></main>`,
+		)
+
+		const result = extract(document, { origin: 'https://www.linkedin.com', pathname: '/in/ana-souza/details/education/' })
+
+		expect(result.profile.educations).toHaveLength(1)
+		expect(result.profile.educations[0].organization).toBe('Anhanguera')
+	})
+
 	it('reads languages as name and proficiency', () => {
 		render('<main><h1>Idiomas</h1><ul><li><p>Inglês</p><p>Profissional avançado</p></li></ul></main>')
 
