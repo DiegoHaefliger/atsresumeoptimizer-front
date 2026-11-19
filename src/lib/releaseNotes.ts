@@ -26,7 +26,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 			{ kind: "improvement", text: "O app avisa quando existe uma versão mais nova da extensão e impede a análise pela extensão até você atualizá-la. A análise pelo PDF continua liberada." },
 			{ kind: "feat", text: "Novas fontes na busca de vagas: Jobicy, Himalayas e Get on Board, que você ativa em Preferências, na aba Busca de vagas." },
 			{ kind: "feat", text: "Nova tela Avaliar no menu lateral, para dar uma nota ao app e enviar uma mensagem, com prints se quiser." },
-			{ kind: "improvement", text: "O pedido de avaliação agora aparece só depois que você conclui algo, como uma análise do LinkedIn ou o download de um currículo, e não mais ao abrir o app. Dá para avaliar tocando numa estrela, e o Agora não adia o aviso por uma semana." },
+			{ kind: "improvement", text: "O pedido de avaliação agora aparece só depois que você conclui algo, como uma análise do LinkedIn ou o download de um currículo, e não mais ao abrir o app. Dá para dar a nota tocando numa estrela, depois comentar e enviar prints, e o Agora não adia o aviso por uma semana." },
 			{ kind: "feat", text: "No Currículo adaptado, na aba Editar campos, agora dá para excluir uma seção inteira, com confirmação antes de apagar." },
 		],
 	},

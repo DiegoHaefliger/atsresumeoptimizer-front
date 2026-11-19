@@ -58,7 +58,7 @@ export function FeedbackPrompt() {
 		<div className="update-banner" role="status">
 			<StarIcon className="update-banner-icon" />
 			<p className="update-banner-text">
-				<strong>Gostou do resultado?</strong> Toque nas estrelas para avaliar o app em menos de um minuto.
+				<strong>Gostou do resultado?</strong> Dê uma nota, conte como foi ou envie um print do que pode melhorar. Leva menos de um minuto.
 			</p>
 			<div className="update-banner-actions">
 				<StarRating value={0} onChange={rate} />
