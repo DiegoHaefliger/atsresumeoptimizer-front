@@ -37,7 +37,7 @@ export type ProfileSection =
 	| "FEATURED"
 	| "ACTIVITY";
 
-export type SnapshotSource = "EXTENSION" | "TEXT";
+export type SnapshotSource = "EXTENSION" | "TEXT" | "PDF";
 
 export type LinkedInProfileResponse = {
 	profileUrl?: string;
@@ -58,6 +58,19 @@ export type LinkedInSnapshotResponse = {
 	hasPhoto: boolean;
 	hasBanner: boolean;
 	missingSections: ProfileSection[];
+};
+
+export type LinkedInCaptureResponse = LinkedInSnapshotResponse & {
+	unchanged: boolean;
+	changedSections: ProfileSection[];
+};
+
+export type LinkedInSnapshotSummaryResponse = {
+	id: string;
+	capturedAt: string;
+	source: SnapshotSource;
+	fullName?: string;
+	headline?: string;
 };
 
 export type PairingTokenResponse = { token: string };
@@ -83,6 +96,14 @@ export type LinkedInSectionReviewResponse = {
 	items?: LinkedInItemReviewResponse[];
 };
 
+export type LinkedInProfileCheckResponse = {
+	label: string;
+	passed: boolean;
+	section?: string | null;
+	current?: string | null;
+	action?: string | null;
+};
+
 export type LinkedInAnalysisResponse = {
 	id: string;
 	snapshotId: string;
@@ -94,7 +115,9 @@ export type LinkedInAnalysisResponse = {
 	recruiterKeywords: string[];
 	missingKeywords: string[];
 	sections: LinkedInSectionReviewResponse[];
+	checks?: LinkedInProfileCheckResponse[];
 	imagesAnalyzed: boolean;
+	unchanged?: boolean;
 	aiModel?: string;
 	costUsd?: number;
 };

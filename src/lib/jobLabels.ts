@@ -8,6 +8,9 @@ export const SEARCH_SITE_LABELS: Record<SearchSite, string> = {
 	INFOJOBS: "InfoJobs",
 	VAGAS: "Vagas.com",
 	REMOTAR: "Remotar",
+	JOBICY: "Jobicy",
+	HIMALAYAS: "Himalayas",
+	GETONBOARD: "Get on Board",
 };
 
 export const WORK_MODEL_LABELS: Record<WorkModel, string> = {

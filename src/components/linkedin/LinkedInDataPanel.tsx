@@ -1,49 +1,22 @@
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiUrl, ApiError, errorMessage } from "../../api/client";
 import type { LinkedInSnapshotResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt, SECTION_LABELS } from "../../lib/linkedinLabels";
+import { uploadLinkedInPdf } from "../../lib/linkedinPdf";
 import { Badge } from "../Badge";
-import { DownloadIcon, RefreshIcon } from "../icons";
+import { RefreshIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
+import { ExtensionInstallSteps } from "./ExtensionInstallSteps";
+import { PdfImport } from "./PdfImport";
 
 const SNAPSHOT_PATH = "/api/v1/linkedin/snapshots";
-const EXTENSION_FILE = "ats-linkedin-extension.zip";
-const EXTENSIONS_PAGE = "chrome://extensions";
-
-const COPIED_FEEDBACK_MS = 4000;
-
-function ExtensionsLink() {
-	const [copied, setCopied] = useState(false);
-
-	async function copy(event: MouseEvent<HTMLAnchorElement>) {
-		event.preventDefault();
-		await navigator.clipboard.writeText(EXTENSIONS_PAGE);
-		setCopied(true);
-		window.setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
-	}
-
-	return (
-		<>
-			Abra uma nova aba do Chrome e vá em{" "}
-			<a href={EXTENSIONS_PAGE} onClick={copy}>
-				<code>{EXTENSIONS_PAGE}</code>
-			</a>
-			{copied ? " (copiado, é só colar na barra de endereço)" : " (clique para copiar)"}
-		</>
-	);
-}
-
-function downloadExtension() {
-	const link = document.createElement("a");
-	link.href = `${import.meta.env.BASE_URL}${EXTENSION_FILE}`;
-	link.download = EXTENSION_FILE;
-	link.click();
-}
-
+const SOURCE_LABELS = { EXTENSION: "Extensão", TEXT: "Texto", PDF: "PDF" } as const;
 export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (snapshot: LinkedInSnapshotResponse | null) => void }) {
 	const [snapshot, setSnapshot] = useState<LinkedInSnapshotResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [importing, setImporting] = useState(false);
+	const [imported, setImported] = useState<string | null>(null);
 
 	const load = useCallback(async () => {
 		setLoading(true);
@@ -68,41 +41,55 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 		void load();
 	}, [load]);
 
+	async function importPdf(file: File) {
+		setImporting(true);
+		setError(null);
+		setImported(null);
+		try {
+			const capture = await uploadLinkedInPdf(file);
+			const changed = capture.changedSections.map((section) => SECTION_LABELS[section]).join(", ");
+			setImported(capture.unchanged ? "PDF lido. Nada mudou desde a última leitura." : `PDF lido.${changed ? ` Mudou: ${changed}.` : ""}`);
+			await load();
+		} catch (err) {
+			setError(errorMessage(err, "Não deu pra ler o PDF. Tenta de novo."));
+		} finally {
+			setImporting(false);
+		}
+	}
+
 	return (
 		<div className="settings-main">
 			{error && <StateMessage variant="error" message={error} />}
 			<section className="panel">
 				<div className="panel-header">
-					<h2>1. Instale a extensão do Chrome (uma vez só)</h2>
+					<h2>1. Instale ou atualize a extensão do Chrome</h2>
 					<p>Ela lê só a página do LinkedIn que você abrir, sem guardar senha nem cookie.</p>
 				</div>
 				<div className="panel-body">
-					<div className="linkedin-actions">
-						<button type="button" onClick={downloadExtension}>
-							<DownloadIcon /> Baixar extensão
-						</button>
-					</div>
-					<ol className="linkedin-steps">
-						<li>Abra o arquivo baixado e extraia tudo numa pasta (clique direito, “Extrair tudo”). Guarde a pasta, ela não pode ser apagada.</li>
-						<li>
-							<ExtensionsLink />
-						</li>
-						<li>Ligue a chave “Modo do desenvolvedor”, no canto superior direito.</li>
-						<li>Clique em “Carregar sem compactação” e escolha a pasta que você extraiu.</li>
-						<li>Clique no ícone de quebra-cabeça do Chrome e fixe a extensão “ATS Resume Optimizer”.</li>
-					</ol>
+					<ExtensionInstallSteps />
 				</div>
 			</section>
 			<section className="panel">
 				<div className="panel-header">
-					<h2>2. Traga o seu perfil</h2>
+					<h2>2. O perfil é lido a cada análise</h2>
 				</div>
 				<div className="panel-body">
-					<ol className="linkedin-steps">
-						<li>Abra o seu perfil em linkedin.com/in, já logado, e role até o fim pra carregar as seções.</li>
-						<li>Clique no ícone da extensão e em “Ler esta página”. Repita nas páginas “Mostrar tudo” de competências e certificações.</li>
-						<li>Clique em “Enviar para o app”. O app precisa estar aberto; a extensão se pareia sozinha.</li>
-					</ol>
+					<p>
+						Na aba Análise, clique em <strong>Analisar meu LinkedIn</strong>. A extensão abre o seu perfil em segundo plano, lê e envia sozinha. Só precisa
+						estar com o LinkedIn logado neste navegador.
+					</p>
+					<p className="field-hint">Para ler à mão, abra o seu perfil, clique no ícone da extensão e em “Ler esta página”, repita nas páginas “Mostrar tudo” e clique em “Enviar para o app”.</p>
+				</div>
+			</section>
+			<section className="panel">
+				<div className="panel-header">
+					<h2>Ou importe o PDF do seu perfil</h2>
+					<p>Sem instalar nada. O PDF é lido com a IA configurada no app e depois não fica guardado.</p>
+				</div>
+				<div className="panel-body">
+					<PdfImport onImport={(file) => void importPdf(file)} busy={importing} />
+					{importing && <p className="field-hint">Lendo o PDF...</p>}
+					{imported && <StateMessage variant="empty" message={imported} />}
 				</div>
 			</section>
 			<section className="panel">
@@ -137,7 +124,7 @@ function SnapshotSummary({ snapshot }: { snapshot: LinkedInSnapshotResponse }) {
 				<h3>{snapshot.profile.fullName ?? "Perfil sem nome"}</h3>
 				{snapshot.profile.headline && <p>{snapshot.profile.headline}</p>}
 				<p className="field-hint">
-					Lido em {formatCapturedAt(snapshot.capturedAt)} <Badge tone="info">{snapshot.source === "EXTENSION" ? "Extensão" : "Texto"}</Badge>
+					Lido em {formatCapturedAt(snapshot.capturedAt)} <Badge tone="info">{SOURCE_LABELS[snapshot.source]}</Badge>
 				</p>
 				{snapshot.missingSections.length > 0 && (
 					<>

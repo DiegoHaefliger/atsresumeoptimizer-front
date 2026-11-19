@@ -6,6 +6,9 @@ const SOURCE_LABELS: Record<string, string> = {
 	INFOJOBS: "InfoJobs",
 	VAGAS: "Vagas.com",
 	REMOTAR: "Remotar",
+	JOBICY: "Jobicy",
+	HIMALAYAS: "Himalayas",
+	GETONBOARD: "Get on Board",
 };
 
 const LINK_LABELS: Record<string, string> = {
@@ -16,6 +19,9 @@ const LINK_LABELS: Record<string, string> = {
 	INFOJOBS: "Abrir no InfoJobs",
 	VAGAS: "Abrir no Vagas.com",
 	REMOTAR: "Abrir no Remotar",
+	JOBICY: "Abrir no Jobicy",
+	HIMALAYAS: "Abrir no Himalayas",
+	GETONBOARD: "Abrir no Get on Board",
 };
 
 export function sourceLabel(source: string | undefined): string {
@@ -33,6 +39,9 @@ const SITE_PATTERNS: { host: RegExp; label: string }[] = [
 	{ host: /(^|\.)infojobs\.com\.br$/, label: "InfoJobs" },
 	{ host: /(^|\.)vagas\.com\.br$/, label: "Vagas.com" },
 	{ host: /(^|\.)remotar\.com\.br$/, label: "Remotar" },
+	{ host: /(^|\.)jobicy\.com$/, label: "Jobicy" },
+	{ host: /(^|\.)himalayas\.app$/, label: "Himalayas" },
+	{ host: /(^|\.)getonbrd\.com$/, label: "Get on Board" },
 ];
 
 const LINKEDIN_POST_PATH = /^\/(posts|feed\/update|pulse)\//;

@@ -1,17 +1,20 @@
 {
   "manifest_version": 3,
   "name": "ATS Resume Optimizer - Perfil do LinkedIn",
-  "version": "0.1.0",
-  "description": "Lê o seu próprio perfil aberto no LinkedIn e envia para o ATS Resume Optimizer analisar.",
+  "version": "0.3.12",
+  "description": "Lê o seu próprio perfil no LinkedIn e envia para o ATS Resume Optimizer analisar, sozinha quando você pede a análise no app.",
   "permissions": [
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "offscreen",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "http://localhost/*",
     "http://127.0.0.1/*",
-    "https://media.licdn.com/*"
+    "https://media.licdn.com/*",
+    "https://*.linkedin.com/*"
   ],
   "action": {
     "default_title": "Analisar meu LinkedIn",
@@ -28,5 +31,54 @@
     "32": "icons/icon.png",
     "48": "icons/icon.png",
     "128": "icons/icon.png"
-  }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://*.linkedin.com/in/*"
+      ],
+      "js": [
+        "no-autorun.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.linkedin.com/in/*"
+      ],
+      "js": [
+        "extract.js",
+        "page-reader.js",
+        "frame-reader.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.linkedin.com/in/*"
+      ],
+      "js": [
+        "frame-shim.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
 }

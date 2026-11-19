@@ -20,6 +20,10 @@
 	const CONTACT_LINE = /dados de contato|contact info/i
 	const SEPARATOR_LINE = /^[·•]$|^\(?\d+º/
 	const FOLLOWER_LINE = /seguidores|followers/i
+	const EMPTY_SECTION = /nenhuma novidade por enquanto|nothing to see for now|nada que ver por ahora/i
+	const PERIOD_RANGE = /\d{4}\s*[–-]\s*(\d{4}|o momento|atual|present|[a-z]{3}\.? de \d{4})/i
+	const FILTERED_SECTIONS = ['skills', 'recommendations']
+	const TAB_LABELS = /^(recebidas|fornecidas|received|given|recibidas|dadas)$/i
 	const MAX_PERIOD_LENGTH = 80
 	const MAX_ACTIVITY = 10
 	const MAX_ACTIVITY_CHARS = 600
@@ -89,6 +93,14 @@
 		}))
 	}
 
+	function splitFlat(lines) {
+		const starts = lines.flatMap((line, index) => (index > 0 && line.length < MAX_PERIOD_LENGTH && PERIOD_RANGE.test(line) ? [index - 1] : []))
+		if (starts.length === 0) {
+			return [lines]
+		}
+		return starts.map((start, index) => lines.slice(start, starts[index + 1]))
+	}
+
 	function parseItems(key, items) {
 		switch (key) {
 			case 'experience':
@@ -98,7 +110,7 @@
 			case 'certifications':
 			case 'projects':
 			case 'publications':
-				return items.map((lines) => entryFrom(lines))
+				return items.flatMap(splitFlat).map((lines) => entryFrom(lines))
 			case 'skills':
 				return items.map((lines) => lines[0])
 			case 'languages':
@@ -107,15 +119,32 @@
 				return items.map((lines) => lines.slice(0, 3).join(' - '))
 			case 'activity':
 				return items.filter((lines) => !FOLLOWER_LINE.test(lines[0])).slice(0, MAX_ACTIVITY).map((lines) => lines.join('\n').slice(0, MAX_ACTIVITY_CHARS))
+			case 'recommendations':
+				return items.map((lines) => lines.filter((line) => !TAB_LABELS.test(line)).join('\n'))
 			default:
 				return items.map((lines) => lines.join('\n'))
 		}
 	}
 
+	function withoutFilterTabs(container) {
+		const clone = container.cloneNode(true)
+		clone.querySelectorAll('nav').forEach((nav) => nav.remove())
+		return clone
+	}
+
+	function isSectionTitle(key, line) {
+		return Boolean(line) && HEADINGS[key].includes(fold(line))
+	}
+
 	function parseSection(key, container) {
+		if (key !== 'about' && EMPTY_SECTION.test(container.textContent)) {
+			return []
+		}
 		const heading = container.querySelector('h1, h2')
-		const items = buckets(container)
+		const source = FILTERED_SECTIONS.includes(key) ? withoutFilterTabs(container) : container
+		const items = buckets(source)
 			.map((lines) => (heading && fold(lines[0]) === fold(heading.textContent) ? lines.slice(1) : lines))
+			.map((lines) => (isSectionTitle(key, lines[0]) ? lines.slice(1) : lines))
 			.filter((lines) => lines.length)
 		return key === 'about' ? items.map((lines) => lines.join('\n')).join('\n') || null : parseItems(key, items)
 	}
@@ -173,10 +202,20 @@
 		return [...byKey.entries()]
 	}
 
+	function listSection(main, key) {
+		const candidates = [...main.querySelectorAll('section')]
+		const titled = candidates.find((section) => {
+			const firstLine = (section.innerText || section.textContent || '').trim().split('\n')[0]
+			return isSectionTitle(key, firstLine.trim())
+		})
+		const largest = [...candidates].sort((a, b) => b.textContent.length - a.textContent.length)[0]
+		return titled || largest || main
+	}
+
 	function detailTarget(doc, slug) {
 		const main = doc.querySelector('main')
 		const key = sectionKey(slug.replace(/-/g, ' ')) || sectionKey((main && main.querySelector('h1, h2') || { textContent: '' }).textContent)
-		return key && main ? [[key, main]] : []
+		return key && main ? [[key, listSection(main, key)]] : []
 	}
 
 	function extract(doc, location) {
@@ -200,5 +239,6 @@
 	if (typeof module === 'object' && module.exports) {
 		module.exports = { extract, sectionKey, fold }
 	}
-	return typeof document !== 'undefined' && root.location ? extract(document, root.location) : null
+	root.atsExtract = extract
+	return typeof document !== 'undefined' && root.location && !root.atsNoAutorun ? extract(document, root.location) : null
 })(typeof globalThis !== 'undefined' ? globalThis : this)

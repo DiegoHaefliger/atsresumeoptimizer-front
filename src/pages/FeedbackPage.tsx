@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { FeedbackAttachments } from "../components/FeedbackAttachments";
 import { CheckCircleIcon, LockIcon, SpinnerIcon } from "../components/icons";
@@ -9,10 +9,16 @@ import { canSubmit, EMPTY_DRAFT, MAX_MESSAGE, MESSAGE_PLACEHOLDER, toRequest, ty
 import { markRated } from "../lib/feedbackPrompt";
 import { useAppVersion } from "../lib/useAppVersion";
 
+function initialRating(raw: string | null): number {
+	const rating = Number(raw);
+	return Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : 0;
+}
+
 export function FeedbackPage() {
 	const navigate = useNavigate();
 	const appVersion = useAppVersion()?.current ?? null;
-	const [draft, setDraft] = useState<FeedbackDraft>(EMPTY_DRAFT);
+	const [searchParams] = useSearchParams();
+	const [draft, setDraft] = useState<FeedbackDraft>(() => ({ ...EMPTY_DRAFT, rating: initialRating(searchParams.get("rating")) }));
 	const [files, setFiles] = useState<File[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);

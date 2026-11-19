@@ -26,6 +26,7 @@ type ResumeEditorProps = {
 	onContentChange: (content: StructuredResume) => void;
 	onContactChange: (contact: ResumeContact) => void;
 	editableSections?: boolean;
+	removableSections?: boolean;
 };
 
 const CONTACT_FIELDS: { key: keyof ResumeContact; label: string }[] = [
@@ -43,6 +44,7 @@ export function ResumeEditor({
 	onContentChange,
 	onContactChange,
 	editableSections = false,
+	removableSections = false,
 }: ResumeEditorProps) {
 	const sections = content.sections ?? [];
 	const [pendingRemoval, setPendingRemoval] = useState<number | null>(null);
@@ -124,28 +126,32 @@ export function ResumeEditor({
 					<legend className="sr-only">{section.title || "Seção sem título"}</legend>
 					<div className="resume-editor-section-header">
 						<h3 className="resume-editor-section-title">{section.title || "Seção sem título"}</h3>
-						{editableSections && (
+						{(editableSections || removableSections) && (
 							<div className="resume-editor-section-actions">
-								<button
-									type="button"
-									className="btn-icon"
-									aria-label={`Mover seção ${section.title ?? ""} para cima`}
-									disabled={index === 0}
-									data-move-offset={-1}
-									onClick={() => moveSection(index, -1)}
-								>
-									<ChevronUpIcon />
-								</button>
-								<button
-									type="button"
-									className="btn-icon"
-									aria-label={`Mover seção ${section.title ?? ""} para baixo`}
-									disabled={index === sections.length - 1}
-									data-move-offset={1}
-									onClick={() => moveSection(index, 1)}
-								>
-									<ChevronDownIcon />
-								</button>
+								{editableSections && (
+									<>
+										<button
+											type="button"
+											className="btn-icon"
+											aria-label={`Mover seção ${section.title ?? ""} para cima`}
+											disabled={index === 0}
+											data-move-offset={-1}
+											onClick={() => moveSection(index, -1)}
+										>
+											<ChevronUpIcon />
+										</button>
+										<button
+											type="button"
+											className="btn-icon"
+											aria-label={`Mover seção ${section.title ?? ""} para baixo`}
+											disabled={index === sections.length - 1}
+											data-move-offset={1}
+											onClick={() => moveSection(index, 1)}
+										>
+											<ChevronDownIcon />
+										</button>
+									</>
+								)}
 								<RemoveButton label={`Remover seção ${section.title ?? ""}`} onClick={() => setPendingRemoval(index)} />
 							</div>
 						)}

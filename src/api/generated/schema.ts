@@ -1414,7 +1414,7 @@ export interface components {
             searchEnabled?: boolean;
             /** Format: int32 */
             searchCron?: string;
-            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR" | "JOBICY" | "HIMALAYAS" | "GETONBOARD")[];
         };
         JobPreferenceResponse: {
             workModels?: ("REMOTE" | "HYBRID" | "ON_SITE")[];
@@ -1437,7 +1437,7 @@ export interface components {
             searchEnabled?: boolean;
             /** Format: int32 */
             searchCron?: string;
-            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR")[];
+            searchSites?: ("LINKEDIN" | "GUPY" | "PROGRAMATHOR" | "INFOJOBS" | "VAGAS" | "REMOTAR" | "JOBICY" | "HIMALAYAS" | "GETONBOARD")[];
         };
         ImportPostRequest: {
             url: string;

@@ -1,3 +1,4 @@
+import { recordValueEvent } from "../lib/feedbackPrompt";
 import { apiDownload } from "./client";
 
 export type ResumeExportFormat = "PDF" | "DOCX";
@@ -14,4 +15,5 @@ export async function downloadResume(resumeId: string | undefined, versionId: st
 	link.download = fileName;
 	link.click();
 	URL.revokeObjectURL(url);
+	recordValueEvent();
 }

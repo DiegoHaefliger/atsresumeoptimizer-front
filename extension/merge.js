@@ -30,7 +30,7 @@ export const SECTION_LABELS = {
 	banner: 'Banner',
 }
 
-function hasValue(value) {
+export function hasValue(value) {
 	return Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && value !== ''
 }
 

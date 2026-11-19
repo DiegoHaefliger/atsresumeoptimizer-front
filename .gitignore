@@ -27,3 +27,5 @@ blob-report/
 .DS_Store
 
 public/ats-linkedin-extension.zip
+public/ats-linkedin-extension.json
+.vitest/

@@ -2,6 +2,7 @@ import type { LinkedInAnalysisResponse } from "../../api/linkedinTypes";
 import { formatCapturedAt } from "../../lib/linkedinLabels";
 import { scoreDelta, weakestFirst } from "../../lib/linkedinSections";
 import { ScoreRing } from "../ScoreRing";
+import { ProfileChecksCard } from "./ProfileChecksCard";
 import { SectionReviewCard } from "./SectionReviewCard";
 
 export function AnalysisResult({ analysis, previousScore }: { analysis: LinkedInAnalysisResponse; previousScore?: number }) {
@@ -35,6 +36,7 @@ export function AnalysisResult({ analysis, previousScore }: { analysis: LinkedIn
 					</ol>
 				</section>
 			)}
+			<ProfileChecksCard checks={analysis.checks ?? []} />
 			<section className="panel">
 				<div className="panel-header">
 					<h2>Palavras-chave de recrutador</h2>

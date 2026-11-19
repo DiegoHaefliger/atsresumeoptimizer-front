@@ -25,6 +25,9 @@ describe("suggestionLabels", () => {
 		expect(siteLabel("https://www.infojobs.com.br/vaga-de-dev__1.aspx")).toBe("InfoJobs");
 		expect(siteLabel("https://www.vagas.com.br/vagas/v1/dev")).toBe("Vagas.com");
 		expect(siteLabel("https://remotar.com.br/job/168194")).toBe("Remotar");
+		expect(siteLabel("https://jobicy.com/jobs/163199-implementation-architect")).toBe("Jobicy");
+		expect(siteLabel("https://himalayas.app/companies/acme/jobs/java-dev-1")).toBe("Himalayas");
+		expect(siteLabel("https://www.getonbrd.com/jobs/programming/java-dev-acme")).toBe("Get on Board");
 		expect(siteLabel("https://example.com/vaga")).toBeNull();
 		expect(siteLabel("nao e url")).toBeNull();
 		expect(siteLabel(undefined)).toBeNull();
