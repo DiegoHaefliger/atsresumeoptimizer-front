@@ -64,7 +64,8 @@
 		}
 		await wait(SETTLE_MS)
 		await scrollToEnd()
-		return { rendered: true, result: await extractWhenFilled() }
+		const result = await extractWhenFilled()
+		return { rendered: true, result, debug: { visibility: document.visibilityState, textLength: mainText().length, headings: [...document.querySelectorAll('main h2')].length } }
 	}
 
 	root.atsPage = { read }

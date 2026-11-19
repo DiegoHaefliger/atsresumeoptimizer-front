@@ -49,7 +49,7 @@ export class FrameReader {
 			pending.started = true
 			this.log({ event: 'frame-started', path: message.path })
 		} else if (message.type === 'frame-read') {
-			this.log({ event: 'frame-read', path: message.path, rendered: message.reading?.rendered, found: message.reading?.result?.found })
+			this.log({ event: 'frame-read', path: message.path, rendered: message.reading?.rendered, found: message.reading?.result?.found, debug: message.reading?.debug })
 			pending.resolve(message.reading)
 		}
 	}
