@@ -5,7 +5,7 @@ const EXTENSION = "ats-extension";
 const PING_TIMEOUT_MS = 1200;
 const CAPTURE_TIMEOUT_MS = 180_000;
 
-export const MIN_EXTENSION_VERSION = "0.3.3";
+export const MIN_EXTENSION_VERSION = "0.3.4";
 
 export type ExtensionStatus = "missing" | "outdated" | "current";
 

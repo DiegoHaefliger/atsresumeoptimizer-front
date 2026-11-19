@@ -26,7 +26,7 @@ Depois de atualizar a extensão (permissões novas), recarregue-a em `chrome://e
 
 ## Como funciona o automático
 
-`bridge.js` roda nas páginas do app (`localhost`) e repassa o pedido do app para `background.js`. `capture.js` lê cada página numa aba inativa. Experimental e desligado por padrão: com `chrome.storage.local.set({ hiddenFrames: true })` no console do service worker, ele lê primeiro num iframe de um documento offscreen (`frame.js`, `offscreen.js`, `frame-reader.js`), sem abrir aba: uma regra `declarativeNetRequest` remove `X-Frame-Options` e `Content-Security-Policy` só das requisições de iframe feitas pela própria extensão. Se o iframe falhar, cai para uma aba inativa e, se a página não renderizar, para uma aba visível. Em ambos, `page-reader.js` espera renderizar e rola até carregar, `extract.js` extrai e o resultado é juntado. O envio usa o mesmo `api.js` da leitura manual.
+`bridge.js` roda nas páginas do app (`localhost`) e repassa o pedido do app para `background.js`. `capture.js` abre cada página numa aba ativa (o LinkedIn só renderiza todas as seções em aba visível), devolve o foco à aba em que o usuário estava e, em cada página, `page-reader.js` espera renderizar e rola até carregar, e `extract.js` extrai. Experimental e desligado por padrão: com `chrome.storage.local.set({ hiddenFrames: true })` no console do service worker, a leitura tenta antes um iframe num documento offscreen (`frame.js`, `offscreen.js`, `frame-reader.js`), mas ele não renderiza as páginas de detalhe. O envio usa o mesmo `api.js` da leitura manual.
 
 ## Manutenção
 

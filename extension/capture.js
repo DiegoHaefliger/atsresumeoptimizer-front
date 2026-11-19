@@ -41,7 +41,7 @@ function waitUntilLoaded(chromeApi, tabId) {
 	})
 }
 
-export async function readPage(chromeApi, url, pause = sleep, { visible = false } = {}) {
+export async function readPage(chromeApi, url, pause = sleep, { visible = true } = {}) {
 	const tab = await chromeApi.tabs.create({ url, active: visible })
 	try {
 		await waitUntilLoaded(chromeApi, tab.id)
@@ -74,23 +74,15 @@ export function adaptiveReader(frameReader) {
 				console.info('[ats-linkedin] iframe falhou, usando aba', url, error.code || error.message)
 			}
 		}
-		console.info('[ats-linkedin] aba', url, options?.visible ? '(visível)' : '(fundo)')
+		console.info('[ats-linkedin] aba', url)
 		return readPage(chromeApi, url, pause, options)
 	}
 }
 
-async function readWithFallback(read, chromeApi, url, pause) {
-	try {
-		return await read(chromeApi, url, pause)
-	} catch (error) {
-		if (error.code !== 'not-rendered') {
-			throw error
-		}
-		return restoringActiveTab(chromeApi, () => read(chromeApi, url, pause, { visible: true }))
-	}
-}
-
 async function restoringActiveTab(chromeApi, action) {
+	if (!chromeApi.tabs?.query) {
+		return action()
+	}
 	const [previous] = await chromeApi.tabs.query({ active: true, lastFocusedWindow: true })
 	try {
 		return await action()
@@ -106,13 +98,17 @@ export async function captureProfile({ chromeApi, profileUrl, onProgress = () =>
 	if (!base) {
 		throw new CaptureError('no-profile', 'Não sei qual é o seu perfil. Abra-o no LinkedIn uma vez e tente de novo.')
 	}
+	return restoringActiveTab(chromeApi, () => readAllPages({ chromeApi, base, onProgress, pause, read }))
+}
+
+async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 	const pages = pagesToRead(base)
 	let draft = emptyDraft()
 	for (const [index, url] of pages.entries()) {
 		onProgress({ step: index + 1, total: pages.length })
 		const isMainPage = index === 0
 		try {
-			const capture = await readWithFallback(read, chromeApi, url, pause)
+			const capture = await read(chromeApi, url, pause)
 			if (capture) {
 				draft = mergeCapture(draft, capture)
 			}

@@ -70,25 +70,14 @@ describe('captureProfile', () => {
 		expect(draft.profile.headline).toBe('Dev')
 	})
 
-	it('retries a page that did not render in the background with a visible tab and restores the active one', async () => {
+	it('restores the tab the user was on once the capture is over', async () => {
 		const update = vi.fn(async () => {})
 		const chromeApi = { tabs: { query: vi.fn(async () => [{ id: 7 }]), update } }
-		const read = vi.fn(async (_chrome, url, _pause, options) => {
-			if (url.endsWith('/ana/')) {
-				return { profile: { headline: 'Dev' }, photoUrl: null, bannerUrl: null }
-			}
-			if (url.includes('skills')) {
-				if (!options?.visible) {
-					throw new CaptureError('not-rendered', 'fundo')
-				}
-				return { profile: { skills: ['Java'] }, photoUrl: null, bannerUrl: null }
-			}
-			return null
-		})
+		const read = vi.fn(async (_chrome, url) => (url.endsWith('/ana/') ? { profile: { headline: 'Dev' }, photoUrl: null, bannerUrl: null } : null))
 
-		const draft = await captureProfile({ chromeApi, profileUrl, pause: noPause, read })
+		await captureProfile({ chromeApi, profileUrl, pause: noPause, read })
 
-		expect(draft.profile.skills).toEqual(['Java'])
+		expect(update).toHaveBeenCalledTimes(1)
 		expect(update).toHaveBeenCalledWith(7, { active: true })
 	})
 
@@ -127,12 +116,12 @@ describe('readPage', () => {
 		}
 	}
 
-	it('reads the page in a background tab and closes it', async () => {
+	it('reads the page in a visible tab so LinkedIn renders every section, and closes it', async () => {
 		const chromeApi = fakeChrome('https://www.linkedin.com/in/ana/')
 
 		const result = await readPage(chromeApi, 'https://www.linkedin.com/in/ana/', noPause)
 
-		expect(chromeApi.tabs.create).toHaveBeenCalledWith({ url: 'https://www.linkedin.com/in/ana/', active: false })
+		expect(chromeApi.tabs.create).toHaveBeenCalledWith({ url: 'https://www.linkedin.com/in/ana/', active: true })
 		expect(result.profile.headline).toBe('Dev')
 		expect(chromeApi.remove).toHaveBeenCalledWith(7)
 	})
