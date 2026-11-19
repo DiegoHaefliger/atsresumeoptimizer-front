@@ -48,6 +48,15 @@ afterEach(() => {
 	vi.clearAllMocks();
 });
 
+function withoutAnySnapshot() {
+	vi.mocked(apiGet).mockImplementation(async (path: string) => {
+		if (path.endsWith("/snapshots/latest") || path.endsWith("/analyses/latest")) {
+			throw new ApiError("não achou", 404);
+		}
+		return [];
+	});
+}
+
 function renderPanel() {
 	render(<AnalysisPanel hasProfile hasSnapshot onGoTo={() => {}} />);
 }
@@ -86,6 +95,35 @@ describe("AnalysisPanel", () => {
 		expect((options[0] as HTMLInputElement).checked).toBe(true);
 		expect(options[1].getAttribute("value")).toBe("pdf1");
 		expect(screen.getByText(/mais recente/)).toBeTruthy();
+	});
+
+	it("does not block the analysis when the extension does not answer and a reading already exists", async () => {
+		withReadings();
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		await screen.findAllByRole("radio");
+
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "ext1" }));
+		await screen.findByText(/atualize-a na aba Dados do LinkedIn\), então usei a leitura da extensão de/);
+		expect(screen.queryByText("Instale a extensão para ler o seu perfil sozinho")).toBeNull();
+		expect(screen.queryByText("Atualize a extensão para ler o seu perfil sozinho")).toBeNull();
+	});
+
+	it("falls back to the chosen reading when the extension cannot read the profile", async () => {
+		withReadings();
+		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(captureWithExtension).mockRejectedValue(new CaptureFailedError("Entre no LinkedIn neste navegador.", "login-required"));
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		await screen.findAllByRole("radio");
+
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "ext1" }));
+		await screen.findByText(/Entre no LinkedIn neste navegador\.\), então usei a leitura da extensão de/);
 	});
 
 	it("analyzes the chosen pdf reading as it is, without reading the profile again", async () => {
@@ -150,6 +188,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("imports the exported pdf and analyzes the snapshot it produced", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		vi.mocked(apiPostForm).mockResolvedValue({ id: "s7", unchanged: false, changedSections: ["HEADLINE"] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
@@ -167,6 +206,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("shows the reason when the pdf cannot be read and keeps the options open", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		vi.mocked(apiPostForm).mockRejectedValue(new ApiError("Este arquivo não parece ser o PDF do seu perfil do LinkedIn.", 400));
 		renderPanel();
@@ -206,26 +246,29 @@ describe("AnalysisPanel", () => {
 		expect(screen.queryByText("Instale a extensão para ler o seu perfil sozinho")).toBeNull();
 	});
 
-	it("asks to update the extension when the user already read the profile through it before", async () => {
-		vi.mocked(apiGet).mockImplementation(async (path: string) => {
-			if (path.endsWith("/snapshots/latest")) {
-				return { id: "s1", source: "EXTENSION", capturedAt: "2026-11-19T11:00:00Z", profile: {} };
-			}
-			if (path.endsWith("/analyses/latest")) {
-				throw new ApiError("não achou", 404);
-			}
-			return [];
-		});
+	it("asks to update the extension only when there is no reading at all to analyze", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		renderPanel();
 
 		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
 
-		await screen.findByText("Atualize a extensão para ler o seu perfil sozinho");
-		expect(screen.getByRole("button", { name: /Baixar a versão nova/ })).toBeTruthy();
+		await screen.findByText("Instale a extensão para ler o seu perfil sozinho");
+		expect(apiPostJson).not.toHaveBeenCalled();
+	});
+
+	it("analyzes the latest reading when the selector has nothing but a snapshot exists and the extension does not answer", async () => {
+		vi.mocked(pingExtension).mockResolvedValue(false);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+
+		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s1" }));
 	});
 
 	it("starts the analysis on its own once the extension shows up", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
@@ -239,6 +282,7 @@ describe("AnalysisPanel", () => {
 	}, 10000);
 
 	it("offers to open LinkedIn when the user is not logged in and retries by itself when they come back", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(true);
 		vi.mocked(captureWithExtension).mockRejectedValueOnce(new CaptureFailedError("Entre no LinkedIn neste navegador e tente de novo.", "login-required"));
 		vi.mocked(captureWithExtension).mockResolvedValue({ id: "s2", unchanged: false, changedSections: [] } as never);
@@ -279,6 +323,7 @@ describe("AnalysisPanel", () => {
 	});
 
 	it("does not analyze without a fresh reading when the extension is missing", async () => {
+		withoutAnySnapshot();
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		renderPanel();
 

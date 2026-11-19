@@ -9,11 +9,9 @@ const SNAPSHOT_LATEST_PATH = "/api/v1/linkedin/snapshots/latest";
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
 const ARMED_KEY = "linkedin-analysis-armed-at";
 const ARMED_MAX_AGE_MS = 30 * 60 * 1000;
-const RECENT_SNAPSHOT_MS = 10 * 60 * 1000;
 const POLL_MS = 3000;
 const CLOCK_TOLERANCE_MS = 2000;
 export const NO_EXTENSION_CODE = "no-extension";
-export const OUTDATED_EXTENSION_CODE = "outdated-extension";
 const EXTENSION_PROBE_MS = 2500;
 
 export type ChosenReading = { id: string; source: string; capturedAt: string };
@@ -37,7 +35,7 @@ async function latestSnapshot(): Promise<LinkedInSnapshotResponse | null> {
 }
 
 export function isMissingExtension(code: string | null): boolean {
-	return code === NO_EXTENSION_CODE || code === OUTDATED_EXTENSION_CODE;
+	return code === NO_EXTENSION_CODE;
 }
 
 function readArmedAt(): number | null {
@@ -61,6 +59,12 @@ function writeArmedAt(value: number | null) {
 	}
 }
 
+const SOURCE_NAMES: Record<string, string> = { EXTENSION: "da extensão", PDF: "do PDF", TEXT: "do texto colado" };
+
+function fallbackNote(reading: ChosenReading, reason: string): string {
+	return `Não consegui ler o seu perfil agora (${reason}), então usei a leitura ${SOURCE_NAMES[reading.source] ?? ""} de ${formatCapturedAt(reading.capturedAt)}.`;
+}
+
 function noticeFor(analysis: LinkedInAnalysisResponse, changed: ProfileSection[]): string | null {
 	if (analysis.unchanged) {
 		return `Seu perfil não mudou desde a última leitura. Esta é a análise de ${formatCapturedAt(analysis.createdAt)}.`;
@@ -79,15 +83,28 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 	const pollBusy = useRef(false);
 
 	const analyze = useCallback(
-		async (snapshotId: string, changed: ProfileSection[]) => {
+		async (snapshotId: string, changed: ProfileSection[], note?: string) => {
 			setPhase({ kind: "analyzing" });
 			const analysis = await apiPostJson<LinkedInAnalysisResponse>(ANALYSES_PATH, { snapshotId });
 			writeArmedAt(null);
-			setNotice(noticeFor(analysis, changed));
+			setNotice([note, noticeFor(analysis, changed)].filter(Boolean).join(" ") || null);
 			onAnalysis(analysis);
 			setPhase({ kind: "idle" });
 		},
 		[onAnalysis],
+	);
+
+	const analyzeFallback = useCallback(
+		async (reading: ChosenReading, reason: string) => {
+			try {
+				await analyze(reading.id, [], fallbackNote(reading, reason));
+			} catch (err) {
+				writeArmedAt(null);
+				setError(errorMessage(err, "Não deu pra analisar o perfil. Tenta de novo."));
+				setPhase({ kind: "idle" });
+			}
+		},
+		[analyze],
 	);
 
 	const run = useCallback(async (reading?: ChosenReading | null) => {
@@ -107,14 +124,16 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		setError(null);
 		setNotice(null);
 		setPhase({ kind: "capturing", progress: null });
+		let fallback: ChosenReading | null = reading ?? null;
 		try {
 			const latest = await latestSnapshot();
+			fallback = fallback ?? (latest ? { id: latest.id, source: latest.source, capturedAt: latest.capturedAt } : null);
 			if (!(await pingExtension())) {
-				if (reading && Date.now() - new Date(reading.capturedAt).getTime() < RECENT_SNAPSHOT_MS) {
-					await analyze(reading.id, []);
+				if (fallback) {
+					await analyze(fallback.id, [], fallbackNote(fallback, "a extensão não respondeu; se for a versão antiga, atualize-a na aba Dados do LinkedIn"));
 					return;
 				}
-				setPhase({ kind: "waiting", reason: "", code: latest?.source === "EXTENSION" ? OUTDATED_EXTENSION_CODE : NO_EXTENSION_CODE });
+				setPhase({ kind: "waiting", reason: "", code: NO_EXTENSION_CODE });
 				return;
 			}
 			const capture = await captureWithExtension({
@@ -124,6 +143,10 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 			await analyze(capture.id, capture.changedSections);
 		} catch (err) {
 			if (err instanceof CaptureFailedError) {
+				if (fallback) {
+					await analyzeFallback(fallback, err.message);
+					return;
+				}
 				setPhase({ kind: "waiting", reason: err.message, code: err.code });
 				return;
 			}
@@ -131,7 +154,7 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 			setError(errorMessage(err, "Não deu pra analisar o perfil. Tenta de novo."));
 			setPhase({ kind: "idle" });
 		}
-	}, [analyze]);
+	}, [analyze, analyzeFallback]);
 
 	const importPdf = useCallback(
 		async (file: File) => {

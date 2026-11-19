@@ -62,7 +62,7 @@ export function LinkedInDataPanel({ onSnapshotLoaded }: { onSnapshotLoaded?: (sn
 			{error && <StateMessage variant="error" message={error} />}
 			<section className="panel">
 				<div className="panel-header">
-					<h2>1. Instale a extensão do Chrome (uma vez só)</h2>
+					<h2>1. Instale ou atualize a extensão do Chrome</h2>
 					<p>Ela lê só a página do LinkedIn que você abrir, sem guardar senha nem cookie.</p>
 				</div>
 				<div className="panel-body">
