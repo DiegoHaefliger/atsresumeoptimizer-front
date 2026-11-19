@@ -389,7 +389,7 @@ export function RewritePage() {
 					) : view === "document" ? (
 						<>
 							<p className="diff-legend">
-								Clique no texto da folha para editar. Para adicionar ou remover itens, use a aba Editar campos.
+								Clique no texto da folha para editar. Para adicionar ou remover itens e seções, use a aba Editar campos.
 							</p>
 							<DocumentEditor
 								content={content}
@@ -405,6 +405,7 @@ export function RewritePage() {
 							contact={contact}
 							onContentChange={editContent}
 							onContactChange={editContact}
+							removableSections
 						/>
 					)}
 				</section>
