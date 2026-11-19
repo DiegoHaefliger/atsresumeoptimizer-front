@@ -28,3 +28,4 @@ blob-report/
 
 public/ats-linkedin-extension.zip
 public/ats-linkedin-extension.json
+.vitest/
