@@ -65,6 +65,14 @@ export type LinkedInCaptureResponse = LinkedInSnapshotResponse & {
 	changedSections: ProfileSection[];
 };
 
+export type LinkedInSnapshotSummaryResponse = {
+	id: string;
+	capturedAt: string;
+	source: SnapshotSource;
+	fullName?: string;
+	headline?: string;
+};
+
 export type PairingTokenResponse = { token: string };
 
 export type SuggestionPriority = "HIGH" | "MEDIUM" | "LOW";

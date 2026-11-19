@@ -8,7 +8,9 @@ import { StateMessage } from "../StateMessage";
 import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
+import { ReadingSelector } from "./ReadingSelector";
 import { useAnalysisRun } from "./useAnalysisRun";
+import { useReadings } from "./useReadings";
 
 const ANALYSES_PATH = "/api/v1/linkedin/analyses";
 
@@ -42,12 +44,15 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		setHistory(list);
 	}, []);
 
+	const { readings, selected, select, reload: reloadReadings } = useReadings();
+
 	const handleAnalysis = useCallback(
 		(created: LinkedInAnalysisResponse) => {
 			setAnalysis(created);
+			void reloadReadings();
 			loadHistory().catch((err) => setError(errorMessage(err, "Não deu pra carregar as análises.")));
 		},
-		[loadHistory],
+		[loadHistory, reloadReadings],
 	);
 	const { phase, notice, error: runError, run, importPdf, cancel } = useAnalysisRun(handleAnalysis);
 
@@ -87,8 +92,15 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			{!hasSnapshot && phase.kind === "idle" && (
 				<StateMessage variant="empty" message="O app lê o seu perfil no LinkedIn sozinho, pela extensão, quando você pede a análise." />
 			)}
+			<ReadingSelector
+				readings={readings}
+				selectedId={selected?.id ?? null}
+				onSelect={select}
+				onImportPdf={() => onGoTo("data")}
+				disabled={busy || waiting}
+			/>
 			<div className="linkedin-actions">
-				<button type="button" onClick={run} disabled={busy || waiting || !hasProfile} aria-busy={busy}>
+				<button type="button" onClick={() => void run(selected)} disabled={busy || waiting || !hasProfile} aria-busy={busy}>
 					<BusyLabel busy={busy} busyText={busyText(phase)}>
 						<SparklesIcon /> {analysis ? "Analisar de novo" : "Analisar meu LinkedIn"}
 					</BusyLabel>
@@ -106,7 +118,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					</label>
 				)}
 			</div>
-			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={run} onImportPdf={importPdf} onPaste={() => onGoTo("data")} onCancel={cancel} />}
+			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={() => void run(selected)} onImportPdf={importPdf} onPaste={() => onGoTo("data")} onCancel={cancel} />}
 			{notice && <StateMessage variant="empty" message={notice} />}
 			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
 			{loading && <p className="field-hint">Carregando...</p>}

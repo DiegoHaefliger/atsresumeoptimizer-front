@@ -53,6 +53,68 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
+	const READINGS = [
+		{ id: "pdf1", source: "PDF", capturedAt: "2026-11-19T10:00:00Z" },
+		{ id: "ext1", source: "EXTENSION", capturedAt: "2026-11-19T11:00:00Z" },
+		{ id: "ext0", source: "EXTENSION", capturedAt: "2026-11-18T09:00:00Z" },
+		{ id: "pdf0", source: "PDF", capturedAt: "2026-11-17T09:00:00Z" },
+	];
+
+	function withReadings() {
+		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/snapshots")) {
+				return READINGS;
+			}
+			if (path.endsWith("/snapshots/latest")) {
+				return { id: "ext1", source: "EXTENSION", capturedAt: READINGS[1].capturedAt, profile: { profileUrl: "https://www.linkedin.com/in/ana/" } };
+			}
+			if (path.endsWith("/analyses/latest")) {
+				throw new ApiError("não achou", 404);
+			}
+			return [];
+		});
+	}
+
+	it("offers only the last pdf and the last extension reading, the most recent first and selected", async () => {
+		withReadings();
+		renderPanel();
+
+		const options = await screen.findAllByRole("radio");
+
+		expect(options).toHaveLength(2);
+		expect(options[0].getAttribute("value")).toBe("ext1");
+		expect((options[0] as HTMLInputElement).checked).toBe(true);
+		expect(options[1].getAttribute("value")).toBe("pdf1");
+		expect(screen.getByText(/mais recente/)).toBeTruthy();
+	});
+
+	it("analyzes the chosen pdf reading as it is, without reading the profile again", async () => {
+		withReadings();
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+
+		fireEvent.click((await screen.findAllByRole("radio"))[1]);
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "pdf1" }));
+		expect(pingExtension).not.toHaveBeenCalled();
+		expect(captureWithExtension).not.toHaveBeenCalled();
+	});
+
+	it("reads the profile again through the extension when the extension reading is the chosen one", async () => {
+		withReadings();
+		vi.mocked(pingExtension).mockResolvedValue(true);
+		vi.mocked(captureWithExtension).mockResolvedValue({ id: "ext2", unchanged: false, changedSections: [] } as never);
+		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
+		renderPanel();
+		await screen.findAllByRole("radio");
+
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
+
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "ext2" }));
+		expect(captureWithExtension).toHaveBeenCalled();
+	});
+
 	it("says which reading the analysis used and what that source leaves out", async () => {
 		vi.mocked(apiGet).mockImplementation(async (path: string) => {
 			if (path.endsWith("/analyses/latest")) {
@@ -120,10 +182,13 @@ describe("AnalysisPanel", () => {
 		expect(apiPostJson).not.toHaveBeenCalled();
 	});
 
-	it("uses a reading imported in the last ten minutes when there is no extension", async () => {
+	it("uses an extension reading sent in the last ten minutes when the bridge does not answer", async () => {
 		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/snapshots")) {
+				return [{ id: "s9", source: "EXTENSION", capturedAt: new Date(Date.now() - 60_000).toISOString() }];
+			}
 			if (path.endsWith("/snapshots/latest")) {
-				return { id: "s9", source: "PDF", capturedAt: new Date(Date.now() - 60_000).toISOString(), profile: {} };
+				return { id: "s9", source: "EXTENSION", capturedAt: new Date(Date.now() - 60_000).toISOString(), profile: {} };
 			}
 			if (path.endsWith("/analyses/latest")) {
 				throw new ApiError("não achou", 404);
@@ -133,8 +198,9 @@ describe("AnalysisPanel", () => {
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
+		await screen.findAllByRole("radio");
 
-		fireEvent.click(await screen.findByRole("button", { name: /Analisar meu LinkedIn/ }));
+		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
 
 		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "s9" }));
 		expect(screen.queryByText("Instale a extensão para ler o seu perfil sozinho")).toBeNull();

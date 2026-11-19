@@ -16,6 +16,8 @@ export const NO_EXTENSION_CODE = "no-extension";
 export const OUTDATED_EXTENSION_CODE = "outdated-extension";
 const EXTENSION_PROBE_MS = 2500;
 
+export type ChosenReading = { id: string; source: string; capturedAt: string };
+
 export type RunPhase =
 	| { kind: "idle" }
 	| { kind: "capturing"; progress: CaptureProgress | null }
@@ -88,7 +90,18 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		[onAnalysis],
 	);
 
-	const run = useCallback(async () => {
+	const run = useCallback(async (reading?: ChosenReading | null) => {
+		if (reading?.source === "PDF") {
+			setError(null);
+			setNotice(null);
+			try {
+				await analyze(reading.id, []);
+			} catch (err) {
+				setError(errorMessage(err, "Não deu pra analisar o perfil. Tenta de novo."));
+				setPhase({ kind: "idle" });
+			}
+			return;
+		}
 		armedAt.current = Date.now();
 		writeArmedAt(armedAt.current);
 		setError(null);
@@ -97,8 +110,8 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 		try {
 			const latest = await latestSnapshot();
 			if (!(await pingExtension())) {
-				if (latest && Date.now() - new Date(latest.capturedAt).getTime() < RECENT_SNAPSHOT_MS) {
-					await analyze(latest.id, []);
+				if (reading && Date.now() - new Date(reading.capturedAt).getTime() < RECENT_SNAPSHOT_MS) {
+					await analyze(reading.id, []);
 					return;
 				}
 				setPhase({ kind: "waiting", reason: "", code: latest?.source === "EXTENSION" ? OUTDATED_EXTENSION_CODE : NO_EXTENSION_CODE });
