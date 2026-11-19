@@ -63,20 +63,20 @@ export async function readPage(chromeApi, url, pause = sleep, { visible = true }
 	}
 }
 
-export function adaptiveReader(frameReader) {
+export function adaptiveReader(frameReader, log = () => {}) {
 	let frameBroken = false
 	return async (chromeApi, url, pause, options) => {
 		if (frameReader && !frameBroken && !options?.visible) {
 			try {
 				const result = await frameReader.read(url)
-				console.info('[ats-linkedin] iframe oculto', url)
+				log({ event: 'read', method: 'iframe', url })
 				return result
 			} catch (error) {
 				frameBroken = true
-				console.info('[ats-linkedin] iframe falhou, usando aba', url, error.code || error.message)
+				log({ event: 'iframe-failed', url, code: error.code, message: error.message })
 			}
 		}
-		console.info('[ats-linkedin] aba', url)
+		log({ event: 'read', method: 'tab', url })
 		return readPage(chromeApi, url, pause, options)
 	}
 }

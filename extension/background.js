@@ -1,4 +1,5 @@
 import { adaptiveReader, captureProfile, CaptureError, profileBase } from './capture.js'
+import { createDevTools } from './dev.js'
 import { FrameReader } from './frame.js'
 import { sendSnapshot } from './api.js'
 
@@ -11,7 +12,8 @@ async function openProfileUrl() {
 	return found || null
 }
 
-const frameReader = new FrameReader(chrome)
+const dev = createDevTools(chrome)
+const frameReader = new FrameReader(chrome, dev.log)
 
 async function startFrameReader() {
 	const { hiddenFrames } = await chrome.storage.local.get('hiddenFrames')
@@ -29,17 +31,26 @@ async function startFrameReader() {
 
 chrome.runtime.onMessage.addListener((message, sender) => frameReader.handleMessage(message, sender))
 
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+	if (message.type !== 'dev') {
+		return false
+	}
+	dev.handle(message).then(sendResponse)
+	return true
+})
+
 async function run(port, request) {
 	const stored = await chrome.storage.local.get(['serverUrl', 'lastProfileUrl'])
 	const serverUrl = stored.serverUrl || DEFAULT_SERVER
 	const profileUrl = request.profileUrl || stored.lastProfileUrl || (await openProfileUrl())
+	dev.log({ event: 'capture-start', profileUrl, hiddenFrames: Boolean(await chrome.storage.local.get('hiddenFrames').then((stored) => stored.hiddenFrames)) })
 	const activeFrameReader = await startFrameReader()
 	let draft
 	try {
 		draft = await captureProfile({
 			chromeApi: chrome,
 			profileUrl,
-			read: adaptiveReader(activeFrameReader),
+			read: adaptiveReader(activeFrameReader, dev.log),
 			onProgress: (progress) => port.postMessage({ type: 'progress', ...progress }),
 		})
 	} finally {

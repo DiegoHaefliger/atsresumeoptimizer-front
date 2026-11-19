@@ -37,6 +37,11 @@
 			reply({ id: message.id, type: 'pong', version: chrome.runtime.getManifest().version })
 		} else if (message.type === 'capture') {
 			capture(message)
+		} else if (message.type === 'dev') {
+			chrome.runtime
+				.sendMessage({ type: 'dev', action: message.action, payload: message.payload })
+				.then((result) => reply({ id: message.id, type: 'dev-result', result }))
+				.catch((error) => reply({ id: message.id, type: 'dev-result', result: { error: String(error) } }))
 		}
 	})
 	reply({ type: 'ready' })

@@ -15,8 +15,9 @@ function frameRule(extensionId) {
 }
 
 export class FrameReader {
-	constructor(chromeApi) {
+	constructor(chromeApi, log = () => {}) {
 		this.chrome = chromeApi
+		this.log = log
 		this.pending = null
 	}
 
@@ -46,7 +47,9 @@ export class FrameReader {
 		}
 		if (message.type === 'frame-started') {
 			pending.started = true
+			this.log({ event: 'frame-started', path: message.path })
 		} else if (message.type === 'frame-read') {
+			this.log({ event: 'frame-read', path: message.path, rendered: message.reading?.rendered, found: message.reading?.result?.found })
 			pending.resolve(message.reading)
 		}
 	}
