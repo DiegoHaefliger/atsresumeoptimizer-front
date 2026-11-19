@@ -135,6 +135,7 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 		await pause(PAUSE_MS)
 	}
 	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen })
+	draft = await rereadMissing({ chromeApi, base, pause, read, draft, seen, options: { visible: true } })
 	const missingCore = seenButEmpty(draft, seen).filter((key) => CORE_SECTIONS.includes(key))
 	if (missingCore.length > 0) {
 		const names = missingCore.map((key) => SECTION_LABELS[fieldOf(key)]).join(', ')
@@ -143,12 +144,12 @@ async function readAllPages({ chromeApi, base, onProgress, pause, read }) {
 	return draft
 }
 
-async function rereadMissing({ chromeApi, base, pause, read, draft, seen }) {
+async function rereadMissing({ chromeApi, base, pause, read, draft, seen, options }) {
 	let current = draft
 	for (const key of seenButEmpty(draft, seen)) {
 		const url = DETAIL_PAGES.includes(key) ? `${base}details/${key}/` : base
 		try {
-			const capture = await read(chromeApi, url, pause)
+			const capture = await read(chromeApi, url, pause, options)
 			if (capture) {
 				current = mergeCapture(current, capture)
 			}

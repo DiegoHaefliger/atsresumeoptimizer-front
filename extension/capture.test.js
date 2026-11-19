@@ -100,6 +100,23 @@ describe('captureProfile', () => {
 		expect(skillReads).toBe(2)
 	})
 
+	it('falls back to a visible tab only for a section the hidden reads kept missing', async () => {
+		const read = vi.fn(async (_chrome, url, _pause, options) => {
+			if (url.endsWith('/ana/')) {
+				return { profile: { headline: 'Dev' }, found: ['skills'], photoUrl: null, bannerUrl: null }
+			}
+			if (url.includes('skills')) {
+				return { profile: { skills: options?.visible ? ['Java'] : [] }, found: ['skills'], photoUrl: null, bannerUrl: null }
+			}
+			return null
+		})
+
+		const draft = await captureProfile({ chromeApi: {}, profileUrl, pause: noPause, read })
+
+		expect(draft.profile.skills).toEqual(['Java'])
+		expect(read.mock.calls.filter(([, , , options]) => options?.visible)).toHaveLength(1)
+	})
+
 	it('refuses an incomplete capture when a core section is still empty after the retry', async () => {
 		const read = vi.fn(async (_chrome, url) =>
 			url.endsWith('/ana/') ? { profile: { headline: 'Dev', about: 'Texto' }, found: ['about', 'skills'], photoUrl: null, bannerUrl: null } : null,

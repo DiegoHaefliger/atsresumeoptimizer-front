@@ -202,10 +202,20 @@
 		return [...byKey.entries()]
 	}
 
+	function listSection(main, key) {
+		const candidates = [...main.querySelectorAll('section')]
+		const titled = candidates.find((section) => {
+			const firstLine = (section.innerText || section.textContent || '').trim().split('\n')[0]
+			return isSectionTitle(key, firstLine.trim())
+		})
+		const largest = [...candidates].sort((a, b) => b.textContent.length - a.textContent.length)[0]
+		return titled || largest || main
+	}
+
 	function detailTarget(doc, slug) {
 		const main = doc.querySelector('main')
 		const key = sectionKey(slug.replace(/-/g, ' ')) || sectionKey((main && main.querySelector('h1, h2') || { textContent: '' }).textContent)
-		return key && main ? [[key, main.querySelector('section') || main]] : []
+		return key && main ? [[key, listSection(main, key)]] : []
 	}
 
 	function extract(doc, location) {
