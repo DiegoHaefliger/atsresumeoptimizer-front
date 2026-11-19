@@ -135,18 +135,29 @@ describe("AnalysisPanel", () => {
 		expect((await screen.findByTestId("extension-version")).textContent).toBe("Extensão do Chrome: versão 0.2.2 (atualizada)");
 	});
 
-	it("does not read with an outdated extension and uses the existing reading, saying why", async () => {
+	it("does not let an analysis start with the extension reading while the extension is outdated", async () => {
+		withReadings();
+		extensionIs("outdated");
+		renderPanel();
+
+		await screen.findByText("Atualize a extensão do Chrome");
+		const button = screen.getByRole("button", { name: /Analisar meu LinkedIn/ }) as HTMLButtonElement;
+		expect(button.disabled).toBe(true);
+		expect(captureWithExtension).not.toHaveBeenCalled();
+		expect(apiPostJson).not.toHaveBeenCalled();
+	});
+
+	it("still allows analyzing the pdf reading when the extension is outdated", async () => {
 		withReadings();
 		extensionIs("outdated");
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);
 		renderPanel();
-		await screen.findAllByRole("radio");
+		await screen.findByText("Atualize a extensão do Chrome");
 
+		fireEvent.click((await screen.findAllByRole("radio"))[1]);
 		fireEvent.click(screen.getByRole("button", { name: /Analisar meu LinkedIn/ }));
 
-		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "ext1" }));
-		expect(captureWithExtension).not.toHaveBeenCalled();
-		await screen.findByText(/a extensão está desatualizada e lê o perfil incompleto/);
+		await waitFor(() => expect(apiPostJson).toHaveBeenCalledWith("/api/v1/linkedin/analyses", { snapshotId: "pdf1" }));
 	});
 
 	it("falls back to the chosen reading when the extension cannot read the profile", async () => {

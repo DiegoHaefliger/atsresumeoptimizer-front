@@ -14,6 +14,10 @@ async function openProfileUrl() {
 const frameReader = new FrameReader(chrome)
 
 async function startFrameReader() {
+	const { hiddenFrames } = await chrome.storage.local.get('hiddenFrames')
+	if (hiddenFrames !== true) {
+		return null
+	}
 	try {
 		await frameReader.prepare()
 		return frameReader

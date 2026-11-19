@@ -41,7 +41,6 @@ export function isMissingExtension(code: string | null): boolean {
 
 const EXTENSION_REASONS = {
 	missing: { code: NO_EXTENSION_CODE, reason: "a extensão não respondeu; se for a versão antiga, atualize-a na aba Dados do LinkedIn" },
-	outdated: { code: OUTDATED_EXTENSION_CODE, reason: "a extensão está desatualizada e lê o perfil incompleto; atualize-a" },
 } as const;
 
 function readArmedAt(): number | null {
@@ -135,6 +134,11 @@ export function useAnalysisRun(onAnalysis: (analysis: LinkedInAnalysisResponse) 
 			const latest = await latestSnapshot();
 			fallback = fallback ?? (latest ? { id: latest.id, source: latest.source, capturedAt: latest.capturedAt } : null);
 			const status = await checkExtension();
+			if (status === "outdated") {
+				writeArmedAt(null);
+				setPhase({ kind: "waiting", reason: "", code: OUTDATED_EXTENSION_CODE });
+				return;
+			}
 			if (status !== "current") {
 				const problem = EXTENSION_REASONS[status];
 				if (fallback) {

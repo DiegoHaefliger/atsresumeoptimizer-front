@@ -77,6 +77,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 
 	const busy = phase.kind === "capturing" || phase.kind === "importing" || phase.kind === "analyzing";
 	const waiting = phase.kind === "waiting";
+	const blockedByOutdatedExtension = extensionStatus === "outdated" && selected?.source !== "PDF";
 	const previous = analysis ? history.find((item) => new Date(item.createdAt) < new Date(analysis.createdAt)) : undefined;
 
 	return (
@@ -108,7 +109,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			/>
 			<ExtensionVersion probe={extensionProbe} />
 			<div className="linkedin-actions">
-				<button type="button" onClick={() => void run(selected)} disabled={busy || waiting || !hasProfile} aria-busy={busy}>
+				<button type="button" onClick={() => void run(selected)} disabled={busy || waiting || !hasProfile || blockedByOutdatedExtension} aria-busy={busy}>
 					<BusyLabel busy={busy} busyText={busyText(phase)}>
 						<SparklesIcon /> {analysis ? "Analisar de novo" : "Analisar meu LinkedIn"}
 					</BusyLabel>
@@ -126,6 +127,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 					</label>
 				)}
 			</div>
+			{blockedByOutdatedExtension && <p className="field-hint">Atualize a extensão para analisar pela leitura do LinkedIn, ou escolha a leitura do PDF.</p>}
 			{waiting && <WaitingForCapture reason={phase.reason} code={phase.code} onRetry={() => void run(selected)} onImportPdf={importPdf} onPaste={() => onGoTo("data")} onCancel={cancel} />}
 			{notice && <StateMessage variant="empty" message={notice} />}
 			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
