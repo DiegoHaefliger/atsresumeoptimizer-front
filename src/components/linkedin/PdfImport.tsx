@@ -57,6 +57,10 @@ export function PdfImport({ onImport, busy }: PdfImportProps) {
 				<span className="dropzone-title">Arraste o PDF do seu perfil aqui ou clique para escolher</span>
 				<p className="dropzone-hint">Só o PDF gerado pelo LinkedIn · até 5 MB</p>
 			</div>
+			<p className="field-hint">
+				O PDF do LinkedIn não traz foto, banner, recomendações, destaques nem atividade recente, e limita as competências. Essas seções ficam de
+				fora da análise. Para analisar tudo, use a extensão.
+			</p>
 			<label htmlFor="linkedin-pdf" className="sr-only">
 				PDF do perfil do LinkedIn
 			</label>

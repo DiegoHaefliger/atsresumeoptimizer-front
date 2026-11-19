@@ -53,6 +53,40 @@ function renderPanel() {
 }
 
 describe("AnalysisPanel", () => {
+	it("says which reading the analysis used and what that source leaves out", async () => {
+		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/analyses/latest")) {
+				return ANALYSIS;
+			}
+			if (path.endsWith("/snapshots/s1")) {
+				return { id: "s1", source: "PDF", capturedAt: "2026-11-19T11:00:00Z", profile: {}, missingSections: ["PHOTO", "BANNER", "FEATURED"] };
+			}
+			return [];
+		});
+		renderPanel();
+
+		await screen.findByText(/Esta análise usa a leitura de .* feita pelo PDF do perfil\./);
+		expect(screen.getByText(/Sem leitura, e por isso fora da análise: Foto de perfil, Banner, Em destaque\./)).toBeTruthy();
+		expect(screen.getByText(/Para uma análise completa, leia o perfil pela extensão\./)).toBeTruthy();
+	});
+
+	it("does not add warnings for a reading from the extension with every section", async () => {
+		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/analyses/latest")) {
+				return ANALYSIS;
+			}
+			if (path.endsWith("/snapshots/s1")) {
+				return { id: "s1", source: "EXTENSION", capturedAt: "2026-11-19T11:00:00Z", profile: {}, missingSections: [] };
+			}
+			return [];
+		});
+		renderPanel();
+
+		await screen.findByText(/Esta análise usa a leitura de .* feita pela extensão\./);
+		expect(screen.queryByText(/Sem leitura/)).toBeNull();
+		expect(screen.queryByText(/Para uma análise completa/)).toBeNull();
+	});
+
 	it("imports the exported pdf and analyzes the snapshot it produced", async () => {
 		vi.mocked(pingExtension).mockResolvedValue(false);
 		vi.mocked(apiPostForm).mockResolvedValue({ id: "s7", unchanged: false, changedSections: ["HEADLINE"] } as never);

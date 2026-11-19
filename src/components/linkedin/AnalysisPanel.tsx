@@ -5,6 +5,7 @@ import { formatCapturedAt } from "../../lib/linkedinLabels";
 import { BusyLabel } from "../BusyLabel";
 import { SparklesIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
+import { AnalysisBasis } from "./AnalysisBasis";
 import { AnalysisResult } from "./AnalysisResult";
 import { busyText, WaitingForCapture } from "./WaitingForCapture";
 import { useAnalysisRun } from "./useAnalysisRun";
@@ -109,6 +110,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			{notice && <StateMessage variant="empty" message={notice} />}
 			{(error || runError) && <StateMessage variant="error" message={error ?? runError ?? ""} />}
 			{loading && <p className="field-hint">Carregando...</p>}
+			{analysis && <AnalysisBasis snapshotId={analysis.snapshotId} />}
 			{analysis && <AnalysisResult analysis={analysis} previousScore={previous?.overallScore} />}
 		</div>
 	);
