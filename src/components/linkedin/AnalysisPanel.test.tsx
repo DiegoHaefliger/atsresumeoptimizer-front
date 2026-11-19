@@ -126,6 +126,22 @@ describe("AnalysisPanel", () => {
 		await screen.findByText(/Entre no LinkedIn neste navegador\.\), então usei a leitura da extensão de/);
 	});
 
+	it("says so when the readings could not be loaded instead of hiding the choice silently", async () => {
+		vi.mocked(apiGet).mockImplementation(async (path: string) => {
+			if (path.endsWith("/snapshots")) {
+				throw new ApiError("Invalid CORS request", 403);
+			}
+			if (path.endsWith("/analyses/latest")) {
+				throw new ApiError("não achou", 404);
+			}
+			return [];
+		});
+		renderPanel();
+
+		await screen.findByText("Não consegui carregar as leituras do LinkedIn para você escolher qual usar.");
+		expect(screen.queryAllByRole("radio")).toHaveLength(0);
+	});
+
 	it("analyzes the chosen pdf reading as it is, without reading the profile again", async () => {
 		withReadings();
 		vi.mocked(apiPostJson).mockResolvedValue(ANALYSIS);

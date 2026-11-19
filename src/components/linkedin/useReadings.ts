@@ -20,18 +20,21 @@ export function lastReadings(history: LinkedInSnapshotSummaryResponse[]): Readin
 export function useReadings() {
 	const [readings, setReadings] = useState<Reading[]>([]);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [failed, setFailed] = useState(false);
 	const signature = useRef("");
 
 	const reload = useCallback(async () => {
 		try {
 			const next = lastReadings(await apiGet<LinkedInSnapshotSummaryResponse[]>(SNAPSHOTS_PATH));
 			const nextSignature = next.map((item) => `${item.id}@${item.capturedAt}`).join("|");
+			setFailed(false);
 			setReadings(next);
 			if (signature.current !== nextSignature) {
 				signature.current = nextSignature;
 				setSelectedId(next[0]?.id ?? null);
 			}
 		} catch {
+			setFailed(true);
 			setReadings([]);
 		}
 	}, []);
@@ -41,5 +44,5 @@ export function useReadings() {
 	}, [reload]);
 
 	const selected = readings.find((item) => item.id === selectedId) ?? readings[0] ?? null;
-	return { readings, selected, select: setSelectedId, reload };
+	return { readings, selected, failed, select: setSelectedId, reload };
 }

@@ -44,7 +44,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 		setHistory(list);
 	}, []);
 
-	const { readings, selected, select, reload: reloadReadings } = useReadings();
+	const { readings, selected, failed: readingsFailed, select, reload: reloadReadings } = useReadings();
 
 	const handleAnalysis = useCallback(
 		(created: LinkedInAnalysisResponse) => {
@@ -92,6 +92,7 @@ export function AnalysisPanel({ hasProfile, hasSnapshot, onGoTo }: AnalysisPanel
 			{!hasSnapshot && phase.kind === "idle" && (
 				<StateMessage variant="empty" message="O app lê o seu perfil no LinkedIn sozinho, pela extensão, quando você pede a análise." />
 			)}
+			{readingsFailed && <StateMessage variant="error" message="Não consegui carregar as leituras do LinkedIn para você escolher qual usar." />}
 			<ReadingSelector
 				readings={readings}
 				selectedId={selected?.id ?? null}
