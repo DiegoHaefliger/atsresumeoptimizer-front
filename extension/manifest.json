@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ATS Resume Optimizer - Perfil do LinkedIn",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Lê o seu próprio perfil no LinkedIn e envia para o ATS Resume Optimizer analisar, sozinha quando você pede a análise no app.",
   "permissions": [
     "activeTab",

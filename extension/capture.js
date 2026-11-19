@@ -66,11 +66,15 @@ export function adaptiveReader(frameReader) {
 	return async (chromeApi, url, pause, options) => {
 		if (frameReader && !frameBroken && !options?.visible) {
 			try {
-				return await frameReader.read(url)
-			} catch {
+				const result = await frameReader.read(url)
+				console.info('[ats-linkedin] iframe oculto', url)
+				return result
+			} catch (error) {
 				frameBroken = true
+				console.info('[ats-linkedin] iframe falhou, usando aba', url, error.code || error.message)
 			}
 		}
+		console.info('[ats-linkedin] aba', url, options?.visible ? '(visível)' : '(fundo)')
 		return readPage(chromeApi, url, pause, options)
 	}
 }
