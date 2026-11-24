@@ -14,6 +14,19 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.13",
+		date: "2026-11-24",
+		summary: "Configurar a IA ficou bem mais fácil: cada provedor agora tem um passo a passo para criar a chave de API, com link direto, custo e avisos quando a chave colada não confere.",
+		changes: [
+			{ kind: "feat", text: "Em Configurações, na aba Inteligência artificial, cada provedor mostra um passo a passo para conseguir a chave de API, com um botão que abre direto a página certa, se o serviço é grátis ou pago e como a chave deve começar. Para o Ollama, o guia traz o comando para baixar o modelo, com botão de copiar." },
+			{ kind: "feat", text: "Quem ainda não configurou nenhuma IA vê um atalho para começar pelo Google Gemini, que é grátis, não pede cartão e só precisa de uma conta Google." },
+			{ kind: "feat", text: "No provedor Compatível com OpenAI, os botões Groq, OpenRouter e DeepSeek preenchem a URL base sozinhos e mostram o guia daquele serviço." },
+			{ kind: "improvement", text: "Ao colar a chave, o app remove espaços, quebras de linha e aspas que vêm junto por engano. Se a chave for de outro provedor, por exemplo uma chave da Anthropic colada no Gemini, o app avisa e oferece um botão para levá-la ao provedor certo. Chaves que parecem cortadas também geram aviso." },
+			{ kind: "improvement", text: "Quando a fila de provedores está vazia, o provedor em que você cola a primeira chave entra na fila sozinho, então já dá para salvar sem marcar Usar na fila." },
+			{ kind: "fix", text: "A tela de configuração da IA não fica mais presa em Carregando quando o servidor não responde. Depois de 20 segundos ela avisa o que houve e mostra um botão Tentar de novo." },
+		],
+	},
+	{
 		version: "1.1.12",
 		date: "2026-11-24",
 		summary: "Correção do app que não abria no Windows com o Java Access Bridge ligado e da análise do LinkedIn com Ollama, que falhava porque o modelo não respondia em JSON.",

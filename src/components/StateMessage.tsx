@@ -6,7 +6,7 @@ type StateMessageProps = {
 	variant?: "error" | "empty";
 	layout?: "inline" | "page";
 	message: ReactNode;
-	action?: { label: string; to: string };
+	action?: { label: string; to: string } | { label: string; onClick: () => void };
 };
 
 export function StateMessage({ variant = "error", layout = "inline", message, action }: StateMessageProps) {
@@ -31,9 +31,15 @@ export function StateMessage({ variant = "error", layout = "inline", message, ac
 			{alert}
 			{action && (
 				<p>
-					<Link to={action.to} className="link">
-						{action.label}
-					</Link>
+					{"to" in action ? (
+						<Link to={action.to} className="link">
+							{action.label}
+						</Link>
+					) : (
+						<button type="button" className="btn-secondary btn-small" onClick={action.onClick}>
+							{action.label}
+						</button>
+					)}
 				</p>
 			)}
 		</div>

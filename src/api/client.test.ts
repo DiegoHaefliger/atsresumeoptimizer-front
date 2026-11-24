@@ -48,3 +48,24 @@ describe("server reachability", () => {
 		expect(result.current).toBe(false);
 	});
 });
+
+describe("apiGet timeout", () => {
+	it("turns a timed out request into an ApiError instead of hanging", async () => {
+		const fetchMock = vi.fn().mockRejectedValue(new DOMException("timed out", "TimeoutError"));
+		vi.stubGlobal("fetch", fetchMock);
+
+		const result = apiGet("/api/v1/ai-settings", 20_000);
+
+		await expect(result).rejects.toBeInstanceOf(ApiError);
+		await expect(result).rejects.toThrow("O servidor demorou demais para responder");
+		expect(fetchMock.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+	});
+
+	it("sends no timeout signal when none is asked", async () => {
+		respond(200, "{}");
+
+		await apiGet("/api/v1/jobs");
+
+		expect(vi.mocked(fetch).mock.calls[0][1]).toBeUndefined();
+	});
+});
