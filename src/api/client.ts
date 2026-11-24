@@ -27,6 +27,9 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
 		if (error instanceof DOMException && error.name === "AbortError") {
 			throw error;
 		}
+		if (error instanceof DOMException && error.name === "TimeoutError") {
+			throw new ApiError("O servidor demorou demais para responder. Feche as outras abas do app e tente de novo.", 0);
+		}
 		setServerUnreachable(true);
 		throw new ApiError("Sem conexão com o servidor.", 0);
 	}
@@ -57,8 +60,8 @@ export async function apiPostForBlob(path: string, body: unknown): Promise<Blob>
 	return response.blob();
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
-	return (await request(path)).json();
+export async function apiGet<T>(path: string, timeoutMs?: number): Promise<T> {
+	return (await request(path, timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : undefined)).json();
 }
 
 export async function apiGetOptional<T>(path: string): Promise<T | null> {
