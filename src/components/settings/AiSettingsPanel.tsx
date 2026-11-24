@@ -13,6 +13,10 @@ import { ModelPicker } from "../ModelPicker";
 import { ProviderCard } from "./ProviderCard";
 import { isConfigured } from "./providerStatus";
 import { ProviderQueue } from "./ProviderQueue";
+import { ProviderAccessSection } from "./ProviderAccessSection";
+import { AiQuickStart } from "./AiQuickStart";
+import type { KeyOrigin } from "../../lib/apiKeyCheck";
+import { BEGINNER_PROVIDER, COMPATIBLE_PRESETS } from "../../lib/apiKeyGuides";
 import { SettingsLayoutSkeleton, Skeleton } from "../Skeleton";
 import { BusyLabel } from "../BusyLabel";
 import { StateMessage } from "../StateMessage";
@@ -21,6 +25,8 @@ import { AlertCircleIcon, CheckCircleIcon } from "../icons";
 type ProviderDraft = { apiKey: string; baseUrl: string; model: string; heavyModel: string };
 
 type GeneralDraft = { temperature: string; maxOutputTokens: string; timeoutSeconds: string };
+
+const LOAD_TIMEOUT_MS = 20_000;
 
 function draftOf(provider: AiProviderView): ProviderDraft {
 	return {
@@ -93,11 +99,18 @@ export function AiSettingsPanel() {
 		}
 	}
 
-	useEffect(() => {
-		apiGet<AiSettingsView>("/api/v1/ai-settings")
+	function loadSettings() {
+		apiGet<AiSettingsView>("/api/v1/ai-settings", LOAD_TIMEOUT_MS)
 			.then(apply)
 			.catch((err) => setLoadError(errorMessage(err, "Não deu pra carregar as configurações.")));
-	}, []);
+	}
+
+	useEffect(loadSettings, []);
+
+	function retryLoad() {
+		setLoadError(null);
+		loadSettings();
+	}
 
 	function markDirty() {
 		setSaved(false);
@@ -110,6 +123,34 @@ export function AiSettingsPanel() {
 		}
 		setDrafts((current) => ({ ...current, [selected]: { ...current[selected], [field]: value } }));
 		markDirty();
+	}
+
+	function updateApiKey(value: string) {
+		updateDraft("apiKey", value);
+		if (selected && value !== "" && queue.length === 0) {
+			setQueue([selected]);
+		}
+	}
+
+	function moveKey(origin: KeyOrigin, key: string) {
+		const target = origin.provider;
+		const baseUrl = COMPATIBLE_PRESETS.find((preset) => preset.id === origin.presetId)?.baseUrl;
+		const nextDrafts = {
+			...drafts,
+			...(selected ? { [selected]: { ...drafts[selected], apiKey: "" } } : {}),
+			[target]: { ...drafts[target], apiKey: key, ...(baseUrl ? { baseUrl } : {}) },
+		};
+		setDrafts(nextDrafts);
+		const source = settings?.providers?.find((provider) => provider.provider === selected);
+		const sourceUsable = source !== undefined && isConfigured(source, "", nextDrafts[source.provider as AiProvider].baseUrl);
+		setQueue((current) => {
+			const kept = sourceUsable ? current : current.filter((item) => item !== selected);
+			return kept.includes(target) ? kept : [...kept, target];
+		});
+		setSelected(target);
+		setError(null);
+		markDirty();
+		loadModels(target, nextDrafts[target]);
 	}
 
 	function updateGeneral(field: keyof GeneralDraft, value: string) {
@@ -215,12 +256,16 @@ export function AiSettingsPanel() {
 	}
 
 	if (loadError) {
-		return <StateMessage variant="error" layout="page" message={loadError} action={{ label: "Voltar", to: "/jobs" }} />;
+		return <StateMessage variant="error" layout="page" message={loadError} action={{ label: "Tentar de novo", onClick: retryLoad }} />;
 	}
 
 	const providers = settings?.providers ?? [];
 	const current = providers.find((provider) => provider.provider === selected);
 	const draft = selected ? drafts[selected] : undefined;
+	const showQuickStart =
+		selected !== BEGINNER_PROVIDER &&
+		!queue.includes("OLLAMA") &&
+		!providers.some((provider) => provider.requiresApiKey && provider.apiKeySource !== "NONE");
 	const draftModels = Object.fromEntries(Object.entries(drafts).map(([provider, item]) => [provider, item.model]));
 	const availableModels =
 		modelList?.provider === selected && (modelList.models ?? []).length > 0
@@ -239,6 +284,7 @@ export function AiSettingsPanel() {
 			) : (
 				<form onSubmit={handleSubmit} className="settings-layout">
 					<div className="settings-main">
+						{showQuickStart && <AiQuickStart onStart={() => selectProvider(BEGINNER_PROVIDER)} />}
 						<section className="panel">
 							<div className="panel-header">
 								<h2>Provedores</h2>
@@ -266,44 +312,14 @@ export function AiSettingsPanel() {
 							</div>
 						</section>
 
-						<section className="panel">
-							<div className="panel-header">
-								<h2>Acesso — {current.label}</h2>
-								<p>
-									{current.requiresApiKey
-										? "Deixe a chave em branco pra manter a que já está configurada."
-										: "Roda na sua máquina, sem chave e sem custo."}
-								</p>
-							</div>
-							<div className="panel-body">
-								{current.requiresApiKey && (
-									<label>
-										Chave de API
-										<input
-											type="password"
-											autoComplete="off"
-											value={draft.apiKey}
-											onChange={(event) => updateDraft("apiKey", event.target.value)}
-											placeholder={current.apiKeyHint ? `Atual: ${current.apiKeyHint}` : "Cole a chave aqui"}
-										/>
-									</label>
-								)}
-								{current.requiresBaseUrl && (
-									<label>
-										URL base
-										<input
-											type="url"
-											value={draft.baseUrl}
-											onChange={(event) => updateDraft("baseUrl", event.target.value)}
-											placeholder={current.defaultBaseUrl ?? "https://api.exemplo.com/v1"}
-										/>
-										<span className="field-hint">
-											Trocar a URL exige informar a chave de novo, pra ela não ser enviada a outro servidor.
-										</span>
-									</label>
-								)}
-							</div>
-						</section>
+						<ProviderAccessSection
+							provider={current}
+							apiKey={draft.apiKey}
+							baseUrl={draft.baseUrl}
+							onApiKeyChange={updateApiKey}
+							onBaseUrlChange={(value) => updateDraft("baseUrl", value)}
+							onMoveKey={moveKey}
+						/>
 
 						<section className="panel">
 							<div className="panel-header">

@@ -4258,6 +4258,94 @@ button.page-back {
 	margin-top: var(--space-1);
 }
 
+.ai-quick-start {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-4);
+	padding: var(--space-4) var(--space-5);
+	border: 1px solid color-mix(in srgb, var(--brand-600) 30%, var(--border));
+	border-radius: var(--radius-lg);
+	background: color-mix(in srgb, var(--brand-600) 7%, var(--surface));
+}
+
+.ai-quick-start p {
+	margin: var(--space-1) 0 0;
+	color: var(--text-muted);
+	font-size: var(--font-size-md);
+}
+
+.key-guide {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	padding: var(--space-3) var(--space-4);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--surface-2);
+}
+
+.key-guide summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-2);
+	cursor: pointer;
+	font-weight: var(--font-weight-semibold);
+}
+
+.key-guide[open] summary {
+	margin-bottom: var(--space-3);
+}
+
+.key-guide-open {
+	display: inline-flex;
+	align-self: flex-start;
+	padding: var(--space-2-5) var(--space-4);
+	border-radius: var(--radius-md);
+	background: var(--brand-gradient);
+	color: var(--accent-text);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+	box-shadow: var(--shadow-brand);
+}
+
+.key-guide-open:hover {
+	filter: brightness(1.08);
+}
+
+.key-guide-steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	margin: var(--space-3) 0;
+	padding-left: var(--space-5);
+	font-size: var(--font-size-md);
+}
+
+.key-guide .field-hint {
+	display: block;
+	margin: var(--space-1) 0 0;
+}
+
+.preset-picker {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.preset-picker-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.preset-picker-active {
+	border-color: var(--brand-600);
+	background: color-mix(in srgb, var(--brand-600) 10%, var(--surface));
+}
+
 /* Cartões de vaga */
 .job-grid {
 	display: grid;
