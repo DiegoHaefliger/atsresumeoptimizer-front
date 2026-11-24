@@ -14,6 +14,15 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.12",
+		date: "2026-11-24",
+		summary: "Correção do app que não abria no Windows com o Java Access Bridge ligado e da análise do LinkedIn com Ollama, que falhava porque o modelo não respondia em JSON.",
+		changes: [
+			{ kind: "fix", text: "O app voltou a abrir no Windows quando o Java Access Bridge está ligado, o que acontece com leitores de tela como NVDA e JAWS ou depois de instalar o Java. Antes ele fechava na hora com o erro Failed to launch JVM. Agora, se o app fechar na abertura por qualquer erro, o detalhe fica salvo em .ats-resume-optimizer/logs/crash.log, na sua pasta de usuário, e você pode mandar esse arquivo junto com o relato." },
+			{ kind: "fix", text: "Com o Ollama, a análise do LinkedIn e as outras tarefas de IA não falham mais com Resposta da IA não é o JSON esperado. O app agora pede a resposta em JSON e reserva mais contexto para o modelo, então as instruções do pedido não são mais cortadas. Esse contexto maior usa mais memória do computador e o modelo pode demorar um pouco mais para carregar." },
+		],
+	},
+	{
 		version: "1.1.11",
 		date: "2026-11-19",
 		summary: "Análise do LinkedIn bem mais confiável, com leitura automática do perfil, checklist do que mudar e escolha da leitura usada, mais três fontes de vagas, a tela Avaliar e exclusão de seções no currículo adaptado.",
