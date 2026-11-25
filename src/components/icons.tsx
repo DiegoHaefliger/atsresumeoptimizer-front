@@ -465,3 +465,12 @@ export function ImagePlusIcon(props: SVGProps<SVGSVGElement>) {
 		</Icon>
 	);
 }
+
+export function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<Icon {...props}>
+			<path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9z" />
+			<path d="M9 8.5c0 3.6 2.9 6.5 6.5 6.5l1-1.5-2-1-1 1a4.5 4.5 0 0 1-2.5-2.5l1-1-1-2z" />
+		</Icon>
+	);
+}

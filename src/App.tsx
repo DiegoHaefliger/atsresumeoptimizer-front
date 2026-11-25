@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
 import { FeedbackPrompt } from "./components/FeedbackPrompt";
 import { ConnectionBanner } from "./components/ConnectionBanner";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { OnboardingPanel } from "./components/OnboardingPanel";
 import { UpdateBanner } from "./components/UpdateBanner";
@@ -25,12 +26,13 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { ChatPage } from "./pages/ChatPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
-import { FeedbackPage } from "./pages/FeedbackPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProcessRedirectPage } from "./pages/ProcessRedirectPage";
+import { useReleaseNotesOnUpdate } from "./lib/useReleaseNotesOnUpdate";
 
 export default function App() {
 	const { pathname } = useLocation();
+	useReleaseNotesOnUpdate();
 	return (
 		<>
 			<ScrollToTop />
@@ -41,6 +43,7 @@ export default function App() {
 					<UpdateBanner />
 					<FeedbackPrompt />
 					{!pathname.startsWith("/chat") && <OnboardingPanel />}
+					<ErrorBoundary key={pathname}>
 					<Routes>
 						<Route path="/upload" element={<Navigate to="/jobs" replace />} />
 						<Route path="/jobs" element={<JobsPage />} />
@@ -68,11 +71,12 @@ export default function App() {
 						<Route path="/chat" element={<ChatPage />} />
 						<Route path="/chat/:conversationId" element={<ChatPage />} />
 						<Route path="/changelog" element={<Navigate to="/about" replace />} />
-						<Route path="/feedback" element={<FeedbackPage />} />
+						<Route path="/feedback" element={<Navigate to="/about?tab=feedback" replace />} />
 						<Route path="/about" element={<AboutPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
 						<Route path="*" element={<Navigate to="/jobs" replace />} />
 					</Routes>
+					</ErrorBoundary>
 				</main>
 			</div>
 		</>

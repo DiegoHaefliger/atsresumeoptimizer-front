@@ -69,3 +69,27 @@ describe("apiGet timeout", () => {
 		expect(vi.mocked(fetch).mock.calls[0][1]).toBeUndefined();
 	});
 });
+
+describe("server failures", () => {
+	afterEach(() => localStorage.clear());
+
+	it("shows the error code of a server failure and keeps it in the recent errors", async () => {
+		respond(500, '{"detail":"Algo deu errado no servidor.","errorId":"K7Q3XM2A"}');
+
+		const failure = await apiGet("/x").catch((error: unknown) => error);
+
+		expect(failure).toBeInstanceOf(ApiError);
+		expect((failure as ApiError).message).toBe("Algo deu errado no servidor. (código do erro: K7Q3XM2A)");
+		expect((failure as ApiError).errorId).toBe("K7Q3XM2A");
+		expect(JSON.parse(localStorage.getItem("ats.recentErrors") ?? "[]")[0]).toMatchObject({
+			errorId: "K7Q3XM2A",
+			source: "server",
+		});
+	});
+
+	it("keeps business messages clean", async () => {
+		respond(400, '{"detail":"Informe o nome da vaga.","errorId":"K7Q3XM2A"}');
+
+		await expect(apiGet("/x")).rejects.toThrow(/^Informe o nome da vaga\.$/);
+	});
+});

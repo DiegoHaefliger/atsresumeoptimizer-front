@@ -13,7 +13,6 @@ import {
 	NotebookIcon,
 	SettingsIcon,
 	SlidersIcon,
-	StarIcon,
 } from "./icons";
 
 const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
@@ -26,7 +25,6 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/preferences", label: "Preferências", Icon: SlidersIcon },
 	{ to: "/prompts", label: "Instruções", Icon: MessageSquareIcon },
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
-	{ to: "/feedback", label: "Avaliar", Icon: StarIcon },
 ];
 
 const ABOUT_ITEM = { to: "/about", label: "Sobre", Icon: InfoIcon };
