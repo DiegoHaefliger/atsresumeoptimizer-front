@@ -1,3 +1,4 @@
+import { recordRecentError } from "../lib/recentErrors";
 import { setServerUnreachable } from "../lib/serverReachability";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -8,11 +9,23 @@ export function apiUrl(path: string): string {
 
 export class ApiError extends Error {
 	readonly status: number;
+	readonly errorId: string | null;
 
-	constructor(message: string, status: number) {
+	constructor(message: string, status: number, errorId: string | null = null) {
 		super(message);
 		this.status = status;
+		this.errorId = errorId;
 	}
+}
+
+function serverFailure(status: number, body: { detail?: unknown; errorId?: unknown } | null): ApiError {
+	const detail = typeof body?.detail === "string" ? body.detail : `Erro ${status}`;
+	const errorId = typeof body?.errorId === "string" ? body.errorId : null;
+	if (status < 500) {
+		return new ApiError(detail, status, errorId);
+	}
+	recordRecentError({ message: detail, errorId, page: window.location.pathname, source: "server" });
+	return new ApiError(errorId ? `${detail} (código do erro: ${errorId})` : detail, status, errorId);
 }
 
 export function errorMessage(error: unknown, fallback: string): string {
@@ -37,8 +50,7 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
 	if (response.ok) {
 		return response;
 	}
-	const body = await response.json().catch(() => null);
-	throw new ApiError(body?.detail ?? `Erro ${response.status}`, response.status);
+	throw serverFailure(response.status, await response.json().catch(() => null));
 }
 
 async function sendJson<T>(method: "POST" | "PUT" | "PATCH", path: string, body: unknown): Promise<T> {

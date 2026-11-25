@@ -16,7 +16,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 	{
 		version: "1.1.13",
 		date: "2026-11-24",
-		summary: "Configurar a IA ficou bem mais fácil: cada provedor agora tem um passo a passo para criar a chave de API, com link direto, custo e avisos quando a chave colada não confere.",
+		summary: "Configurar a IA ficou bem mais fácil, com um passo a passo para criar a chave de cada provedor, e relatar um problema também: todo erro agora tem um código, e a nova aba Diagnóstico abre a issue no GitHub já preenchida.",
 		changes: [
 			{ kind: "feat", text: "Em Configurações, na aba Inteligência artificial, cada provedor mostra um passo a passo para conseguir a chave de API, com um botão que abre direto a página certa, se o serviço é grátis ou pago e como a chave deve começar. Para o Ollama, o guia traz o comando para baixar o modelo, com botão de copiar." },
 			{ kind: "feat", text: "Quem ainda não configurou nenhuma IA vê um atalho para começar pelo Google Gemini, que é grátis, não pede cartão e só precisa de uma conta Google." },
@@ -24,6 +24,11 @@ export const RELEASE_NOTES: ReleaseNote[] = [
 			{ kind: "improvement", text: "Ao colar a chave, o app remove espaços, quebras de linha e aspas que vêm junto por engano. Se a chave for de outro provedor, por exemplo uma chave da Anthropic colada no Gemini, o app avisa e oferece um botão para levá-la ao provedor certo. Chaves que parecem cortadas também geram aviso." },
 			{ kind: "improvement", text: "Quando a fila de provedores está vazia, o provedor em que você cola a primeira chave entra na fila sozinho, então já dá para salvar sem marcar Usar na fila." },
 			{ kind: "fix", text: "A tela de configuração da IA não fica mais presa em Carregando quando o servidor não responde. Depois de 20 segundos ela avisa o que houve e mostra um botão Tentar de novo." },
+			{ kind: "feat", text: "Toda mensagem de erro do servidor agora mostra um código, por exemplo K7Q3XM2A. O mesmo código fica registrado no log do app, então quem dá suporte encontra exatamente o que aconteceu." },
+			{ kind: "feat", text: "Nova aba Diagnóstico, em Sobre, com os erros recentes e seus códigos, as informações do sistema (versão, sistema operacional, banco de dados e provedores de IA ativos, sem as chaves) e um botão para abrir a pasta de logs." },
+			{ kind: "feat", text: "Os problemas agora são relatados pelas issues do GitHub. Na aba Diagnóstico, baixe o pacote de diagnóstico e clique em Relatar problema: a issue abre com a versão, o sistema, a IA ativa e os últimos erros já preenchidos, e é só anexar o .zip. O pacote leva o log com chaves de API, senhas e e-mails mascarados. Cada erro da lista também tem o atalho Relatar este erro." },
+			{ kind: "improvement", text: "Se uma tela quebrar, o app mostra o código do erro com opções para tentar de novo, recarregar ou relatar o problema, em vez de ficar em branco. Erros de tela também passam a ser gravados no log." },
+			{ kind: "improvement", text: "A aba Links, em Sobre, foi reorganizada e ganhou o grupo de dúvidas no WhatsApp. Ela agora é a primeira aba." },
 		],
 	},
 	{

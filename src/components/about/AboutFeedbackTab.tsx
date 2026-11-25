@@ -1,20 +1,20 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { errorMessage } from "../api/client";
-import { FeedbackAttachments } from "../components/FeedbackAttachments";
-import { CheckCircleIcon, LockIcon, SpinnerIcon } from "../components/icons";
-import { StarRating } from "../components/StarRating";
-import { submitFeedback, type FeedbackReceipt } from "../lib/feedbackApi";
-import { canSubmit, EMPTY_DRAFT, MAX_MESSAGE, MESSAGE_PLACEHOLDER, toRequest, type FeedbackDraft } from "../lib/feedbackForm";
-import { markRated } from "../lib/feedbackPrompt";
-import { useAppVersion } from "../lib/useAppVersion";
+import { errorMessage } from "../../api/client";
+import { FeedbackAttachments } from "../FeedbackAttachments";
+import { CheckCircleIcon, LockIcon, SpinnerIcon } from "../icons";
+import { StarRating } from "../StarRating";
+import { submitFeedback, type FeedbackReceipt } from "../../lib/feedbackApi";
+import { canSubmit, EMPTY_DRAFT, MAX_MESSAGE, MESSAGE_PLACEHOLDER, toRequest, type FeedbackDraft } from "../../lib/feedbackForm";
+import { markRated } from "../../lib/feedbackPrompt";
+import { useAppVersion } from "../../lib/useAppVersion";
 
 function initialRating(raw: string | null): number {
 	const rating = Number(raw);
 	return Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : 0;
 }
 
-export function FeedbackPage() {
+export function AboutFeedbackTab() {
 	const navigate = useNavigate();
 	const appVersion = useAppVersion()?.current ?? null;
 	const [searchParams] = useSearchParams();
@@ -49,17 +49,10 @@ export function FeedbackPage() {
 	}
 
 	return (
-		<div className="page">
-			<header className="page-header">
-				<div>
-					<span className="eyebrow">Avaliar</span>
-					<h1>Avalie o ATS Resume Optimizer</h1>
-					<p className="page-subtitle">
-						Sua opinião vai direto para quem desenvolve o app. Leva menos de um minuto e ajuda a decidir o que melhorar
-						primeiro.
-					</p>
-				</div>
-			</header>
+		<div className="feedback-tab">
+			<p className="feedback-intro">
+				Sua opinião vai direto para quem desenvolve o app. Leva menos de um minuto e ajuda a decidir o que melhorar primeiro.
+			</p>
 
 			{receipt ? (
 				<section className="panel feedback-done">

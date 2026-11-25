@@ -10,7 +10,16 @@ const DISMISSALS_BEFORE_LONG_SNOOZE = 3;
 
 export const VALUE_EVENT = "ats-value-event";
 export const PROMPT_DELAY_MS = 2500;
-export const FEEDBACK_PATH_PAGE = "/feedback";
+const ABOUT_PATH = "/about";
+const FEEDBACK_TAB = "feedback";
+
+export function feedbackPagePath(rating?: number): string {
+	return `${ABOUT_PATH}?tab=${FEEDBACK_TAB}${rating ? `&rating=${rating}` : ""}`;
+}
+
+export function isFeedbackPage(pathname: string, search: string): boolean {
+	return pathname === ABOUT_PATH && new URLSearchParams(search).get("tab") === FEEDBACK_TAB;
+}
 
 function readNumber(key: string): number {
 	try {

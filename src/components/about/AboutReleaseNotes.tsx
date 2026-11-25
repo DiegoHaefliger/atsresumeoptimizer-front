@@ -1,5 +1,5 @@
 import { Badge } from "../Badge";
-import { RELEASE_CHANGE_LABELS, RELEASE_CHANGE_TONES } from "../../lib/releaseChangeLabels";
+import { RELEASE_CHANGE_LABELS, RELEASE_CHANGE_TONES, sortByKind } from "../../lib/releaseChangeLabels";
 import { RELEASE_NOTES, type ReleaseNote } from "../../lib/releaseNotes";
 import { useAppVersion } from "../../lib/useAppVersion";
 
@@ -46,7 +46,7 @@ function ReleaseBody({ release }: { release: ReleaseNote }) {
 		<>
 			<p className="release-summary">{release.summary}</p>
 			<ul className="release-changes">
-				{release.changes.map((change) => (
+				{sortByKind(release.changes).map((change) => (
 					<li key={change.text}>
 						<Badge tone={RELEASE_CHANGE_TONES[change.kind]}>{RELEASE_CHANGE_LABELS[change.kind]}</Badge>
 						<span>{change.text}</span>

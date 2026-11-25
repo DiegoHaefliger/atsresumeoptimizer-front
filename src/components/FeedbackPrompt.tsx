@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-	FEEDBACK_PATH_PAGE,
+	feedbackPagePath,
+	isFeedbackPage,
 	PROMPT_DELAY_MS,
 	readPromptState,
 	shouldPrompt,
@@ -13,7 +14,7 @@ import { StarIcon } from "./icons";
 import { StarRating } from "./StarRating";
 
 export function FeedbackPrompt() {
-	const { pathname } = useLocation();
+	const { pathname, search } = useLocation();
 	const navigate = useNavigate();
 	const appVersion = useAppVersion()?.current ?? null;
 	const versionRef = useRef(appVersion);
@@ -40,7 +41,7 @@ export function FeedbackPrompt() {
 		};
 	}, []);
 
-	if (!visible || pathname === FEEDBACK_PATH_PAGE) {
+	if (!visible || isFeedbackPage(pathname, search)) {
 		return null;
 	}
 
@@ -51,7 +52,7 @@ export function FeedbackPrompt() {
 
 	function rate(rating: number) {
 		setVisible(false);
-		navigate(`${FEEDBACK_PATH_PAGE}?rating=${rating}`);
+		navigate(feedbackPagePath(rating));
 	}
 
 	return (
