@@ -14,6 +14,15 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.14",
+		date: "2026-11-25",
+		summary: "A aba Diagnóstico e os códigos de erro, anunciados na 1.1.13, passam a funcionar: a versão anterior saiu sem a parte do servidor.",
+		changes: [
+			{ kind: "fix", text: "Na aba Diagnóstico, em Sobre, o botão Baixar Diagnóstico mostrava o erro No static resource api/v1/diagnostics/bundle, e as informações do sistema não carregavam. O pacote de diagnóstico, as informações do sistema e o botão para abrir a pasta de logs voltaram a funcionar." },
+			{ kind: "fix", text: "As mensagens de erro do servidor agora mostram o código do erro, que também fica no log do app. Erros de tela passam a ser gravados no log." },
+		],
+	},
+	{
 		version: "1.1.13",
 		date: "2026-11-24",
 		summary: "Configurar a IA ficou bem mais fácil, com um passo a passo para criar a chave de cada provedor, e relatar um problema também: todo erro agora tem um código, e a nova aba Diagnóstico abre a issue no GitHub já preenchida.",
