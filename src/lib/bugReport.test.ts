@@ -5,6 +5,11 @@ import type { RecentError } from "./recentErrors";
 
 const REPORT: DiagnosticReport = {
 	generatedAt: "2026-11-25T20:00:00Z",
+	checks: [
+		{ name: "Banco de dados", status: "OK", detail: "conectado", hint: null },
+		{ name: "Conexão com Ollama (local)", status: "FAILURE", detail: "não respondeu: 192.168.1.5 recusou", hint: "Abra o Ollama." },
+	],
+	verdict: "1 falha.",
 	text: "",
 	logFileAvailable: true,
 	logsFolderOpenable: true,
@@ -38,9 +43,10 @@ describe("bugReportUrl", () => {
 		expect(body).toContain("### Código do erro\nK7Q3XM2A");
 		expect(body).toContain("### Versão do app\n1.2.0");
 		expect(body).toContain(
-			"```text\n## Sistema\n- Versão do app: 1.2.0\n\n## Erros recentes\n- 2026-11-25T20:01:00.000Z · K7Q3XM2A · /jobs · Falhou\n\n## Navegador\n- Firefox 140\n```",
+			"```text\n## Verificação\nResultado: 1 falha.\n- [OK] Banco de dados\n- [FALHA] Conexão com Ollama (local)\n\n## Sistema\n- Versão do app: 1.2.0\n\n## Erros recentes\n- 2026-11-25T20:01:00.000Z · K7Q3XM2A · /jobs · Falhou\n\n## Navegador\n- Firefox 140\n```",
 		);
 		expect(url.toString()).not.toContain("maria");
+		expect(url.toString()).not.toContain("192.168.1.5");
 	});
 
 	it("prefers the error the user chose over the latest one", () => {

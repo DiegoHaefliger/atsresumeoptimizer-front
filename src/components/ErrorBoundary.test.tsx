@@ -28,6 +28,6 @@ describe("ErrorBoundary", () => {
 
 		expect(screen.getByRole("heading", { name: "Esta tela encontrou um erro" })).toBeTruthy();
 		expect(await screen.findByText("K7Q3XM2A")).toBeTruthy();
-		expect(screen.getByRole("link", { name: /diagnóstico/ }).getAttribute("href")).toBe("/about?tab=diagnostics");
+		expect(screen.getByRole("link", { name: /diagnóstico/ }).getAttribute("href")).toBe("/help?tab=diagnostics");
 	});
 });

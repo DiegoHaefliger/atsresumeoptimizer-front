@@ -6,6 +6,7 @@ import {
 	BriefcaseIcon,
 	CalendarIcon,
 	FileTextIcon,
+	HelpCircleIcon,
 	InfoIcon,
 	LinkedInIcon,
 	MessageSquareIcon,
@@ -27,7 +28,10 @@ const NAV_ITEMS: { to: string; label: string; Icon: ComponentType<SVGProps<SVGSV
 	{ to: "/settings", label: "Configurações", Icon: SettingsIcon },
 ];
 
-const ABOUT_ITEM = { to: "/about", label: "Sobre", Icon: InfoIcon };
+const FOOTER_ITEMS = [
+	{ to: "/help", label: "Ajuda", Icon: HelpCircleIcon },
+	{ to: "/about", label: "Sobre", Icon: InfoIcon },
+];
 
 function navLink({ to, label, Icon }: (typeof NAV_ITEMS)[number]) {
 	return (
@@ -50,7 +54,7 @@ export function AppSidebar() {
 			</div>
 			<nav className="app-nav" aria-label="Principal">
 				{NAV_ITEMS.map(navLink)}
-				{navLink(ABOUT_ITEM)}
+				{FOOTER_ITEMS.map(navLink)}
 			</nav>
 			<div className="app-sidebar-actions">
 				<NotificationBell />

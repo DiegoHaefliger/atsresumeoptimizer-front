@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { lastSeenVersion, markVersionSeen } from "./lastSeenVersion";
 import { useAppVersion } from "./useAppVersion";
 
-export const RELEASE_NOTES_PATH = "/about?tab=version";
+export const RELEASE_NOTES_PATH = "/about";
 
 export function useReleaseNotesOnUpdate() {
 	const current = useAppVersion()?.current;

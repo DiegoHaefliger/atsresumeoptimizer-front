@@ -6,8 +6,14 @@ export type DiagnosticEntry = { label: string; value: string; personal: boolean 
 
 export type DiagnosticSection = { title: string; entries: DiagnosticEntry[] };
 
+export type ReadinessStatus = "OK" | "WARNING" | "FAILURE";
+
+export type ReadinessCheck = { name: string; status: ReadinessStatus; detail: string; hint: string | null };
+
 export type DiagnosticReport = {
 	generatedAt: string;
+	checks: ReadinessCheck[];
+	verdict: string;
 	sections: DiagnosticSection[];
 	text: string;
 	logFileAvailable: boolean;

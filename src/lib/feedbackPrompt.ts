@@ -1,3 +1,5 @@
+import { HELP_PATH, HELP_TAB_PARAM, helpPath } from "./helpTabs";
+
 const RATED_VERSION_KEY = "ats-feedback-rated-version";
 const SNOOZE_UNTIL_KEY = "ats-feedback-snooze-until";
 const DISMISSALS_KEY = "ats-feedback-dismissals";
@@ -10,15 +12,14 @@ const DISMISSALS_BEFORE_LONG_SNOOZE = 3;
 
 export const VALUE_EVENT = "ats-value-event";
 export const PROMPT_DELAY_MS = 2500;
-const ABOUT_PATH = "/about";
 const FEEDBACK_TAB = "feedback";
 
 export function feedbackPagePath(rating?: number): string {
-	return `${ABOUT_PATH}?tab=${FEEDBACK_TAB}${rating ? `&rating=${rating}` : ""}`;
+	return `${helpPath(FEEDBACK_TAB)}${rating ? `&rating=${rating}` : ""}`;
 }
 
 export function isFeedbackPage(pathname: string, search: string): boolean {
-	return pathname === ABOUT_PATH && new URLSearchParams(search).get("tab") === FEEDBACK_TAB;
+	return pathname === HELP_PATH && new URLSearchParams(search).get(HELP_TAB_PARAM) === FEEDBACK_TAB;
 }
 
 function readNumber(key: string): number {
