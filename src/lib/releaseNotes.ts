@@ -14,6 +14,28 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
 	{
+		version: "1.1.15",
+		date: "2026-11-27",
+		summary: "Novo menu Ajuda com uma verificação de tudo que o app precisa para funcionar, vagas com ordenação e sugestões paginadas, currículo adaptado com contatos, formação e idiomas no lugar certo, e proteção contra duas cópias do app usando o mesmo banco.",
+		changes: [
+			{ kind: "feat", text: "Novo menu Ajuda, na barra lateral, com três abas: Suporte, para tirar dúvidas no grupo do WhatsApp e relatar problemas; Diagnóstico, com a verificação do sistema, os erros recentes e as informações do sistema; e Avaliar o app." },
+			{ kind: "feat", text: "Verificação do sistema, em Ajuda › Diagnóstico: o app confere o banco de dados, se há IA configurada, se cada provedor responde e tem o modelo escolhido, a pasta de dados e o espaço livre no disco, se já há currículo enviado e se as preferências da busca de vagas estão completas. Cada problema vem com o que fazer para resolver; no Ollama, por exemplo, o comando para baixar o modelo que falta. A verificação também vai no pacote de diagnóstico." },
+			{ kind: "feat", text: "Em Vagas, as abas Cadastradas e Sugestões ganharam o filtro Ordenar por. Nas cadastradas: etapa do processo, data de cadastro, compatibilidade, aderência ou nota ATS. Nas sugestões: aderência, data de publicação ou data em que a busca encontrou a vaga." },
+			{ kind: "feat", text: "As sugestões de vagas agora vêm em páginas de 30, e dá para mudar para 60 ou 100 por página. A busca, os filtros e a ordenação continuam valendo para todas as vagas, não só para a página aberta." },
+			{ kind: "feat", text: "Só uma cópia do app pode usar o mesmo banco de dados por vez. Se outro computador já estiver com o app aberto no mesmo banco externo, o app avisa qual versão e qual computador estão usando o banco e oferece tentar de novo ou usar o banco local. Isso evita que uma versão nova altere o banco enquanto uma antiga ainda está rodando." },
+			{ kind: "improvement", text: "Ao abrir uma versão nova com outra versão ainda aberta no mesmo computador, o app avisa e pede para fechar a anterior, em vez de abrir a versão antiga sem dizer nada." },
+			{ kind: "improvement", text: "A tela Sobre ficou mais simples: uma página só, com a versão instalada e o aviso de atualização, os links do projeto e as novidades por versão. Diagnóstico, relato de problemas e avaliação foram para o menu Ajuda, e os atalhos antigos levam para o lugar novo." },
+			{ kind: "improvement", text: "Em Ajuda › Diagnóstico, o pacote de diagnóstico pode ser baixado direto, sem precisar abrir uma issue." },
+			{ kind: "improvement", text: "As abas de sugestões abrem bem mais rápido quando há milhares de vagas, porque o app só carrega a página que está na tela." },
+			{ kind: "fix", text: "No currículo adaptado, os campos GitHub e Portfólio podiam receber o telefone e o e-mail quando o cabeçalho do currículo original tinha os contatos em outra ordem. Agora esses campos só são preenchidos com o que é de fato GitHub e portfólio." },
+			{ kind: "fix", text: "No currículo adaptado, o campo Atividades de um cargo não repete mais a primeira responsabilidade quando o original não tinha atividades." },
+			{ kind: "fix", text: "A cidade e o estado não saem mais grudados no nome da empresa, em letras maiúsculas, quando a IA os junta com hífen ou vírgula." },
+			{ kind: "fix", text: "A formação acadêmica do currículo adaptado volta a vir com curso, instituição e período em campos separados, como no currículo original, em vez de virar um bloco de texto." },
+			{ kind: "fix", text: "Os idiomas do currículo original, como Inglês - Básico, não somem mais do currículo adaptado." },
+			{ kind: "fix", text: "Uma vaga promovida podia ficar sem as informações extraídas pela IA, como cargo, senioridade e palavras-chave, quando era analisada logo em seguida. O erro duplicate key value violates unique constraint llm_cache_pkey não acontece mais." },
+		],
+	},
+	{
 		version: "1.1.14",
 		date: "2026-11-25",
 		summary: "A aba Diagnóstico e os códigos de erro, anunciados na 1.1.13, passam a funcionar: a versão anterior saiu sem a parte do servidor.",

@@ -43,7 +43,7 @@ describe("useReleaseNotesOnUpdate", () => {
 
 		renderAt("/jobs");
 
-		await vi.waitFor(() => expect(screen.getByTestId("path").textContent).toBe("/about?tab=version"));
+		await vi.waitFor(() => expect(screen.getByTestId("path").textContent).toBe("/about"));
 		expect(localStorage.getItem("ats-last-seen-version")).toBe("1.1.13");
 	});
 
@@ -52,7 +52,7 @@ describe("useReleaseNotesOnUpdate", () => {
 
 		renderAt("/jobs");
 
-		await vi.waitFor(() => expect(screen.getByTestId("path").textContent).toBe("/about?tab=version"));
+		await vi.waitFor(() => expect(screen.getByTestId("path").textContent).toBe("/about"));
 	});
 
 	it("leaves the user where they are once the version was seen", async () => {

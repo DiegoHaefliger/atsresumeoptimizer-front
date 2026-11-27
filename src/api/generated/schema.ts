@@ -1466,6 +1466,18 @@ export interface components {
             /** Format: uuid */
             jobPostingId?: string;
         };
+        JobSuggestionPageResponse: {
+            items?: components["schemas"]["JobSuggestionResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalItems?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            sources?: string[];
+        };
         SearchRunResponse: {
             /** Format: uuid */
             id?: string;

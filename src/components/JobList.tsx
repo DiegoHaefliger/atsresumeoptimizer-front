@@ -2,7 +2,8 @@ import { Fragment, useMemo, useRef, useState } from "react";
 import { filterJobs, loadFilters, saveFilters, seniorityOptions, type JobFilters } from "../lib/jobFilters";
 import { jobLabel } from "../lib/jobCode";
 import { jobMeta } from "../lib/jobMeta";
-import { byProcessStage, JOB_GROUP_LABELS, jobGroup, type JobGroup } from "../lib/jobOrder";
+import { JOB_GROUP_LABELS, jobGroup, type JobGroup } from "../lib/jobOrder";
+import { jobComparator, loadJobSort, saveJobSort, type JobSort } from "../lib/jobSort";
 import { loadPageSize, savePageSize } from "../lib/jobPageSize";
 import { scoreTone } from "../lib/score";
 import type { Job } from "../lib/useJobs";
@@ -60,6 +61,7 @@ export function JobList({
 	const [removingId, setRemovingId] = useState<string | null>(null);
 	const [confirmingRemoval, setConfirmingRemoval] = useState<Job | null>(null);
 	const [filters, setFilters] = useState<JobFilters>(loadFilters);
+	const [sort, setSort] = useState<JobSort>(loadJobSort);
 	const [page, setPage] = useState(0);
 	const [pageSize, setPageSize] = useState(() =>
 		pageSizeOptions && initialPageSize ? loadPageSize(pageSizeOptions, initialPageSize) : initialPageSize,
@@ -69,6 +71,11 @@ export function JobList({
 		setFilters(next);
 		setPage(0);
 		saveFilters(next);
+	}
+	function changeSort(next: JobSort) {
+		setSort(next);
+		setPage(0);
+		saveJobSort(next);
 	}
 	function changePage(next: number) {
 		setPage(next);
@@ -81,7 +88,7 @@ export function JobList({
 	}
 	const seniorities = useMemo(() => seniorityOptions(jobs ?? []), [jobs]);
 	const visibleJobs = useMemo(() => filterJobs(jobs ?? [], filters), [jobs, filters]);
-	const orderedJobs = useMemo(() => [...visibleJobs].sort(byProcessStage(processes)), [visibleJobs, processes]);
+	const orderedJobs = useMemo(() => [...visibleJobs].sort(jobComparator(sort, processes)), [visibleJobs, sort, processes]);
 	const pageCount = pageSize ? Math.max(1, Math.ceil(orderedJobs.length / pageSize)) : 1;
 	const currentPage = Math.min(page, pageCount - 1);
 	const pageJobs = pageSize ? orderedJobs.slice(currentPage * pageSize, (currentPage + 1) * pageSize) : orderedJobs;
@@ -139,6 +146,8 @@ export function JobList({
 			<JobFiltersBar
 				filters={filters}
 				onChange={changeFilters}
+				sort={sort}
+				onSortChange={changeSort}
 				seniorities={seniorities}
 				shown={visibleJobs.length}
 				total={jobs.length}
@@ -149,7 +158,7 @@ export function JobList({
 				<div className="job-grid">
 					{pageJobs.map((job, index) => {
 						const group = jobGroup(job, processes);
-						const startsGroup = groupCounts.size > 1 && (index === 0 || jobGroup(pageJobs[index - 1], processes) !== group);
+						const startsGroup = sort === "stage" && groupCounts.size > 1 && (index === 0 || jobGroup(pageJobs[index - 1], processes) !== group);
 						return (
 							<Fragment key={job.id}>
 								{startsGroup && (

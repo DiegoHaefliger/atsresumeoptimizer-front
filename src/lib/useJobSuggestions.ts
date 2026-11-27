@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPostJson } from "../api/client";
-import type { JobSuggestion, PromotedJob, SuggestionCount } from "../api/types";
+import type { JobSuggestion, JobSuggestionPage, PromotedJob, SuggestionCount } from "../api/types";
+import { suggestionSearchParams, type SuggestionPageRequest } from "./suggestionFilters";
 
 const SUGGESTIONS_PATH = "/api/v1/job-suggestions";
 
@@ -28,7 +29,7 @@ export function useSuggestionCounts() {
 	return { counts, reload };
 }
 
-type Loaded = { path: string; items: JobSuggestion[] };
+type Loaded = { view: SuggestionView; key: string; page: JobSuggestionPage };
 
 export type SuggestionView = "new" | "below" | "discarded";
 
@@ -38,43 +39,38 @@ const VIEW_PATHS: Record<SuggestionView, string> = {
 	discarded: `${SUGGESTIONS_PATH}/discarded`,
 };
 
-export function useJobSuggestions(view: SuggestionView) {
+export function useJobSuggestions(view: SuggestionView, request: SuggestionPageRequest) {
 	const [loaded, setLoaded] = useState<Loaded | null>(null);
 	const [failed, setFailed] = useState(false);
-	const path = VIEW_PATHS[view];
-	const suggestions = loaded?.path === path ? loaded.items : null;
+	const key = `${VIEW_PATHS[view]}?${suggestionSearchParams(request)}`;
+	const page = loaded?.view === view ? loaded.page : null;
+	const loading = loaded?.key !== key;
 
 	const reload = useCallback(() => {
-		apiGet<JobSuggestion[]>(path)
-			.then((items) => {
-				setFailed(false);
-				setLoaded({ path, items });
+		let current = true;
+		apiGet<JobSuggestionPage>(key)
+			.then((loadedPage) => {
+				if (current) {
+					setFailed(false);
+					setLoaded({ view, key, page: loadedPage });
+				}
 			})
-			.catch(() => setFailed(true));
-	}, [path]);
+			.catch(() => current && setFailed(true));
+		return () => {
+			current = false;
+		};
+	}, [view, key]);
 
 	useEffect(reload, [reload]);
 
-	const remove = useCallback((id: string) => {
-		setLoaded((current) => (current ? { ...current, items: current.items.filter((item) => item.id !== id) } : current));
+	const promote = useCallback(async (id: string) => {
+		const promoted = await apiPostJson<PromotedJob>(`${SUGGESTIONS_PATH}/${id}/promote`, {});
+		return promoted.jobId;
 	}, []);
 
-	const promote = useCallback(
-		async (id: string) => {
-			const promoted = await apiPostJson<PromotedJob>(`${SUGGESTIONS_PATH}/${id}/promote`, {});
-			remove(id);
-			return promoted.jobId;
-		},
-		[remove],
-	);
+	const decide = useCallback(async (id: string, action: "discard" | "restore") => {
+		await apiPostJson<JobSuggestion>(`${SUGGESTIONS_PATH}/${id}/${action}`, {});
+	}, []);
 
-	const decide = useCallback(
-		async (id: string, action: "discard" | "restore") => {
-			await apiPostJson<JobSuggestion>(`${SUGGESTIONS_PATH}/${id}/${action}`, {});
-			remove(id);
-		},
-		[remove],
-	);
-
-	return { suggestions, failed, reload, promote, decide };
+	return { page, loading, failed, reload, promote, decide };
 }

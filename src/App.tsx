@@ -27,6 +27,7 @@ import { ChatPage } from "./pages/ChatPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { AboutPage } from "./pages/AboutPage";
+import { HelpPage } from "./pages/HelpPage";
 import { ProcessRedirectPage } from "./pages/ProcessRedirectPage";
 import { useReleaseNotesOnUpdate } from "./lib/useReleaseNotesOnUpdate";
 
@@ -71,7 +72,8 @@ export default function App() {
 						<Route path="/chat" element={<ChatPage />} />
 						<Route path="/chat/:conversationId" element={<ChatPage />} />
 						<Route path="/changelog" element={<Navigate to="/about" replace />} />
-						<Route path="/feedback" element={<Navigate to="/about?tab=feedback" replace />} />
+						<Route path="/feedback" element={<Navigate to="/help?tab=feedback" replace />} />
+						<Route path="/help" element={<HelpPage />} />
 						<Route path="/about" element={<AboutPage />} />
 						<Route path="/processes/:processId" element={<ProcessRedirectPage />} />
 						<Route path="*" element={<Navigate to="/jobs" replace />} />

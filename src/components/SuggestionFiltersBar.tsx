@@ -6,16 +6,20 @@ import {
 	type SuggestionFilters,
 } from "../lib/suggestionFilters";
 import { sourceLabel } from "../lib/suggestionLabels";
+import { SUGGESTION_SORT_OPTIONS, type SuggestionSort } from "../lib/suggestionSort";
+import { SortSelect } from "./SortSelect";
 
 type SuggestionFiltersBarProps = {
 	filters: SuggestionFilters;
 	onChange: (filters: SuggestionFilters) => void;
+	sort: SuggestionSort;
+	onSortChange: (sort: SuggestionSort) => void;
 	sources: string[];
 	shown: number;
 	total: number;
 };
 
-export function SuggestionFiltersBar({ filters, onChange, sources, shown, total }: SuggestionFiltersBarProps) {
+export function SuggestionFiltersBar({ filters, onChange, sort, onSortChange, sources, shown, total }: SuggestionFiltersBarProps) {
 	const update = <K extends keyof SuggestionFilters>(key: K, value: SuggestionFilters[K]) => onChange({ ...filters, [key]: value });
 	const active = hasActiveSuggestionFilters(filters);
 
@@ -69,6 +73,7 @@ export function SuggestionFiltersBar({ filters, onChange, sources, shown, total 
 					))}
 				</select>
 			</label>
+			<SortSelect value={sort} options={SUGGESTION_SORT_OPTIONS} onChange={onSortChange} />
 			<div className="job-filters-summary">
 				<span aria-live="polite">
 					{active ? `${shown} de ${total} ${total === 1 ? "vaga" : "vagas"}` : `${total} ${total === 1 ? "vaga" : "vagas"}`}

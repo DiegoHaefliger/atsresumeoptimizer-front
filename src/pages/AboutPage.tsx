@@ -1,30 +1,18 @@
-import { useSearchParams } from "react-router-dom";
-import { AboutDiagnosticsTab } from "../components/about/AboutDiagnosticsTab";
-import { AboutFeedbackTab } from "../components/about/AboutFeedbackTab";
-import { AboutLinksTab } from "../components/about/AboutLinksTab";
-import { AboutVersionTab } from "../components/about/AboutVersionTab";
-import { PageTabs } from "../components/PageTabs";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { AboutLinks } from "../components/about/AboutLinks";
+import { AboutReleaseNotes } from "../components/about/AboutReleaseNotes";
+import { AboutVersion } from "../components/about/AboutVersion";
+import { helpPath, isHelpTab } from "../lib/helpTabs";
 
-type AboutTab = "links" | "version" | "diagnostics" | "feedback";
-
-const TAB_OPTIONS: { value: AboutTab; label: string }[] = [
-	{ value: "links", label: "Links" },
-	{ value: "version", label: "Versão" },
-	{ value: "diagnostics", label: "Diagnóstico" },
-	{ value: "feedback", label: "Avaliar" },
-];
-
-const TAB_PARAM = "tab";
-
-function isAboutTab(value: string | null): value is AboutTab {
-	return TAB_OPTIONS.some((option) => option.value === value);
-}
+const LEGACY_TAB_PARAM = "tab";
 
 export function AboutPage() {
-	const [searchParams, setSearchParams] = useSearchParams();
-	const requested = searchParams.get(TAB_PARAM);
-	const tab: AboutTab = isAboutTab(requested) ? requested : "links";
-	const setTab = (next: AboutTab) => setSearchParams({ [TAB_PARAM]: next }, { replace: true });
+	const [searchParams] = useSearchParams();
+	const legacyTab = searchParams.get(LEGACY_TAB_PARAM);
+	if (legacyTab !== "support" && isHelpTab(legacyTab)) {
+		const rating = searchParams.get("rating");
+		return <Navigate to={`${helpPath(legacyTab)}${rating ? `&rating=${rating}` : ""}`} replace />;
+	}
 
 	return (
 		<div className="page">
@@ -37,11 +25,16 @@ export function AboutPage() {
 					</p>
 				</div>
 			</header>
-			<PageTabs label="Seções do Sobre" options={TAB_OPTIONS} value={tab} onChange={setTab} />
-			{tab === "links" && <AboutLinksTab />}
-			{tab === "version" && <AboutVersionTab />}
-			{tab === "diagnostics" && <AboutDiagnosticsTab />}
-			{tab === "feedback" && <AboutFeedbackTab />}
+			<div className="about-page">
+				<AboutVersion />
+				<AboutLinks />
+				<section aria-labelledby="release-notes-title">
+					<h2 id="release-notes-title" className="about-section-title">
+						Novidades por versão
+					</h2>
+					<AboutReleaseNotes />
+				</section>
+			</div>
 		</div>
 	);
 }

@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ApiError, errorMessage } from "../api/client";
 import type { JobSuggestion } from "../api/types";
 import { useJobSuggestions, type SuggestionCounts, type SuggestionView } from "../lib/useJobSuggestions";
-import { EMPTY_SUGGESTION_FILTERS, filterSuggestions, suggestionSources, type SuggestionFilters } from "../lib/suggestionFilters";
+import {
+	EMPTY_SUGGESTION_FILTERS,
+	SUGGESTION_PAGE_SIZE,
+	SUGGESTION_PAGE_SIZE_OPTIONS,
+	hasActiveSuggestionFilters,
+	type SuggestionFilters,
+} from "../lib/suggestionFilters";
+import { DEFAULT_SUGGESTION_SORT, type SuggestionSort } from "../lib/suggestionSort";
+import { useDebouncedValue } from "../lib/useDebouncedValue";
 import { useDismissedRun } from "../lib/useDismissedRun";
 import { useSearchStatus } from "../lib/useSearchStatus";
 import { BusyLabel } from "./BusyLabel";
@@ -14,6 +22,7 @@ import { SegmentedTabs } from "./SegmentedTabs";
 import { SuggestionBulkBar, type BulkAction } from "./SuggestionBulkBar";
 import { SuggestionFiltersBar } from "./SuggestionFiltersBar";
 import { LoadFailed } from "./LoadFailed";
+import { Pagination } from "./Pagination";
 import { SearchProgress } from "./SearchProgress";
 import { Skeleton } from "./Skeleton";
 import { StateMessage } from "./StateMessage";
@@ -27,6 +36,8 @@ type JobSuggestionsPanelProps = {
 type IdentifiedSuggestion = JobSuggestion & { id: string };
 
 const UNPROCESSABLE = 422;
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 const EMPTY_MESSAGES: Record<SuggestionView, string> = {
 	new: "Nenhuma vaga sugerida. Defina a busca em Preferências e clique em Buscar novas vagas, ou importe uma postagem.",
@@ -53,20 +64,66 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 	const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
 	const [bulkBusy, setBulkBusy] = useState<BulkAction | null>(null);
 	const [filters, setFilters] = useState<SuggestionFilters>(EMPTY_SUGGESTION_FILTERS);
-	const { suggestions, failed, reload, promote, decide } = useJobSuggestions(view);
+	const [sort, setSort] = useState<SuggestionSort>(DEFAULT_SUGGESTION_SORT);
+	const [pageIndex, setPageIndex] = useState(0);
+	const [pageSize, setPageSize] = useState<number>(SUGGESTION_PAGE_SIZE);
+	const listTop = useRef<HTMLDivElement>(null);
+	const query = useDebouncedValue(filters.query, SEARCH_DEBOUNCE_MS);
+	const { page, loading, failed, reload, promote, decide } = useJobSuggestions(view, {
+		filters: { ...filters, query },
+		sort,
+		page: pageIndex,
+		size: pageSize,
+	});
 	const { status, start, busy: searching } = useSearchStatus(() => {
 		reload();
 		onChanged();
 	});
 	const lastRunError = useDismissedRun(status?.lastRun?.id);
-	const items = suggestions?.filter((item): item is IdentifiedSuggestion => Boolean(item.id)) ?? null;
-	const visible = items ? filterSuggestions(items, filters) : null;
+	const visible = page?.items?.filter((item): item is IdentifiedSuggestion => Boolean(item.id)) ?? null;
+	const totalItems = page?.totalItems ?? 0;
+	const totalPages = page?.totalPages ?? 0;
+	const viewTotal = { new: counts.newSuggestions, below: counts.belowAdherence, discarded: counts.discarded }[view];
+	const nothingAtAll = totalItems === 0 && !hasActiveSuggestionFilters(filters);
+
+	useEffect(() => {
+		if (totalPages > 0 && pageIndex >= totalPages) {
+			setPageIndex(totalPages - 1);
+		}
+	}, [pageIndex, totalPages]);
+
+	function restartPaging() {
+		setPageIndex(0);
+		setSelected(new Set());
+	}
+
+	function changeFilters(next: SuggestionFilters) {
+		setFilters(next);
+		restartPaging();
+	}
+
+	function changeSort(next: SuggestionSort) {
+		setSort(next);
+		restartPaging();
+	}
+
+	function changePage(next: number) {
+		setPageIndex(next);
+		setSelected(new Set());
+		listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	}
+
+	function changePageSize(next: number) {
+		setPageSize(next);
+		restartPaging();
+	}
 
 	async function run(id: string, action: () => Promise<unknown>, fallback: string) {
 		setBusyId(id);
 		setError(null);
 		try {
 			await action();
+			reload();
 			onChanged();
 			return true;
 		} catch (err) {
@@ -111,6 +168,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 			}
 		}
 		setSelected(failed);
+		reload();
 		onChanged();
 		setBulkBusy(null);
 		if (failed.size > 0) {
@@ -136,6 +194,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 			reload();
 		} else {
 			setView(target);
+			setPageIndex(0);
 		}
 		onChanged();
 	}
@@ -167,6 +226,7 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 					value={view}
 					onChange={(next) => {
 						setView(next);
+						setPageIndex(0);
 						setSelected(new Set());
 						setImporting(false);
 					}}
@@ -199,12 +259,12 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 			)}
 			{failed ? (
 				<LoadFailed message="Não deu pra carregar as sugestões." onRetry={reload} />
-			) : items === null ? (
+			) : visible === null ? (
 				<div className="job-grid">
 					<Skeleton height={180} />
 					<Skeleton height={180} />
 				</div>
-			) : items.length === 0 ? (
+			) : nothingAtAll ? (
 				<StateMessage
 					variant="empty"
 					layout="page"
@@ -213,16 +273,19 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 				/>
 			) : (
 				<>
+					<div ref={listTop} className="job-list-top" />
 					<SuggestionFiltersBar
 						filters={filters}
-						onChange={setFilters}
-						sources={suggestionSources(items)}
-						shown={visible?.length ?? 0}
-						total={items.length}
+						onChange={changeFilters}
+						sort={sort}
+						onSortChange={changeSort}
+						sources={page?.sources ?? []}
+						shown={totalItems}
+						total={Math.max(viewTotal, totalItems)}
 					/>
 					{selectable && (
 						<SuggestionBulkBar
-							visible={visible?.length ?? 0}
+							visible={visible.length}
 							selected={selectedVisible.length}
 							busy={bulkBusy}
 							onToggleAll={toggleAll}
@@ -230,24 +293,30 @@ export function JobSuggestionsPanel({ counts, onChanged, onPromoted }: JobSugges
 							onDiscard={() => runBulk("discard")}
 						/>
 					)}
-					{visible?.length === 0 ? (
+					{visible.length === 0 ? (
 						<StateMessage variant="empty" layout="inline" message="Nenhuma vaga combina com esses filtros." />
 					) : (
-					<div className="job-grid">
-						{visible?.map((item) => (
-							<JobSuggestionCard
-								key={item.id}
-								suggestion={item}
-								view={view}
-								busy={busyId !== null || bulkBusy !== null}
-								selection={selectable ? { selected: selected.has(item.id), onToggle: toggle } : undefined}
-								onPromote={handlePromote}
-								onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
-								onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
-							/>
-						))}
-					</div>
+						<div className="job-grid" aria-busy={loading}>
+							{visible.map((item) => (
+								<JobSuggestionCard
+									key={item.id}
+									suggestion={item}
+									view={view}
+									busy={busyId !== null || bulkBusy !== null}
+									selection={selectable ? { selected: selected.has(item.id), onToggle: toggle } : undefined}
+									onPromote={handlePromote}
+									onDiscard={(id) => run(id, () => decide(id, "discard"), "Não deu pra descartar.")}
+									onRestore={(id) => run(id, () => decide(id, "restore"), "Não deu pra restaurar.")}
+								/>
+							))}
+						</div>
 					)}
+					<Pagination
+						page={Math.min(pageIndex, Math.max(totalPages - 1, 0))}
+						pageCount={Math.max(totalPages, 1)}
+						onChange={changePage}
+						pageSize={{ value: pageSize, options: SUGGESTION_PAGE_SIZE_OPTIONS, total: totalItems, onChange: changePageSize }}
+					/>
 				</>
 			)}
 		</section>

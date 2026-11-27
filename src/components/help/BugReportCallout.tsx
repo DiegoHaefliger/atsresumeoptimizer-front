@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { errorMessage } from "../../api/client";
-import { downloadDiagnosticBundle } from "../../lib/diagnosticsApi";
 import { PROJECT_LINKS } from "../../lib/projectLinks";
 import { useBugReportUrl } from "../../lib/useBugReportUrl";
+import { useDiagnosticBundleDownload } from "../../lib/useDiagnosticBundleDownload";
 import { BusyLabel } from "../BusyLabel";
 import { CheckCircleIcon, DownloadIcon, ExternalLinkIcon, GitHubIcon, PaperclipIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
@@ -11,22 +9,7 @@ const LOCKED_HINT = "Libera depois de baixar o diagnóstico";
 
 export function BugReportCallout() {
 	const bugReportUrl = useBugReportUrl();
-	const [downloading, setDownloading] = useState(false);
-	const [downloaded, setDownloaded] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-
-	async function download() {
-		setError(null);
-		setDownloading(true);
-		try {
-			await downloadDiagnosticBundle();
-			setDownloaded(true);
-		} catch (caught) {
-			setError(errorMessage(caught, "Não deu pra gerar o pacote de diagnóstico."));
-		} finally {
-			setDownloading(false);
-		}
-	}
+	const { download, downloading, downloaded, error } = useDiagnosticBundleDownload();
 
 	return (
 		<section className="bug-callout panel" aria-labelledby="bug-callout-title">

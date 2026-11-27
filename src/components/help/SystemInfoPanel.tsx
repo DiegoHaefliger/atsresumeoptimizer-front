@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { errorMessage } from "../../api/client";
 import { openLogsFolder, type DiagnosticReport } from "../../lib/diagnosticsApi";
-import { FileTextIcon, LockIcon } from "../icons";
+import { useDiagnosticBundleDownload } from "../../lib/useDiagnosticBundleDownload";
+import { BusyLabel } from "../BusyLabel";
+import { CheckCircleIcon, DownloadIcon, FileTextIcon, LockIcon } from "../icons";
 import { StateMessage } from "../StateMessage";
 
 type SystemInfoPanelProps = { report: DiagnosticReport };
 
 export function SystemInfoPanel({ report }: SystemInfoPanelProps) {
 	const [error, setError] = useState<string | null>(null);
+	const bundle = useDiagnosticBundleDownload();
 
 	async function openFolder() {
 		setError(null);
@@ -29,14 +32,19 @@ export function SystemInfoPanel({ report }: SystemInfoPanelProps) {
 					</p>
 				</div>
 			</header>
-			{report.logsFolderOpenable && (
-				<div className="diagnostics-actions">
+			<div className="diagnostics-actions">
+				<button type="button" className="btn-secondary" onClick={() => void bundle.download()} disabled={bundle.downloading}>
+					<BusyLabel busy={bundle.downloading} busyText="Gerando...">
+						{bundle.downloaded ? <CheckCircleIcon /> : <DownloadIcon />} Baixar pacote de diagnóstico
+					</BusyLabel>
+				</button>
+				{report.logsFolderOpenable && (
 					<button type="button" className="btn-secondary" onClick={() => void openFolder()}>
 						<FileTextIcon /> Abrir pasta de logs
 					</button>
-				</div>
-			)}
-			{error && <StateMessage message={error} />}
+				)}
+			</div>
+			{(error ?? bundle.error) && <StateMessage message={(error ?? bundle.error) as string} />}
 			<div className="diagnostics-sections">
 				{report.sections.map((section) => (
 					<div key={section.title} className="diagnostics-section panel">

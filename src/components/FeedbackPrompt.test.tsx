@@ -63,7 +63,7 @@ describe("FeedbackPrompt", () => {
 
 		fireEvent.click(screen.getByRole("radio", { name: /4 estrelas/ }));
 
-		expect(screen.getByTestId("where").textContent).toBe("/about?tab=feedback&rating=4");
+		expect(screen.getByTestId("where").textContent).toBe("/help?tab=feedback&rating=4");
 		expect(screen.queryByText("Gostou do resultado?")).toBeNull();
 	});
 
@@ -78,7 +78,7 @@ describe("FeedbackPrompt", () => {
 	});
 
 	it("does not show on the feedback page itself", async () => {
-		renderPrompt("/about?tab=feedback");
+		renderPrompt("/help?tab=feedback");
 
 		await valueMoment();
 

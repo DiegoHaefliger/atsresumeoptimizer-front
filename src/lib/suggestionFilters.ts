@@ -1,4 +1,4 @@
-import type { JobSuggestion } from "../api/types";
+import type { SuggestionSort } from "./suggestionSort";
 
 export type SuggestionFilters = {
 	query: string;
@@ -17,14 +17,16 @@ export const POSTED_WITHIN_OPTIONS = [
 	{ days: 30, label: "Últimos 30 dias" },
 ] as const;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+export const SUGGESTION_PAGE_SIZE = 30;
 
-function normalized(text: string | undefined): string {
-	return (text ?? "")
-		.normalize("NFD")
-		.replace(/\p{Diacritic}/gu, "")
-		.toLocaleLowerCase("pt-BR");
-}
+export const SUGGESTION_PAGE_SIZE_OPTIONS = [30, 60, 100] as const;
+
+export type SuggestionPageRequest = {
+	filters: SuggestionFilters;
+	sort: SuggestionSort;
+	page: number;
+	size: number;
+};
 
 export function hasActiveSuggestionFilters(filters: SuggestionFilters): boolean {
 	return (Object.keys(EMPTY_SUGGESTION_FILTERS) as (keyof SuggestionFilters)[]).some(
@@ -32,27 +34,20 @@ export function hasActiveSuggestionFilters(filters: SuggestionFilters): boolean 
 	);
 }
 
-export function suggestionSources(suggestions: JobSuggestion[]): string[] {
-	return [...new Set(suggestions.map((item) => item.source).filter((source): source is string => Boolean(source)))].sort();
-}
-
-function postedRecently(postedOn: string | undefined, days: number, now: number): boolean {
-	if (!postedOn) {
-		return false;
+export function suggestionSearchParams({ filters, sort, page, size }: SuggestionPageRequest): URLSearchParams {
+	const params = new URLSearchParams({ page: String(page), size: String(size), sort });
+	const query = filters.query.trim();
+	if (query) {
+		params.set("query", query);
 	}
-	const posted = Date.parse(`${postedOn}T00:00:00`);
-	return !Number.isNaN(posted) && now - posted <= days * DAY_MS;
-}
-
-export function filterSuggestions<T extends JobSuggestion>(suggestions: T[], filters: SuggestionFilters, now = Date.now()): T[] {
-	const words = normalized(filters.query).split(/\s+/).filter(Boolean);
-	return suggestions.filter((item) => {
-		const haystack = normalized([item.title, item.company, item.location, item.description].join(" "));
-		return (
-			words.every((word) => haystack.includes(word)) &&
-			(!filters.source || item.source === filters.source) &&
-			(filters.minScore === 0 || (item.score ?? -1) >= filters.minScore) &&
-			(filters.postedWithinDays === 0 || postedRecently(item.postedOn, filters.postedWithinDays, now))
-		);
-	});
+	if (filters.source) {
+		params.set("source", filters.source);
+	}
+	if (filters.minScore > 0) {
+		params.set("minScore", String(filters.minScore));
+	}
+	if (filters.postedWithinDays > 0) {
+		params.set("postedWithinDays", String(filters.postedWithinDays));
+	}
+	return params;
 }

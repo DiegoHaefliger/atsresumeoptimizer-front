@@ -40,6 +40,7 @@ export type JobPreferenceResponse = components["schemas"]["JobPreferenceResponse
 export type PostedWithin = NonNullable<JobPreferenceRequest["searchPostedWithin"]>;
 export type SearchSite = NonNullable<JobPreferenceRequest["searchSites"]>[number];
 export type JobSuggestion = components["schemas"]["JobSuggestionResponse"];
+export type JobSuggestionPage = components["schemas"]["JobSuggestionPageResponse"];
 export type ImportPostRequest = components["schemas"]["ImportPostRequest"];
 export type SearchRun = components["schemas"]["SearchRunResponse"];
 export type SearchStatus = components["schemas"]["SearchStatusResponse"];

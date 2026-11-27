@@ -54,7 +54,7 @@ export function ScreenErrorFallback({ error, errorId, reporting, onRetry }: Scre
 					Relatar problema no GitHub <ExternalLinkIcon />
 					<span className="sr-only">(abre em nova aba)</span>
 				</a>
-				<Link className="link" to="/about?tab=diagnostics">
+				<Link className="link" to="/help?tab=diagnostics">
 					Ver diagnóstico
 				</Link>
 			</div>

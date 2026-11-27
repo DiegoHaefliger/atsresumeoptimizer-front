@@ -1,4 +1,4 @@
-import type { DiagnosticReport } from "./diagnosticsApi";
+import type { DiagnosticReport, ReadinessStatus } from "./diagnosticsApi";
 import { PROJECT_LINKS } from "./projectLinks";
 import type { RecentError } from "./recentErrors";
 
@@ -17,6 +17,16 @@ export type BugReportDraft = {
 	recentErrors?: RecentError[];
 	userAgent?: string | null;
 };
+
+const STATUS_TAGS: Record<ReadinessStatus, string> = { OK: "[OK]", WARNING: "[ATENÇÃO]", FAILURE: "[FALHA]" };
+
+function checksSection(report: DiagnosticReport): string[] {
+	if (report.checks.length === 0) {
+		return [];
+	}
+	const lines = report.checks.map((check) => `- ${STATUS_TAGS[check.status]} ${check.name}`);
+	return [["## Verificação", `Resultado: ${report.verdict}`, ...lines].join("\n")];
+}
 
 function reportSections(report: DiagnosticReport): string[] {
 	return report.sections.map((section) => {
@@ -37,7 +47,7 @@ function recentErrorsSection(errors: RecentError[]): string[] {
 
 export function publicDiagnostics(draft: BugReportDraft): string {
 	return [
-		...(draft.report ? reportSections(draft.report) : ["## Sistema\n- Não foi possível consultar o servidor"]),
+		...(draft.report ? [...checksSection(draft.report), ...reportSections(draft.report)] : ["## Sistema\n- Não foi possível consultar o servidor"]),
 		...recentErrorsSection(draft.recentErrors ?? []),
 		...(draft.userAgent ? [`## Navegador\n- ${draft.userAgent}`] : []),
 	].join("\n\n");
@@ -62,7 +72,7 @@ function issueBody(draft: BugReportDraft): string {
 		`### Código do erro\n${draft.errorId ?? latest?.errorId ?? "sem código"}`,
 		`### Versão do app\n${draft.version ?? reportedVersion(draft.report) ?? "não informada"}`,
 		`### Informações do sistema\n\`\`\`text\n${diagnostics}\n\`\`\``,
-		"### Pacote de diagnóstico e prints\n<!-- Arraste aqui o .zip baixado em Sobre › Diagnóstico e, se puder, um print do erro. -->",
+		"### Pacote de diagnóstico e prints\n<!-- Arraste aqui o .zip baixado em Ajuda › Diagnóstico e, se puder, um print do erro. -->",
 	].join("\n\n");
 }
 

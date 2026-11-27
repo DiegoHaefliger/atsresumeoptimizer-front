@@ -14,7 +14,7 @@ function initialRating(raw: string | null): number {
 	return Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : 0;
 }
 
-export function AboutFeedbackTab() {
+export function HelpFeedbackTab() {
 	const navigate = useNavigate();
 	const appVersion = useAppVersion()?.current ?? null;
 	const [searchParams] = useSearchParams();

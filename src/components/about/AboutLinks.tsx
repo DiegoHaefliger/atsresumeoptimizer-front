@@ -1,15 +1,12 @@
 import type { ComponentType, SVGProps } from "react";
 import {
-	ArrowRightIcon,
 	DownloadIcon,
 	ExternalLinkIcon,
 	GitHubIcon,
 	LinkedInIcon,
 	TagIcon,
-	WhatsAppIcon,
 } from "../icons";
 import { PROJECT_LINKS } from "../../lib/projectLinks";
-import { BugReportShortcut } from "./BugReportShortcut";
 
 type AboutLink = {
 	title: string;
@@ -58,35 +55,9 @@ const LINK_GROUPS: AboutLinkGroup[] = [
 
 const hostOf = (href: string) => new URL(href).host.replace(/^www\./, "");
 
-export function AboutLinksTab() {
+export function AboutLinks() {
 	return (
 		<div className="about-links-page">
-			<section className="about-community panel" aria-labelledby="about-community-title">
-				<span className="about-community-icon">
-					<WhatsAppIcon />
-				</span>
-				<div className="about-community-body">
-					<span className="about-community-eyebrow">Comunidade</span>
-					<h2 id="about-community-title">Grupo de dúvidas no WhatsApp</h2>
-					<p>
-						Ficou com dúvida sobre como usar o sistema, configurar a chave de IA ou interpretar uma análise? Pergunte no
-						grupo e troque experiências com outros usuários. Para relatar bugs, use o card logo abaixo.
-					</p>
-				</div>
-				<a
-					className="about-community-action"
-					href={PROJECT_LINKS.whatsappGroup}
-					target="_blank"
-					rel="noreferrer"
-					aria-describedby="about-community-title"
-				>
-					Entrar no grupo <ArrowRightIcon />
-					<span className="sr-only">(abre em nova aba)</span>
-				</a>
-			</section>
-
-			<BugReportShortcut />
-
 			{LINK_GROUPS.map((group) => (
 				<section key={group.id} className="about-link-group" aria-labelledby={`about-links-${group.id}`}>
 					<header className="about-link-group-header">
