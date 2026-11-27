@@ -1,16 +1,20 @@
 import type { ContractType, WorkModel } from "../api/types";
 import { EMPTY_FILTERS, MIN_SCORE_OPTIONS, hasActiveFilters, type JobFilters } from "../lib/jobFilters";
 import { CONTRACT_TYPE_LABELS, WORK_MODEL_LABELS } from "../lib/jobLabels";
+import { JOB_SORT_OPTIONS, type JobSort } from "../lib/jobSort";
+import { SortSelect } from "./SortSelect";
 
 type JobFiltersBarProps = {
 	filters: JobFilters;
 	onChange: (filters: JobFilters) => void;
+	sort: JobSort;
+	onSortChange: (sort: JobSort) => void;
 	seniorities: string[];
 	shown: number;
 	total: number;
 };
 
-export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: JobFiltersBarProps) {
+export function JobFiltersBar({ filters, onChange, sort, onSortChange, seniorities, shown, total }: JobFiltersBarProps) {
 	const update = <K extends keyof JobFilters>(key: K, value: JobFilters[K]) => onChange({ ...filters, [key]: value });
 
 	return (
@@ -74,6 +78,7 @@ export function JobFiltersBar({ filters, onChange, seniorities, shown, total }: 
 					))}
 				</select>
 			</label>
+			<SortSelect value={sort} options={JOB_SORT_OPTIONS} onChange={onSortChange} />
 			<div className="job-filters-summary">
 				<span aria-live="polite">
 					{hasActiveFilters(filters)
